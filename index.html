@@ -1,0 +1,2326 @@
+<!DOCTYPE html>}
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>每日签到工作台（手机版） · 构建2026-09-09</title>
+<style>
+:root{
+  --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
+  --primary:#10b981; --primary-d:#059669; --accent:#0ea5e9;
+  --red:#ef4444; --red-bg:#fee2e2; --line:#e8ebf0; --soft:#eef1f5;
+  --orange:#f59e0b; --orange-bg:#fef3c7;
+  --radius:16px; --shadow:0 1px 3px rgba(16,24,40,.06),0 10px 30px rgba(16,24,40,.05);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg);color:var(--text);font-size:15px;line-height:1.55;
+  padding-bottom:calc(84px + env(safe-area-inset-bottom));}
+.wrap{max-width:900px;margin:0 auto;padding:0 14px}
+.topbar{position:sticky;top:0;z-index:30;background:rgba(244,246,249,.92);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);padding:12px 14px}
+.topbar-in{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:10px;flex:1;min-width:200px}
+.brand h1{font-size:18px;margin:0;font-weight:800;letter-spacing:.3px}
+.brand .date{font-size:12.5px;color:var(--muted)}
+.sync{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);
+  background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-weight:600}
+.sync-dot{width:9px;height:9px;border-radius:50%;background:var(--muted);flex:none}
+.sync-dot.synced{background:var(--primary)}
+.sync-dot.syncing{background:var(--orange)}
+.sync-dot.offline{background:var(--orange)}
+.sync-dot.nocfg{background:var(--red)}
+.sync-dot.error{background:var(--red)}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:#fff;color:var(--text);border-radius:12px;
+  min-height:44px;padding:0 16px;font-size:14.5px;font-weight:600;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:.15s}
+.btn:hover{border-color:#cdd5df}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+.btn.primary:hover{background:var(--primary-d)}
+.btn.done{background:#e7f8f1;color:var(--primary-d);border-color:#c7eedd}
+.btn.ghost{background:#f3f5f8;color:var(--muted);border-color:transparent;cursor:default}
+.btn.mini{min-height:34px;padding:0 12px;font-size:13px;border-radius:10px}
+.btn svg{width:16px;height:16px}
+.linkbtn{background:none;border:none;color:var(--accent);font-size:13px;cursor:pointer;padding:8px 2px;font-weight:600}
+.section{margin-top:20px}
+.sec-title{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:800;margin:0 2px 10px;color:#374151}
+.sec-title .tag{font-size:11px;font-weight:600;color:var(--muted);background:var(--soft);padding:2px 8px;border-radius:999px}
+.banner{display:none;border-radius:12px;padding:12px 14px;margin-top:14px;font-size:13.5px;font-weight:600;line-height:1.6}
+.banner.nocfg{display:block;background:var(--red-bg);border:1px solid #fbcaca;color:#b91c1c}
+.banner.error{display:block;background:var(--red-bg);border:1px solid #fbcaca;color:#b91c1c}
+.banner.offline{display:block;background:var(--orange-bg);border:1px solid #fde68a;color:#92400e}
+.note{font-size:12.5px;color:var(--muted);background:#fff;border:1px solid var(--line);border-radius:12px;
+  padding:10px 14px;margin-top:16px;line-height:1.6}
+#overdueBox:empty{display:none}
+.overdue{background:var(--red-bg);border:1px solid #fbcaca;border-radius:14px;padding:12px 14px;margin-bottom:14px}
+.od-title{font-weight:800;color:#b91c1c;display:flex;align-items:center;gap:6px;font-size:14px;margin-bottom:8px}
+.od-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 0;border-top:1px dashed #f1c4c4}
+.od-row:first-of-type{border-top:none}
+.od-dot{width:8px;height:8px;border-radius:50%;background:var(--red);flex:none}
+.od-name{font-weight:700;font-size:13.5px}
+.od-date{font-size:12px;color:#b45309}
+.od-sum{font-size:12.5px;color:#7f1d1d;flex:1;min-width:120px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.tcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;
+  box-shadow:var(--shadow);display:flex;flex-direction:column}
+.tcard-h{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.tname{font-weight:800;font-size:15px}
+.badge{width:26px;height:26px;border-radius:9px;color:#fff;font-weight:800;font-size:14px;
+  display:inline-flex;align-items:center;justify-content:center;flex:none}
+.badge.sm{width:22px;height:22px;font-size:12px;border-radius:7px}
+.c-sum{font-weight:700;font-size:14.5px;line-height:1.45}
+.c-sum.muted{color:var(--muted);font-weight:600}
+.c-sub{font-size:12.5px;color:var(--muted);margin-top:4px}
+.c-done-tag{font-size:12px;color:var(--primary-d);font-weight:700;margin-top:6px}
+.tcard-a{margin-top:12px}
+.tcard.done{opacity:.55}
+.tdetail{display:none;margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
+.tdetail.show{display:block}
+.tcard-h.toggle{cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+.tcard-h.toggle:active{opacity:.6}
+.chev{margin-left:auto;flex:none;font-size:11px;color:var(--muted)}
+.tcard-a.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.linkbtn.sm{padding:6px 2px;font-size:12px}
+.drow{display:flex;gap:8px;padding:5px 0;font-size:13px}
+.dk{width:72px;flex:none;color:var(--muted);font-weight:600}
+.dv{flex:1;white-space:normal;word-break:break-word}
+.dv.pre{white-space:pre-wrap;font-size:12.5px;line-height:1.6;background:var(--soft);border-radius:8px;padding:8px;margin-top:2px}
+.dv a{color:var(--accent);word-break:break-all}
+.wcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;
+  box-shadow:var(--shadow);display:flex;align-items:center;gap:14px}
+.wdonut{flex:none}
+.wmeta{flex:1;min-width:0}
+.wname{font-weight:800;display:flex;align-items:center;gap:7px;font-size:14.5px}
+.wcount{font-size:13px;color:var(--muted);margin-top:2px}
+.wcount b{font-size:19px;color:var(--text)}
+.wsub{font-size:11.5px;color:var(--muted);margin-top:2px}
+.heat-head{font-size:13px;color:var(--muted);margin-bottom:10px}
+.heat-row{display:flex;align-items:center;gap:10px;padding:7px 0;overflow-x:auto}
+.heat-label{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;flex:none;width:96px}
+.heat-cells{display:flex;gap:3px;flex:none}
+.hc{width:13px;height:13px;border-radius:3px;background:#e6e9ef;cursor:pointer;flex:none}
+#heatList .hc{cursor:default}
+.hc.on{background:var(--primary)}
+.hc.miss{background:#fca5a5}
+.hc.fut{background:#bfe3f5}
+.heat-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:6px}
+.heat-legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px}
+/* ---------- 写作工作台 ---------- */
+.wtabs{display:flex;gap:6px;margin:10px 0}
+.wtab{flex:1;padding:9px 0;border:1px solid var(--line);background:#fff;border-radius:10px;font-size:13.5px;font-weight:700;color:var(--muted);cursor:pointer}
+.wtab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.hwcard{background:linear-gradient(135deg,#eef4ff,#f7fbff);border:1px solid #dbe6ff;border-radius:var(--radius);padding:14px;margin-top:8px}
+.bookcard{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;background:#fff}
+.bookcard.cur{border-color:var(--primary-d);box-shadow:0 0 0 1px var(--primary-d)}
+.chaprow{display:flex;align-items:center;gap:8px;padding:9px 10px;border:1px solid var(--line);border-radius:10px;margin-bottom:6px;cursor:pointer;background:#fff}
+.chaprow.cur{border-color:var(--primary-d);box-shadow:0 0 0 1px var(--primary-d)}
+.chapnum{flex:none;width:26px;height:26px;border-radius:8px;background:var(--soft,#eef2f7);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--muted)}
+.chapst{flex:none;font-size:10px;padding:2px 6px;border-radius:6px;font-weight:700}
+.chapst.todo{background:#f1f5f9;color:var(--muted)}
+.chapst.writing{background:#dbeafe;color:#1d4ed8}
+.chapst.done{background:#d1fae5;color:#047857}
+.inspitem{display:flex;gap:8px;align-items:flex-start;padding:9px 10px;border:1px solid var(--line);border-radius:10px;margin-bottom:6px;background:#fff}
+.inspcat{flex:none;font-size:10px;padding:2px 7px;border-radius:6px;font-weight:700;background:#ede9fe;color:#6d28d9}
+.editbar{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.btn.mini{padding:6px 10px;font-size:12px}
+.editbar .rec{background:#ef4444!important;color:#fff!important;animation:recblink 1s infinite}
+@keyframes recblink{50%{opacity:.55}}
+#view-docs textarea#docEditor{width:100%;min-height:340px;border:1px solid var(--line);border-radius:10px;padding:12px;font-size:14px;line-height:1.8;background:#fff;color:var(--fg);box-sizing:border-box;font-family:inherit}
+#view-docs input,#view-docs select{font-family:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--fg);box-sizing:border-box}
+#view-docs textarea#bookPremise{border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-family:inherit;background:#fff;color:var(--fg);box-sizing:border-box}
+.typo-item{display:flex;gap:8px;align-items:baseline;padding:7px 10px;border-left:3px solid #f59e0b;background:#fffbeb;border-radius:0 8px 8px 0;margin-top:6px;cursor:pointer;font-size:12.5px}
+.typo-item .tp-type{flex:none;font-size:10px;padding:1px 6px;border-radius:5px;background:#f59e0b;color:#fff;font-weight:700}
+.typo-item .tp-sug{color:#047857;font-weight:700}
+/* ---------- 写作工作台 v3：左导航 + 富文本 ---------- */
+.wlayout{display:flex;gap:12px;align-items:flex-start;position:relative}
+.wnav{flex:0 0 232px;max-height:72vh;overflow-y:auto;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:10px;position:sticky;top:8px}
+.wnav-sec{margin-bottom:12px}
+.wnav-title{display:flex;align-items:center;font-size:12px;font-weight:800;color:var(--muted);padding:4px 6px;letter-spacing:1px}
+.wnav-add{margin-left:auto;cursor:pointer;color:var(--primary-d);font-size:15px;font-weight:800;padding:0 4px;border-radius:6px}
+.wnav-add:hover{background:var(--soft,#eef2f7)}
+.wnav-item{display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--fg);line-height:1.35}
+.wnav-item:hover{background:#f4f6f9}
+.wnav-item.cur{background:var(--primary);color:#fff}
+.wnav-item .nv-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wnav-item .nv-m{flex:none;font-size:10px;color:var(--muted)}
+.wnav-item.cur .nv-m{color:#dbeafe}
+.wnav-book{font-weight:700}
+.wnav-chaps{margin-left:14px;border-left:2px solid var(--line);padding-left:6px}
+.wnav-toggle{display:none;margin-bottom:8px}
+.wmain{flex:1;min-width:0}
+.ed-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.ed-ops{margin-left:auto;display:flex;gap:6px}
+.fmtbar{display:flex;flex-wrap:wrap;gap:4px;align-items:center;padding:6px;border:1px solid var(--line);border-radius:10px 10px 0 0;background:#f8fafc;border-bottom:none}
+.fmt-btn{border:1px solid transparent;background:none;border-radius:7px;padding:5px 9px;font-size:12.5px;cursor:pointer;color:var(--fg);font-weight:600}
+.fmt-btn:hover{background:#fff;border-color:var(--line)}
+.fmt-btn.rec{background:#ef4444!important;color:#fff!important;animation:recblink 1s infinite}
+.fmt-sep{width:1px;height:18px;background:var(--line);margin:0 3px}
+.fmt-wc{margin-left:auto;font-size:12px;color:var(--muted);padding-right:6px}
+#richEditor{min-height:380px;max-height:64vh;overflow-y:auto;border:1px solid var(--line);border-radius:0 0 10px 10px;padding:14px 16px;font-size:14.5px;line-height:1.85;background:#fff;color:var(--fg);outline:none;box-sizing:border-box}
+#richEditor:empty:before{content:attr(data-ph);color:#9ca3af;pointer-events:none}
+#richEditor h1{font-size:22px;margin:14px 0 8px}
+#richEditor h2{font-size:18px;margin:12px 0 6px}
+#richEditor h3{font-size:16px;margin:10px 0 5px}
+#richEditor blockquote{border-left:3px solid var(--primary);margin:8px 0;padding:4px 12px;background:#f6f9ff;color:#475569;border-radius:0 8px 8px 0}
+#richEditor img{max-width:100%;border-radius:8px;margin:8px 0;display:block}
+#richEditor ul,#richEditor ol{padding-left:22px;margin:6px 0}
+.editor-empty{text-align:center;padding:60px 20px;color:var(--muted);font-size:14px;border:1px dashed var(--line);border-radius:12px;background:#fbfcfe}
+.bk-overview{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fbfcfe}
+@media (max-width:760px){
+  .wlayout{flex-direction:column}
+  .wnav{display:none;position:fixed;left:0;right:0;top:0;bottom:0;z-index:70;max-height:none;border-radius:0;flex:none;width:100%;padding:16px}
+  .wnav.open{display:block}
+  .wnav-toggle{display:inline-block;border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;color:var(--fg);cursor:pointer}
+  #richEditor{min-height:300px;max-height:none}
+}
+#bkHint{display:none;background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:12px;
+  padding:10px 14px;margin-top:16px;font-size:13px;font-weight:600}
+.bottom{padding:18px 2px 0;color:var(--muted);font-size:12px;text-align:center}
+.sleep-field{display:flex;align-items:center;gap:8px;margin:8px 0}
+.sleep-field label{font-size:12.5px;color:var(--muted);font-weight:600;width:48px;flex:none}
+.sleep-field input{flex:1;min-height:42px;border-radius:10px;border:1px solid var(--line);padding:0 10px;font-size:16px;font-family:inherit;background:#fff}
+.sleep-field input:focus{outline:none;border-color:#c7d2fe}
+/* 底部导航栏 */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;background:rgba(255,255,255,.97);
+  backdrop-filter:blur(10px);border-top:1px solid var(--line);scrollbar-width:none}
+.tabbar::-webkit-scrollbar{display:none}
+.tabbar .tab{flex:1 0 auto;min-width:56px;border:none;background:none;padding:8px 4px calc(6px + env(safe-area-inset-bottom));
+  font-size:11.5px;font-weight:700;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.tabbar .tab.active{color:var(--primary-d)}
+.tabbar .tab svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;font-size:12px}
+.cal-grid .whd{padding:4px 0;text-align:center;color:var(--muted);font-weight:600}
+.cal-grid .whd.we{color:#ef4444}
+.cal-cell{position:relative;min-height:58px;padding:4px 3px;border-radius:6px;background:transparent;cursor:default;border:2px solid transparent;box-sizing:border-box}
+.cal-cell.out{opacity:.35}
+.cal-cell .num{font-size:15px;font-weight:700;line-height:1.1}
+.cal-cell .sub{font-size:10px;color:var(--muted);line-height:1.1;margin-top:2px;height:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cal-cell.we .num{color:#ef4444}
+.cal-cell.hol{background:rgba(239,68,68,.07)}
+.cal-cell.hol .num{color:#ef4444}
+.cal-cell.makeup{background:rgba(245,158,11,.08)}
+.cal-cell.makeup .num{color:#f59e0b}
+.cal-cell.today{border-color:#3b82f6;background:rgba(59,130,246,.06)}
+.cal-cell.today .num{color:#3b82f6}
+.cal-cell.done{background:rgba(15,157,110,.10)}
+.cal-cell.done .num{color:#0F9D6E}
+.cal-cell .badge{position:absolute;top:2px;right:2px;font-size:9px;line-height:1;padding:1px 3px;border-radius:3px;color:#fff;font-weight:700}
+.cal-cell .badge.xiu{background:#ef4444}
+.cal-cell .badge.ban{background:#f59e0b}
+.cal-cell .badge.jin{background:#3b82f6;top:auto;bottom:2px;right:2px;left:auto}
+.cal-cell.pending{border:1px dashed #f59e0b;background:rgba(245,158,11,.08)}
+.cal-cell.pending .num{color:#b45309}
+.cal-cell .badge.pend{background:#f59e0b;top:2px;left:2px;right:auto;font-size:9px}
+/* ---------- 周课表（首页 本周/下周） ---------- */
+.timetable{display:grid;grid-template-columns:auto repeat(7,1fr);gap:4px;font-size:12px;margin-top:2px}
+.tt-row{display:contents}
+.tt-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:54px;padding:4px 2px;border-radius:6px;background:#f6f8fb;border:1px solid var(--line);text-align:center;line-height:1.25}
+.tt-head .tt-cell{background:transparent;border:none;font-weight:700;color:var(--muted);min-height:32px}
+.tt-corner{justify-content:flex-end;align-items:flex-start;font-weight:700;color:var(--muted);background:transparent;border:none}
+.tt-item{flex-direction:row;gap:5px;font-weight:700;justify-content:flex-start;background:#eef2f7;border:1px solid var(--line)}
+.tt-dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+.tt-d{font-size:10px;color:var(--muted);font-weight:500}
+.tt-today{outline:2px solid #3b82f6;outline-offset:-2px}
+.tt-done{background:rgba(15,157,110,.14);color:#0F9D6E;font-weight:800;cursor:pointer}
+.tt-undo{background:rgba(239,68,68,.12);color:#ef4444;font-weight:800;cursor:pointer}
+.tt-plan{background:#f1f5f9;color:#94a3b8;font-weight:700}
+.tt-none{color:#cbd5e1;background:transparent;border:1px dashed var(--line)}
+.tt-st{font-size:10px;font-weight:800;line-height:1}
+.tt-tx{font-size:11px;line-height:1.25;margin-top:2px;word-break:break-all}
+.cal-ctrl{padding:5px 9px;border:1px solid var(--line);border-radius:6px;background:#fff;font-size:12px;color:var(--fg);cursor:pointer}
+.cal-ctrl:hover{background:var(--soft)}
+
+/* tabbar 已移除，改用侧边菜单 */
+.view{display:none}
+.view.active{display:block}
+/* habit */
+.habit-monitor-note{font-size:12.5px;color:var(--muted);background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;line-height:1.7;margin-top:4px}
+.habit-monitor-note b{color:var(--text)}
+.habit-row{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:13px 14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:12px}
+.habit-info{flex:1;min-width:0}
+.habit-name{font-weight:800;font-size:15px}
+.habit-def{font-size:12.5px;color:var(--muted);margin-top:3px}
+.habit-tag{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:999px;margin-right:6px;vertical-align:1px}
+.habit-tag.keep{background:#e7f8f1;color:var(--primary-d)}
+.habit-tag.avoid{background:#fef3c7;color:#92400e}
+.habit-streak{font-size:12px;color:var(--orange);font-weight:700;margin-top:5px}
+.seg{display:flex;gap:6px;flex:none}
+.seg-btn{min-height:40px;padding:0 13px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer}
+.seg-btn.on-y{background:var(--primary);border-color:var(--primary);color:#fff}
+.seg-btn.on-n{background:var(--red);border-color:var(--red);color:#fff}
+.habit-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:14px}
+.habit-heat-row{display:flex;align-items:center;gap:10px;padding:6px 0;overflow-x:auto}
+.habit-heat-label{font-size:13px;font-weight:700;flex:none;width:104px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* modal */
+.modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:50;align-items:center;justify-content:center;padding:16px}
+.modal.show{display:flex}
+.modal-box{background:#fff;border-radius:16px;padding:18px;max-width:420px;width:100%;box-shadow:var(--shadow)}
+.modal-title{font-weight:800;font-size:16px;margin-bottom:12px}
+.modal label{display:block;font-size:12.5px;color:var(--muted);font-weight:600;margin:10px 0 4px}
+.inp{width:100%;min-height:44px;border-radius:10px;border:1px solid var(--line);padding:0 12px;font-size:14px;
+  font-family:inherit}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.modal-note{font-size:12px;color:var(--muted);margin-top:12px;line-height:1.6}
+@media(max-width:560px){
+  .brand h1{font-size:16px}
+  .grid{grid-template-columns:1fr}
+  .btn{padding:0 13px}
+}
+/* ================= 双展示模式：手机版 / PC版（功能完全一致，仅布局不同） ================= */
+/* 手机版：底部导航 + 单列；在宽屏下收窄到手机宽度，保持手机观感 */
+body.mode-mobile .wrap,body.mode-mobile .topbar-in{max-width:620px}
+/* PC版：宽屏自适应 + 底部导航（与手机版一致，菜单位于底部）+ 多列 */
+body.mode-pc{display:flex;flex-direction:column;min-height:100vh;padding-bottom:0}
+body.mode-pc .topbar{order:0}
+body.mode-pc .tabbar{order:0;position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;
+  background:rgba(255,255,255,.97);border-top:1px solid var(--line);border-bottom:none;
+  justify-content:center;gap:2px;padding:6px 14px;box-shadow:0 -2px 12px rgba(0,0,0,.06)}
+body.mode-pc .wrap{order:0;width:100%;max-width:1180px;flex:1;padding-bottom:74px}
+body.mode-pc .topbar-in{max-width:1180px}
+body.mode-pc .tabbar .tab{flex:0 0 auto;flex-direction:row;align-items:center;gap:7px;
+  font-size:14px;padding:11px 18px;min-width:0;border-bottom:none}
+body.mode-pc .tabbar .tab.active{color:var(--primary-d);border-bottom:none}
+body.mode-pc .tabbar .tab svg{width:18px;height:18px}
+body.mode-pc .grid{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+body.mode-pc #view-stats.active{display:grid;grid-template-columns:1fr 1fr;gap:0 22px;align-items:start}
+body.mode-pc #view-stats>.section:first-child{grid-column:1/-1}
+body.mode-pc .habit-heat-label{width:120px}
+body.mode-pc .sleep-field input{min-height:38px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <h1>每日签到工作台</h1>
+      <span class="date" id="topDate"></span>
+      <span class="sync" id="syncBadge"><span class="sync-dot" id="syncDot"></span><span id="syncText">连接中…</span></span>
+    </div>
+    <div class="tools">
+      <button class="btn" id="btnMode">切换手机版</button>
+      <button class="btn" id="btnRetry" style="display:none">同步重试</button>
+      <button class="btn" id="btnResetCheckin">重置打卡记录</button>
+      <button class="btn primary" id="btnCfg">设置云端</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div id="nocfg" class="banner nocfg">未配置云端存储：请点右上角「设置云端」填写 Supabase 的 Project URL 和 anon public key，才能跨设备同步。<b>未配置期间打卡会保存在本机浏览器，不会丢失</b>，配好云端后会自动上传。</div>
+  <div id="errBanner" class="banner error"></div>
+  <div id="offBanner" class="banner offline">当前离线（云端连接异常），打卡已暂存本地，恢复网络后会自动同步到云端。</div>
+  <pre id="diagOut" style="display:none;white-space:pre-wrap;word-break:break-all;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;font-size:12px;line-height:1.6;margin-top:10px"></pre>
+
+  <!-- ============ 首页 ============ -->
+  <section class="view active" id="view-home">
+    <div class="section">
+      <div class="sec-title" id="homeGreet">今天</div>
+      <div id="homeOverview"></div>
+    </div>
+    <div class="section">
+      <div class="sec-title">今日打卡 <span class="tag" id="homeStreak"></span></div>
+      <div id="homeToday"></div>
+    </div>
+    <div class="section">
+      <div class="sec-title">本周待办 <span class="tag" style="background:#eef2f7;color:var(--muted)">今天±3天</span></div>
+      <div id="homeWeek"></div>
+    </div>
+  </section>
+
+  <!-- ============ 记录 ============ -->
+  <section class="view" id="view-record">
+    <div class="section">
+      <div class="sec-title">每日睡眠记录 <span class="tag">目标就寝 ≤ 22:00</span></div>
+      <div class="grid">
+        <div class="tcard">
+          <div class="tcard-h"><span class="badge" style="background:#8b5cf6">睡</span><span class="tname">今日睡眠</span></div>
+          <div class="tcard-b">
+            <div class="sleep-field"><label>就寝</label><input type="time" id="bedIn"></div>
+            <div class="sleep-field"><label>起床</label><input type="time" id="wakeIn"></div>
+            <div id="sleepResult" style="margin-top:6px"></div>
+          </div>
+          <div class="tcard-a"><button class="btn primary" id="btnSaveSleep">保存记录</button></div>
+        </div>
+        <div class="wcard" id="sleepWeekCard"></div>
+      </div>
+    </div>
+    <div id="sleepHist"></div>
+  </section>
+
+  <!-- ============ 习惯养成 ============ -->
+  <section class="view" id="view-habit">
+    <div class="habit-monitor-note">
+      <b>关于「监控」的实话：</b>网页（即使添加到 iPhone 主屏幕）无法自动感知你是否躺着、刷短剧或看小说——iOS 不向网页开放屏幕内容 / 应用使用情况。本模块是<b>自我记录式追踪</b>：你每天点选「达标 / 未达标」，系统记录连续天数与本周达标率。<br>
+      想硬性限制刷短剧，可用 iPhone 自带 <b>设置 → 屏幕使用时间 → App 限额</b>，对抖音 / 快手等设限额。其余打卡、睡眠、习惯记录均真实可用并云端同步。
+    </div>
+    <div class="section">
+      <div class="sec-title">今日习惯 <span class="tag">点选 达标 / 未达标</span></div>
+      <div id="habitToday"></div>
+    </div>
+    <div class="section">
+      <div class="sec-title">本周达标率</div>
+      <div id="habitWeekList"></div>
+    </div>
+    <div class="section">
+      <div class="sec-title">习惯打卡热力图 <span class="tag">近 14 天 · 点格补记</span></div>
+      <div id="habitHeatList"></div>
+    </div>
+    <div style="margin-top:14px;padding:0 2px"><button class="btn" id="btnManageHabit">管理习惯</button></div>
+  </section>
+
+  <!-- ============ 统计 ============ -->
+  <section class="view" id="view-stats">
+    <div class="section">
+      <div class="sec-title">完成情况 <span class="tag" id="statRange"></span></div>
+      <div id="statStreak" style="font-size:13px;color:var(--muted);margin-bottom:10px;line-height:1.7"></div>
+      <div id="statOverview"></div>
+    </div>
+    <div class="section">
+      <div class="sec-title">打卡明细 <span class="tag">来自打卡记录 · 只读</span></div>
+      <div id="statRecSummary" style="font-size:13px;color:var(--muted);margin-bottom:8px;line-height:1.7"></div>
+      <div id="statRecords"></div>
+    </div>
+    <div class="section">
+      <div class="sec-title">日历 <span class="tag">只读 · 补卡请到「打卡」页</span></div>
+      <div id="calCtrls" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px"></div>
+      <div id="calGrid" class="cal-grid"></div>
+      <div id="statLegend" class="heat-legend" style="margin-top:8px"></div>
+    </div>
+    <div class="section">
+      <div class="sec-title">35 天打卡热力图 <span class="tag">近 35 天 · 只读</span></div>
+      <div id="heatList"></div>
+    </div>
+    <div class="section">
+      <div class="sec-title">各模块完成率</div>
+      <div id="statBars"></div>
+    </div>
+  </section>
+
+  <!-- ============ 写作工作台 ============ -->
+  <section class="view" id="view-docs">
+    <div style="font-size:11px;color:var(--muted);text-align:right;padding:0 4px 2px">写作工作台 v3 · 09-09 更新</div>
+    <!-- 今日作业 -->
+    <div class="section" id="hwCard"></div>
+    <!-- 写作主区：左侧目录导航 + 右侧编辑区 -->
+    <div class="wlayout">
+      <button class="wnav-toggle" id="btnNavToggle">☰ 目录</button>
+      <aside class="wnav" id="wNav">
+        <div class="wnav-sec">
+          <div class="wnav-title">作业<span class="wnav-add" data-act="doc-new-quick" title="新建文档">＋</span></div>
+          <div id="navDocs"></div>
+        </div>
+        <div class="wnav-sec">
+          <div class="wnav-title">作业池 <span style="font-weight:400;font-size:10px">删除后待发布</span></div>
+          <div id="navPool"></div>
+        </div>
+        <div class="wnav-sec">
+          <div class="wnav-title">书库<span class="wnav-add" data-act="book-new-quick" title="创建新书">＋</span></div>
+          <div id="navBooks"></div>
+        </div>
+        <div class="wnav-sec">
+          <div class="wnav-title">灵感<span class="wnav-add" data-act="insp-open" title="打开灵感速记">＋</span></div>
+          <div id="navInsp"></div>
+        </div>
+      </aside>
+      <div class="wmain">
+        <!-- 富文本编辑器 -->
+        <div id="editorBox" style="display:none">
+          <div class="ed-head">
+            <span id="editorTitle" style="font-weight:800;font-size:14.5px">编辑</span>
+            <span class="ed-ops">
+              <button class="btn mini" data-act="ed-rename">重命名</button>
+              <button class="btn mini" data-act="ed-export">导出</button>
+              <button class="btn mini" data-act="ed-del">删除</button>
+            </span>
+          </div>
+          <div id="chapOutlineBox" style="display:none;margin-bottom:8px">
+            <input id="chapOutline" placeholder="本章大纲 / 要点（可选）" style="width:100%">
+          </div>
+          <div class="fmtbar" id="fmtBar">
+            <button class="fmt-btn" data-fmt="bold" title="加粗"><b>B</b></button>
+            <button class="fmt-btn" data-fmt="italic" title="斜体"><i>I</i></button>
+            <button class="fmt-btn" data-fmt="underline" title="下划线"><u>U</u></button>
+            <span class="fmt-sep"></span>
+            <button class="fmt-btn" data-fmt="h1" title="标题 1">H1</button>
+            <button class="fmt-btn" data-fmt="h2" title="标题 2">H2</button>
+            <button class="fmt-btn" data-fmt="h3" title="标题 3">H3</button>
+            <button class="fmt-btn" data-fmt="p" title="正文">正文</button>
+            <span class="fmt-sep"></span>
+            <button class="fmt-btn" data-fmt="insertUnorderedList" title="无序列表">• 列表</button>
+            <button class="fmt-btn" data-fmt="insertOrderedList" title="有序列表">1. 列表</button>
+            <button class="fmt-btn" data-fmt="quote" title="引用">❝ 引用</button>
+            <span class="fmt-sep"></span>
+            <button class="fmt-btn" id="btnImg" title="插入图片">🖼 图片</button>
+            <button class="fmt-btn" id="btnVoice" title="语音输入">🎤 语音</button>
+            <button class="fmt-btn" id="btnTypo" title="检查错别字">✓ 错字</button>
+            <button class="fmt-btn" data-fmt="removeFormat" title="清除格式">⌫ 格式</button>
+            <span id="wordCount" class="fmt-wc">0 字</span>
+          </div>
+          <div id="richEditor" contenteditable="true" data-ph="开始写作…"></div>
+          <div id="typoReport"></div>
+          <div id="chapStatusBar" style="display:none;margin-top:8px"></div>
+        </div>
+        <!-- 书概览（选中书名时） -->
+        <div id="bookOverview" style="display:none"></div>
+        <!-- 灵感面板 -->
+        <div id="inspPanel" style="display:none">
+          <div class="sec-title">灵感速记 <span class="tag">碎片想法随手记</span></div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+            <input id="inspText" placeholder="脑洞 / 金句 / 素材 / 选题…" style="flex:1;min-width:150px">
+            <select id="inspCat">
+              <option value="剧情">剧情</option>
+              <option value="观点">观点</option>
+              <option value="金句">金句</option>
+              <option value="素材">素材</option>
+              <option value="选题">选题</option>
+              <option value="随笔">随笔</option>
+            </select>
+            <button class="btn primary" id="btnInspAdd">记一笔</button>
+          </div>
+          <div id="inspList"></div>
+        </div>
+        <!-- 空状态 -->
+        <div id="editorEmpty" class="editor-empty">
+          <div style="font-size:32px;margin-bottom:8px">✍️</div>
+          <div>从左侧目录选择文档 / 章节开始写作</div>
+          <div style="font-size:12px;margin-top:6px;color:var(--muted)">或点目录标题旁的「＋」新建文档、创建新书</div>
+        </div>
+      </div>
+    </div>
+    <input type="file" id="imgInput" accept="image/*" hidden>
+  </section>
+
+  <!-- ============ 管理 ============ -->
+  <section class="view" id="view-manage">
+    <div class="section">
+      <div class="sec-title">任务重置</div>
+      <div class="tcard">
+        <div class="tcard-b" style="font-size:13px;color:var(--muted)">清空所有打卡记录（锻炼 / 写作练习从头开始），<b>保留文档内容</b>。此操作不可撤销，建议先「导出备份」。</div>
+        <div class="tcard-a"><button class="btn" id="btnResetAll">重置所有任务</button></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="sec-title">日期类型 <span class="tag">手动覆盖，用于日历与统计</span></div>
+      <div class="sleep-field"><label>日期</label><input type="date" id="dtDate"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+        <button class="btn" data-dt="work">工作日</button>
+        <button class="btn" data-dt="weekend">周末</button>
+        <button class="btn" data-dt="holiday">节假日</button>
+        <button class="btn" data-dt="makeup">调休上班</button>
+        <button class="btn" data-dt="">恢复默认</button>
+      </div>
+      <div id="dtList" style="margin-top:10px;font-size:12px;color:var(--muted)"></div>
+      <div style="margin-top:10px"><button class="btn" id="btnResetCal">清除全部覆盖（恢复法定节假日）</button>
+        <span style="font-size:11px;color:var(--muted);margin-left:6px">手动覆盖会优先于官方安排，清除后日历按「国办发明电〔2025〕7号」自动判定</span></div>
+    </div>
+    <div class="section">
+      <div class="sec-title">数据 <span class="tag">备份 / 恢复 / 云端工具</span></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" id="btnMngHabit">管理习惯</button>
+        <button class="btn" id="btnExport">导出备份</button>
+        <button class="btn" id="btnExportCsv">导出CSV</button>
+        <button class="btn" id="btnImport">导入恢复</button>
+        <button class="btn" id="btnDiag">云端自检</button>
+        <button class="btn" id="btnPush">上传云端</button>
+        <button class="btn" id="btnClearAll">清空全部</button>
+        <input type="file" id="fileIn" accept="application/json,.json" hidden>
+      </div>
+    </div>
+  </section>
+
+  <div id="bkHint"></div>
+  <div class="bottom">每日签到工作台（云端版）· 单文件离线可用 · 数据存 Supabase 云端</div>
+</div>
+
+
+
+<div class="modal" id="cfgModal">
+  <div class="modal-box">
+    <div class="modal-title">配置云端存储（Supabase）</div>
+    <label>Project URL</label>
+    <input class="inp" id="cfgUrl" placeholder="https://xxxx.supabase.co">
+    <label>anon public key</label>
+    <input class="inp" id="cfgKey" placeholder="eyJhbGciOiJIUzI1Ni...">
+    <div class="modal-actions">
+      <button class="btn" id="cfgCancel">取消</button>
+      <button class="btn primary" id="cfgSave">保存并连接</button>
+    </div>
+    <div class="modal-note">数据存云端、跨设备同步。anon key 设计上可放前端（配合行级安全策略）。<br>
+      <b>首次使用</b>：请在 Supabase 的 <b>SQL Editor</b> 执行下面这段建表语句（可整段复制）：
+      <pre id="sqlBox" style="white-space:pre-wrap;word-break:break-all;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px;font-size:11px;line-height:1.5;margin-top:6px;max-height:170px;overflow:auto">create table if not exists public.checkin_state (
+  id text primary key,
+  data jsonb,
+  updated_at timestamptz default now()
+);
+alter table public.checkin_state enable row level security;
+drop policy if exists "anon_all" on public.checkin_state;
+create policy "anon_all" on public.checkin_state
+  for all to anon using (true) with check (true);</pre>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="habitModal">
+  <div class="modal-box" style="max-width:480px">
+    <div class="modal-title">管理习惯</div>
+    <div id="habitListEdit"></div>
+    <label>新增习惯</label>
+    <input class="inp" id="habitName" placeholder="习惯名称，如：睡前不看手机">
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <select class="inp" id="habitType" style="flex:1">
+        <option value="keep">养成（坚持做）</option>
+        <option value="avoid">戒除（避免做）</option>
+      </select>
+    </div>
+    <input class="inp" id="habitDef" placeholder="说明：达标的定义，如 上床即睡不刷手机" style="margin-top:8px">
+    <div class="modal-actions">
+      <button class="btn" id="habitCancel">关闭</button>
+      <button class="btn primary" id="habitAdd">添加</button>
+    </div>
+    <div class="modal-note">习惯为自我记录式追踪：每天点选「达标 / 未达标」。网页无法自动感知你的行为（iOS 也不开放此能力）；如需硬性限制刷短剧，请用 iPhone 自带「屏幕使用时间 → App 限额」。</div>
+  </div>
+</div>
+
+<script>
+const SUPABASE = { url: "https://llqcoqkjedxkdpyskavx.supabase.co", anon: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxscWNvcWtqZWR4a2RweXNrYXZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2ODI5NDEsImV4cCI6MjEwMjI1ODk0MX0.oIirW2hgG4eCIQqgsyIAkxPB9yDbgOpkPksEojUOrak" };
+const SCHEDULE_WRAPPER = {"meta":{"generated":"2026-08-14","start":"2026-09-11","modules":["锻炼","写作练习"],"weekly":{"锻炼":4,"写作练习":6},"counts":{"锻炼":84,"写作练习":72},"note":"两个模块（锻炼、写作练习）的完整每日打卡计划数据源。date 为计划日期(YYYY-MM-DD)。每周频率：锻炼4/写作6。"},"data":{"锻炼":[{"date":"2026-08-15","time":"早晨 6:30-7:10（40分钟）","theme":"肩颈舒缓","week":"第1周","stage":"1-4","purpose":"改善肩颈僵硬,激活核心肌群","effect":"直角肩成型,核心力量爆发","detail":"【模块一：肩颈舒缓】15分钟\n① 抱头拉伸颈后侧 20s\n② 抱头侧向拉伸 20s/侧\n③ 单臂肩部下压 20s/侧\n④ 双臂画圈 60s\n⑤ 手肘手腕环绕 60s\n⑥ 胸部拉伸 20s\n⑦ 合十反向拉扯 20s\n\n【模块二：核心训练】15分钟\n⑧ 死虫式 2组×10次（休30s）\n⑨ 鸟狗式 2组×10次/侧（休30s）\n⑩ 平板支撑 2组×20s（休30s）\n⑪ 仰卧卷腹 2组×10次（休30s）\n⑫ 俄罗斯转体 2组×12次/侧（休30s）【强化期/突破期】\n⑬ 平板支撑转体 3组×10次/侧（休30s）【突破期】\n\n【模块三：整理】5分钟\n⑭ 全身拉伸 3min\n⑮ 深呼吸 2min","video":"视频1：欧阳春晓15min直角肩\nhttps://www.bilibili.com/video/BV1ag4y1B7Z9\n\n视频2：帕梅拉10min腹肌杀手\n搜索：帕梅拉 腹肌杀手","星期":"周六","day":"第1天"},{"date":"2026-08-17","time":"晚上：20:30-21:10（40分钟）","theme":"侧臀训练","week":"第1周","stage":"1-4","purpose":"改善臀部凹陷,增强腿部肌肉","effect":"蜜桃臀成型,臀腿线条流畅","detail":"【模块一：侧臀训练】12分钟\n① 髋部中立位 30s\n② 直腿侧举（右）20s\n③ 直腿侧举脉冲（右）20s\n④ 举腿前+后对角（右）20s\n⑤ 后对角脉冲（右）20s\n⑥ 直腿侧举保持（右）20s\n⑦ 慢速后对角举腿（右）20s\n⑧ 半侧平板撑（右）20s\n⑨ 消防栓式（右）20s\n⑩ 5x脉冲+5x保持（右）20s\n⑪ 左侧重复右侧全部动作\n\n【模块二：翘臀训练】10分钟\n⑫ 开胯（右/左）各20s\n⑬ 侧开腿后抬腿（右/左）各20s\n⑭ 臀桥 2组×10次（休30s）\n⑮ 蚌式开合 2组×10次/侧（休30s）\n⑯ 单腿臀桥 2组×12次/侧（休30s）【强化期/突破期】\n⑰ 保加利亚分腿蹲 3组×10次/侧（休30s）【突破期】\n\n【模块三：整理】8分钟\n⑱ 臀部拉伸（鸽子式）2min/侧\n⑲ 大腿前侧拉伸 2min/侧\n⑳ 小腿拉伸 2min","video":"视频1：帕梅拉12分钟侧臀训练\nhttps://www.bilibili.com/video/BV1X5411d71V\n\n视频2：周六野10分钟翘臀不粗腿\nhttps://www.bilibili.com/video/BV1Tt411g7Aw","星期":"周一","day":"第2天"},{"date":"2026-08-19","time":"早晨 6:30-7:10（40分钟）","theme":"灵活肩背","week":"第1周","stage":"1-4","purpose":"修复颈椎问题,改善脊柱灵活性","effect":"颈椎完全康复,体态挺拔","detail":"【模块一：灵活肩背】7分钟\n① 猫牛式脊柱伸展 2组×8次（休30s）\n② 胸椎灵活性训练 2组×8次/侧（休30s）\n③ 眼镜蛇式伸展 2组×20s（休30s）\n④ 婴儿式放松 2组×20s（休30s）\n⑤ 颈部侧屈拉伸 2组×20s/侧（休30s）\n\n【模块二：脊柱保养】14分钟\n⑥ 肩胛收缩YTWL 2组×8次（休30s）\n⑦ 麦肯基颈椎疗法 2组×8次（休30s）\n⑧ 站姿侧腰拉伸 2组×20s/侧（休30s）\n⑨ 骨盆环绕 2组×8次（休30s）\n⑩ 三角形前屈拉伸 2组×20s（休30s）\n⑪ 仰卧脊柱扭转 2组×20s/侧（休30s）\n⑫ 站姿后弯 3组×15s（休30s）【突破期】\n\n【模块三：自主放松】10分钟\n⑬ 泡沫轴滚背 3min\n⑭ 仰卧抱膝摇摆 3min\n⑮ 深呼吸冥想 4min","video":"视频1：帕梅拉6分钟灵活肩背\n搜索：帕梅拉 灵活肩背 脊柱\n\n视频2：体态大师脊柱保养\n搜索：体态大师 脊柱保养","星期":"周三","day":"第3天"},{"date":"2026-08-21","time":"午休12:00-12:40或晚间19:30-20:10（40分钟）","theme":"直角肩少女背","week":"第1周","stage":"1-4","purpose":"强化背部肌群,改善圆肩","effect":"直角肩完美,背部线条雕刻","detail":"【模块一：直角肩少女背】15分钟\n① 泡沫轴筋膜放松 2min\n② 俯卧W字伸展 2组×8次（休30s）\n③ 俯卧T字伸展 2组×8次（休30s）\n④ 俯卧Y字伸展 2组×8次（休30s）\n⑤ 俯卧L字伸展 2组×8次（休30s）\n⑥ 墙壁天使 2组×8次（休30s）\n⑦ 肩背动态拉伸 3min\n\n【模块二：上肢训练】9分钟\n⑧ 弹力带划船 2组×10次（休30s）\n⑨ 跪姿俯卧撑 2组×5次（休30s）\n⑩ 哑铃侧平举 2组×10次（休30s）\n⑪ 哑铃推举 3组×10次（休30s）【突破期】\n\n【模块三：整理】6分钟\n⑫ 肩背拉伸（十字）2min/侧\n⑬ 三头肌拉伸 2min/侧\n⑭ 深呼吸放松 2min","video":"视频1：欧阳春晓15min直角肩\nhttps://www.bilibili.com/video/BV1ag4y1B7Z9\n\n视频2：帕梅拉10min上肢训练\n搜索：帕梅拉 上肢训练","星期":"周五","day":"第4天"},{"date":"2026-08-22","time":"早晨 6:30-7:10（40分钟）","theme":"HIIT燃脂","week":"第2周","stage":"1-4","purpose":"提升代谢,燃烧脂肪","effect":"顽固脂肪歼灭,腹肌轮廓显现","detail":"【模块一：HIIT燃脂】10分钟\n① 开合跳 20s（休10s）×4轮\n② 高抬腿 20s（休10s）×4轮\n③ 深蹲侧步跳 20s（休10s）×4轮\n④ 登山跑 20s（休10s）×4轮\n⑤ 高位平板撑 20s（休10s）×4轮\n⑥ 平板开合 20s（休10s）×4轮\n⑦ 波比跳 20s（休10s）×4轮\n⑧ 海星式开合跳 20s（休10s）×4轮\n\n【模块二：站立腹部】10分钟\n⑨ 腹部侧拉 20s（休10s）×4轮\n⑩ 开合跳+扩胸 20s（休10s）×4轮\n⑪ 高抬腿 20s（休10s）×4轮\n⑫ 深蹲+侧卷腹 20s（休10s）×4轮\n⑬ 海星式开合跳 20s（休10s）×4轮\n⑭ 半波比跳 20s（休10s）×4轮\n⑮ 深蹲保持 20s（休10s）×4轮\n⑯ 平板支撑转体 3组×10次/侧（休30s）【突破期】\n\n【模块三：整理】10分钟\n⑰ 全身拉伸 5min\n⑱ 慢走调心率 3min\n⑲ 深呼吸放松 2min","video":"视频1：帕梅拉10分钟HIIT燃脂\nhttps://www.bilibili.com/video/BV1Np4y1i7rG\n\n视频2：帕梅拉10分钟HIIT+站立腹部\nhttps://www.bilibili.com/video/BV1LF411n7jw","星期":"周六","day":"第5天"},{"date":"2026-08-24","time":"上午 9:00-10:00（60分钟）","theme":"动态热身","week":"第2周","stage":"1-4","purpose":"综合强化全身肌群","effect":"全身肌肉均衡,力量爆发","detail":"【模块一：动态热身】5分钟\n① 开合跳 30s\n② 高抬腿 30s\n③ 手臂画圈 1min\n④ 原地慢跑 30s\n⑤ 动态拉伸 2min\n\n【模块二：全身HIIT】22分钟\n⑥ 深蹲 2组×10次（休30s）\n⑦ 跪姿俯卧撑 2组×5次（休30s）\n⑧ 弓步蹲 2组×8次/侧（休30s）\n⑨ 平板支撑 2组×20s（休30s）\n⑩ 登山跑 2组×20次（休30s）\n⑪ 波比跳 3组×8次（休30s）【强化期/突破期】\n⑫ 臀桥 2组×15次（休30s）\n⑬ 蚌式开合 2组×15次/侧（休30s）\n\n【模块三：腹部核心】9分钟\n⑭ 卷腹 2组×10次（休30s）\n⑮ 俄罗斯转体 2组×20次（休30s）【强化期/突破期】\n⑯ 反向卷腹 2组×8次（休30s）\n⑰ 鸟狗式 2组×10次/侧（休30s）【强化期】\n⑱ 平板支撑转体 3组×10次/侧（休30s）【突破期】\n\n【模块四：整理放松】15分钟\n⑲ 泡沫轴全身放松 5min\n⑳ 全身静态拉伸 5min\n㉑ 深呼吸冥想 5min","video":"视频：Chloe Ting 21天挑战Day1\nhttps://www.bilibili.com/opus/775544108885213193","星期":"周一","day":"第6天"},{"date":"2026-08-26","time":"下午 15:00-15:40（40分钟）","theme":"肩颈腰背拉伸","week":"第2周","stage":"1-4","purpose":"促进肌肉恢复,提升柔韧性","effect":"恢复加速,柔韧巅峰","detail":"【模块一：肩颈腰背拉伸】10分钟\n① 颈部拉伸（低头/抬头/侧向）各20s\n② 肩部舒展（下压/画圈）各30s\n③ 臂胸舒展（前推/后推/握拳）各20s\n④ 腰背扭转（侧腰/合十/骨盆环绕）各20s\n⑤ 坐姿脊柱前屈 30s\n⑥ 仰卧抱膝摇摆 30s\n⑦ 全身放松 2min\n\n【模块二：每日拉伸】8分钟\n⑧ 瑜伽拜日式 2轮（每轮2min）\n⑨ 鸽子式臀肌拉伸 2组×30s/侧（休10s）\n⑩ 坐姿前屈 2组×20s（休10s）\n⑪ 仰卧脊柱扭转 2组×20s/侧（休10s）\n\n【模块三：自主放松】15分钟\n⑫ 泡沫轴全身放松 5min\n⑬ 仰卧蝴蝶式 3min\n⑭ 仰卧倒箭式 3min\n⑮ 冥想呼吸 4min","video":"视频1：周六野10分钟拉伸瑜伽\nhttps://www.bilibili.com/video/BV1Q5411x7fw\n\n视频2：帕梅拉8分钟每日拉伸\n搜索：帕梅拉 每日拉伸","星期":"周三","day":"第7天"},{"date":"2026-08-28","time":"早晨 6:30-7:10（40分钟）","theme":"肩颈舒缓","week":"第2周","stage":"1-4","purpose":"改善肩颈僵硬,激活核心肌群","effect":"直角肩成型,核心力量爆发","detail":"【模块一：肩颈舒缓】15分钟\n① 抱头拉伸颈后侧 20s\n② 抱头侧向拉伸 20s/侧\n③ 单臂肩部下压 20s/侧\n④ 双臂画圈 60s\n⑤ 手肘手腕环绕 60s\n⑥ 胸部拉伸 20s\n⑦ 合十反向拉扯 20s\n\n【模块二：核心训练】15分钟\n⑧ 死虫式 2组×10次（休30s）\n⑨ 鸟狗式 2组×10次/侧（休30s）\n⑩ 平板支撑 2组×20s（休30s）\n⑪ 仰卧卷腹 2组×10次（休30s）\n⑫ 俄罗斯转体 2组×12次/侧（休30s）【强化期/突破期】\n⑬ 平板支撑转体 3组×10次/侧（休30s）【突破期】\n\n【模块三：整理】5分钟\n⑭ 全身拉伸 3min\n⑮ 深呼吸 2min","video":"视频1：欧阳春晓15min直角肩\nhttps://www.bilibili.com/video/BV1ag4y1B7Z9\n\n视频2：帕梅拉10min腹肌杀手\n搜索：帕梅拉 腹肌杀手","星期":"周五","day":"第8天"},{"date":"2026-08-29","time":"晚上：20:30-21:10（40分钟）","theme":"侧臀训练","week":"第3周","stage":"1-4","purpose":"改善臀部凹陷,增强腿部肌肉","effect":"蜜桃臀成型,臀腿线条流畅","detail":"【模块一：侧臀训练】12分钟\n① 髋部中立位 30s\n② 直腿侧举（右）20s\n③ 直腿侧举脉冲（右）20s\n④ 举腿前+后对角（右）20s\n⑤ 后对角脉冲（右）20s\n⑥ 直腿侧举保持（右）20s\n⑦ 慢速后对角举腿（右）20s\n⑧ 半侧平板撑（右）20s\n⑨ 消防栓式（右）20s\n⑩ 5x脉冲+5x保持（右）20s\n⑪ 左侧重复右侧全部动作\n\n【模块二：翘臀训练】10分钟\n⑫ 开胯（右/左）各20s\n⑬ 侧开腿后抬腿（右/左）各20s\n⑭ 臀桥 2组×10次（休30s）\n⑮ 蚌式开合 2组×10次/侧（休30s）\n⑯ 单腿臀桥 2组×12次/侧（休30s）【强化期/突破期】\n⑰ 保加利亚分腿蹲 3组×10次/侧（休30s）【突破期】\n\n【模块三：整理】8分钟\n⑱ 臀部拉伸（鸽子式）2min/侧\n⑲ 大腿前侧拉伸 2min/侧\n⑳ 小腿拉伸 2min","video":"视频1：帕梅拉12分钟侧臀训练\nhttps://www.bilibili.com/video/BV1X5411d71V\n\n视频2：周六野10分钟翘臀不粗腿\nhttps://www.bilibili.com/video/BV1Tt411g7Aw","星期":"周六","day":"第9天"},{"date":"2026-08-31","time":"早晨 6:30-7:10（40分钟）","theme":"灵活肩背","week":"第3周","stage":"1-4","purpose":"修复颈椎问题,改善脊柱灵活性","effect":"颈椎完全康复,体态挺拔","detail":"【模块一：灵活肩背】7分钟\n① 猫牛式脊柱伸展 2组×8次（休30s）\n② 胸椎灵活性训练 2组×8次/侧（休30s）\n③ 眼镜蛇式伸展 2组×20s（休30s）\n④ 婴儿式放松 2组×20s（休30s）\n⑤ 颈部侧屈拉伸 2组×20s/侧（休30s）\n\n【模块二：脊柱保养】14分钟\n⑥ 肩胛收缩YTWL 2组×8次（休30s）\n⑦ 麦肯基颈椎疗法 2组×8次（休30s）\n⑧ 站姿侧腰拉伸 2组×20s/侧（休30s）\n⑨ 骨盆环绕 2组×8次（休30s）\n⑩ 三角形前屈拉伸 2组×20s（休30s）\n⑪ 仰卧脊柱扭转 2组×20s/侧（休30s）\n⑫ 站姿后弯 3组×15s（休30s）【突破期】\n\n【模块三：自主放松】10分钟\n⑬ 泡沫轴滚背 3min\n⑭ 仰卧抱膝摇摆 3min\n⑮ 深呼吸冥想 4min","video":"视频1：帕梅拉6分钟灵活肩背\n搜索：帕梅拉 灵活肩背 脊柱\n\n视频2：体态大师脊柱保养\n搜索：体态大师 脊柱保养","星期":"周一","day":"第10天"},{"date":"2026-09-02","time":"午休12:00-12:40或晚间19:30-20:10（40分钟）","theme":"直角肩少女背","week":"第3周","stage":"1-4","purpose":"强化背部肌群,改善圆肩","effect":"直角肩完美,背部线条雕刻","detail":"【模块一：直角肩少女背】15分钟\n① 泡沫轴筋膜放松 2min\n② 俯卧W字伸展 2组×8次（休30s）\n③ 俯卧T字伸展 2组×8次（休30s）\n④ 俯卧Y字伸展 2组×8次（休30s）\n⑤ 俯卧L字伸展 2组×8次（休30s）\n⑥ 墙壁天使 2组×8次（休30s）\n⑦ 肩背动态拉伸 3min\n\n【模块二：上肢训练】9分钟\n⑧ 弹力带划船 2组×10次（休30s）\n⑨ 跪姿俯卧撑 2组×5次（休30s）\n⑩ 哑铃侧平举 2组×10次（休30s）\n⑪ 哑铃推举 3组×10次（休30s）【突破期】\n\n【模块三：整理】6分钟\n⑫ 肩背拉伸（十字）2min/侧\n⑬ 三头肌拉伸 2min/侧\n⑭ 深呼吸放松 2min","video":"视频1：欧阳春晓15min直角肩\nhttps://www.bilibili.com/video/BV1ag4y1B7Z9\n\n视频2：帕梅拉10min上肢训练\n搜索：帕梅拉 上肢训练","星期":"周三","day":"第11天"},{"date":"2026-09-04","time":"早晨 6:30-7:10（40分钟）","theme":"HIIT燃脂","week":"第3周","stage":"1-4","purpose":"提升代谢,燃烧脂肪","effect":"顽固脂肪歼灭,腹肌轮廓显现","detail":"【模块一：HIIT燃脂】10分钟\n① 开合跳 20s（休10s）×4轮\n② 高抬腿 20s（休10s）×4轮\n③ 深蹲侧步跳 20s（休10s）×4轮\n④ 登山跑 20s（休10s）×4轮\n⑤ 高位平板撑 20s（休10s）×4轮\n⑥ 平板开合 20s（休10s）×4轮\n⑦ 波比跳 20s（休10s）×4轮\n⑧ 海星式开合跳 20s（休10s）×4轮\n\n【模块二：站立腹部】10分钟\n⑨ 腹部侧拉 20s（休10s）×4轮\n⑩ 开合跳+扩胸 20s（休10s）×4轮\n⑪ 高抬腿 20s（休10s）×4轮\n⑫ 深蹲+侧卷腹 20s（休10s）×4轮\n⑬ 海星式开合跳 20s（休10s）×4轮\n⑭ 半波比跳 20s（休10s）×4轮\n⑮ 深蹲保持 20s（休10s）×4轮\n⑯ 平板支撑转体 3组×10次/侧（休30s）【突破期】\n\n【模块三：整理】10分钟\n⑰ 全身拉伸 5min\n⑱ 慢走调心率 3min\n⑲ 深呼吸放松 2min","video":"视频1：帕梅拉10分钟HIIT燃脂\nhttps://www.bilibili.com/video/BV1Np4y1i7rG\n\n视频2：帕梅拉10分钟HIIT+站立腹部\nhttps://www.bilibili.com/video/BV1LF411n7jw","星期":"周五","day":"第12天"},{"date":"2026-09-05","time":"上午 9:00-10:00（60分钟）","theme":"动态热身","week":"第4周","stage":"1-4","purpose":"综合强化全身肌群","effect":"全身肌肉均衡,力量爆发","detail":"【模块一：动态热身】5分钟\n① 开合跳 30s\n② 高抬腿 30s\n③ 手臂画圈 1min\n④ 原地慢跑 30s\n⑤ 动态拉伸 2min\n\n【模块二：全身HIIT】22分钟\n⑥ 深蹲 2组×10次（休30s）\n⑦ 跪姿俯卧撑 2组×5次（休30s）\n⑧ 弓步蹲 2组×8次/侧（休30s）\n⑨ 平板支撑 2组×20s（休30s）\n⑩ 登山跑 2组×20次（休30s）\n⑪ 波比跳 3组×8次（休30s）【强化期/突破期】\n⑫ 臀桥 2组×15次（休30s）\n⑬ 蚌式开合 2组×15次/侧（休30s）\n\n【模块三：腹部核心】9分钟\n⑭ 卷腹 2组×10次（休30s）\n⑮ 俄罗斯转体 2组×20次（休30s）【强化期/突破期】\n⑯ 反向卷腹 2组×8次（休30s）\n⑰ 鸟狗式 2组×10次/侧（休30s）【强化期】\n⑱ 平板支撑转体 3组×10次/侧（休30s）【突破期】\n\n【模块四：整理放松】15分钟\n⑲ 泡沫轴全身放松 5min\n⑳ 全身静态拉伸 5min\n㉑ 深呼吸冥想 5min","video":"视频：Chloe Ting 21天挑战Day1\nhttps://www.bilibili.com/opus/775544108885213193","星期":"周六","day":"第13天"},{"date":"2026-09-07","time":"下午 15:00-15:40（40分钟）","theme":"肩颈腰背拉伸","week":"第4周","stage":"1-4","purpose":"促进肌肉恢复,提升柔韧性","effect":"恢复加速,柔韧巅峰","detail":"【模块一：肩颈腰背拉伸】10分钟\n① 颈部拉伸（低头/抬头/侧向）各20s\n② 肩部舒展（下压/画圈）各30s\n③ 臂胸舒展（前推/后推/握拳）各20s\n④ 腰背扭转（侧腰/合十/骨盆环绕）各20s\n⑤ 坐姿脊柱前屈 30s\n⑥ 仰卧抱膝摇摆 30s\n⑦ 全身放松 2min\n\n【模块二：每日拉伸】8分钟\n⑧ 瑜伽拜日式 2轮（每轮2min）\n⑨ 鸽子式臀肌拉伸 2组×30s/侧（休10s）\n⑩ 坐姿前屈 2组×20s（休10s）\n⑪ 仰卧脊柱扭转 2组×20s/侧（休10s）\n\n【模块三：自主放松】15分钟\n⑫ 泡沫轴全身放松 5min\n⑬ 仰卧蝴蝶式 3min\n⑭ 仰卧倒箭式 3min\n⑮ 冥想呼吸 4min","video":"视频1：周六野10分钟拉伸瑜伽\nhttps://www.bilibili.com/video/BV1Q5411x7fw\n\n视频2：帕梅拉8分钟每日拉伸\n搜索：帕梅拉 每日拉伸","星期":"周一","day":"第14天"},{"date":"2026-09-09","time":"早晨 6:30-7:10（40分钟）","theme":"肩颈舒缓","week":"第4周","stage":"1-4","purpose":"改善肩颈僵硬,激活核心肌群","effect":"直角肩成型,核心力量爆发","detail":"【模块一：肩颈舒缓】15分钟\n① 抱头拉伸颈后侧 20s\n② 抱头侧向拉伸 20s/侧\n③ 单臂肩部下压 20s/侧\n④ 双臂画圈 60s\n⑤ 手肘手腕环绕 60s\n⑥ 胸部拉伸 20s\n⑦ 合十反向拉扯 20s\n\n【模块二：核心训练】15分钟\n⑧ 死虫式 2组×10次（休30s）\n⑨ 鸟狗式 2组×10次/侧（休30s）\n⑩ 平板支撑 2组×20s（休30s）\n⑪ 仰卧卷腹 2组×10次（休30s）\n⑫ 俄罗斯转体 2组×12次/侧（休30s）【强化期/突破期】\n⑬ 平板支撑转体 3组×10次/侧（休30s）【突破期】\n\n【模块三：整理】5分钟\n⑭ 全身拉伸 3min\n⑮ 深呼吸 2min","video":"视频1：欧阳春晓15min直角肩\nhttps://www.bilibili.com/video/BV1ag4y1B7Z9\n\n视频2：帕梅拉10min腹肌杀手\n搜索：帕梅拉 腹肌杀手","星期":"周三","day":"第15天"},{"date":"2026-09-11","time":"晚上：20:30-21:10（40分钟）","theme":"侧臀训练","week":"第4周","stage":"1-4","purpose":"改善臀部凹陷,增强腿部肌肉","effect":"蜜桃臀成型,臀腿线条流畅","detail":"【模块一：侧臀训练】12分钟\n① 髋部中立位 30s\n② 直腿侧举（右）20s\n③ 直腿侧举脉冲（右）20s\n④ 举腿前+后对角（右）20s\n⑤ 后对角脉冲（右）20s\n⑥ 直腿侧举保持（右）20s\n⑦ 慢速后对角举腿（右）20s\n⑧ 半侧平板撑（右）20s\n⑨ 消防栓式（右）20s\n⑩ 5x脉冲+5x保持（右）20s\n⑪ 左侧重复右侧全部动作\n\n【模块二：翘臀训练】10分钟\n⑫ 开胯（右/左）各20s\n⑬ 侧开腿后抬腿（右/左）各20s\n⑭ 臀桥 2组×10次（休30s）\n⑮ 蚌式开合 2组×10次/侧（休30s）\n⑯ 单腿臀桥 2组×12次/侧（休30s）【强化期/突破期】\n⑰ 保加利亚分腿蹲 3组×10次/侧（休30s）【突破期】\n\n【模块三：整理】8分钟\n⑱ 臀部拉伸（鸽子式）2min/侧\n⑲ 大腿前侧拉伸 2min/侧\n⑳ 小腿拉伸 2min","video":"视频1：帕梅拉12分钟侧臀训练\nhttps://www.bilibili.com/video/BV1X5411d71V\n\n视频2：周六野10分钟翘臀不粗腿\nhttps://www.bilibili.com/video/BV1Tt411g7Aw","星期":"周五","day":"第16天"},{"date":"2026-09-12","time":"早晨 6:30-7:10（40分钟）","theme":"灵活肩背","week":"第5周","stage":"1-4","purpose":"修复颈椎问题,改善脊柱灵活性","effect":"颈椎完全康复,体态挺拔","detail":"【模块一：灵活肩背】7分钟\n① 猫牛式脊柱伸展 2组×8次（休30s）\n② 胸椎灵活性训练 2组×8次/侧（休30s）\n③ 眼镜蛇式伸展 2组×20s（休30s）\n④ 婴儿式放松 2组×20s（休30s）\n⑤ 颈部侧屈拉伸 2组×20s/侧（休30s）\n\n【模块二：脊柱保养】14分钟\n⑥ 肩胛收缩YTWL 2组×8次（休30s）\n⑦ 麦肯基颈椎疗法 2组×8次（休30s）\n⑧ 站姿侧腰拉伸 2组×20s/侧（休30s）\n⑨ 骨盆环绕 2组×8次（休30s）\n⑩ 三角形前屈拉伸 2组×20s（休30s）\n⑪ 仰卧脊柱扭转 2组×20s/侧（休30s）\n⑫ 站姿后弯 3组×15s（休30s）【突破期】\n\n【模块三：自主放松】10分钟\n⑬ 泡沫轴滚背 3min\n⑭ 仰卧抱膝摇摆 3min\n⑮ 深呼吸冥想 4min","video":"视频1：帕梅拉6分钟灵活肩背\n搜索：帕梅拉 灵活肩背 脊柱\n\n视频2：体态大师脊柱保养\n搜索：体态大师 脊柱保养","星期":"周六","day":"第17天"},{"date":"2026-09-14","time":"午休12:00-12:40或晚间19:30-20:10（40分钟）","theme":"直角肩少女背","week":"第5周","stage":"1-4","purpose":"强化背部肌群,改善圆肩","effect":"直角肩完美,背部线条雕刻","detail":"【模块一：直角肩少女背】15分钟\n① 泡沫轴筋膜放松 2min\n② 俯卧W字伸展 2组×8次（休30s）\n③ 俯卧T字伸展 2组×8次（休30s）\n④ 俯卧Y字伸展 2组×8次（休30s）\n⑤ 俯卧L字伸展 2组×8次（休30s）\n⑥ 墙壁天使 2组×8次（休30s）\n⑦ 肩背动态拉伸 3min\n\n【模块二：上肢训练】9分钟\n⑧ 弹力带划船 2组×10次（休30s）\n⑨ 跪姿俯卧撑 2组×5次（休30s）\n⑩ 哑铃侧平举 2组×10次（休30s）\n⑪ 哑铃推举 3组×10次（休30s）【突破期】\n\n【模块三：整理】6分钟\n⑫ 肩背拉伸（十字）2min/侧\n⑬ 三头肌拉伸 2min/侧\n⑭ 深呼吸放松 2min","video":"视频1：欧阳春晓15min直角肩\nhttps://www.bilibili.com/video/BV1ag4y1B7Z9\n\n视频2：帕梅拉10min上肢训练\n搜索：帕梅拉 上肢训练","星期":"周一","day":"第18天"},{"date":"2026-09-16","time":"早晨 6:30-7:10（40分钟）","theme":"HIIT燃脂","week":"第5周","stage":"1-4","purpose":"提升代谢,燃烧脂肪","effect":"顽固脂肪歼灭,腹肌轮廓显现","detail":"【模块一：HIIT燃脂】10分钟\n① 开合跳 20s（休10s）×4轮\n② 高抬腿 20s（休10s）×4轮\n③ 深蹲侧步跳 20s（休10s）×4轮\n④ 登山跑 20s（休10s）×4轮\n⑤ 高位平板撑 20s（休10s）×4轮\n⑥ 平板开合 20s（休10s）×4轮\n⑦ 波比跳 20s（休10s）×4轮\n⑧ 海星式开合跳 20s（休10s）×4轮\n\n【模块二：站立腹部】10分钟\n⑨ 腹部侧拉 20s（休10s）×4轮\n⑩ 开合跳+扩胸 20s（休10s）×4轮\n⑪ 高抬腿 20s（休10s）×4轮\n⑫ 深蹲+侧卷腹 20s（休10s）×4轮\n⑬ 海星式开合跳 20s（休10s）×4轮\n⑭ 半波比跳 20s（休10s）×4轮\n⑮ 深蹲保持 20s（休10s）×4轮\n⑯ 平板支撑转体 3组×10次/侧（休30s）【突破期】\n\n【模块三：整理】10分钟\n⑰ 全身拉伸 5min\n⑱ 慢走调心率 3min\n⑲ 深呼吸放松 2min","video":"视频1：帕梅拉10分钟HIIT燃脂\nhttps://www.bilibili.com/video/BV1Np4y1i7rG\n\n视频2：帕梅拉10分钟HIIT+站立腹部\nhttps://www.bilibili.com/video/BV1LF411n7jw","星期":"周三","day":"第19天"},{"date":"2026-09-18","time":"上午 9:00-10:00（60分钟）","theme":"动态热身","week":"第5周","stage":"1-4","purpose":"综合强化全身肌群","effect":"全身肌肉均衡,力量爆发","detail":"【模块一：动态热身】5分钟\n① 开合跳 30s\n② 高抬腿 30s\n③ 手臂画圈 1min\n④ 原地慢跑 30s\n⑤ 动态拉伸 2min\n\n【模块二：全身HIIT】22分钟\n⑥ 深蹲 2组×10次（休30s）\n⑦ 跪姿俯卧撑 2组×5次（休30s）\n⑧ 弓步蹲 2组×8次/侧（休30s）\n⑨ 平板支撑 2组×20s（休30s）\n⑩ 登山跑 2组×20次（休30s）\n⑪ 波比跳 3组×8次（休30s）【强化期/突破期】\n⑫ 臀桥 2组×15次（休30s）\n⑬ 蚌式开合 2组×15次/侧（休30s）\n\n【模块三：腹部核心】9分钟\n⑭ 卷腹 2组×10次（休30s）\n⑮ 俄罗斯转体 2组×20次（休30s）【强化期/突破期】\n⑯ 反向卷腹 2组×8次（休30s）\n⑰ 鸟狗式 2组×10次/侧（休30s）【强化期】\n⑱ 平板支撑转体 3组×10次/侧（休30s）【突破期】\n\n【模块四：整理放松】15分钟\n⑲ 泡沫轴全身放松 5min\n⑳ 全身静态拉伸 5min\n㉑ 深呼吸冥想 5min","video":"视频：Chloe Ting 21天挑战Day1\nhttps://www.bilibili.com/opus/775544108885213193","星期":"周五","day":"第20天"},{"date":"2026-09-19","time":"下午 15:00-15:40（40分钟）","theme":"肩颈腰背拉伸","week":"第6周","stage":"1-4","purpose":"促进肌肉恢复,提升柔韧性","effect":"恢复加速,柔韧巅峰","detail":"【模块一：肩颈腰背拉伸】10分钟\n① 颈部拉伸（低头/抬头/侧向）各20s\n② 肩部舒展（下压/画圈）各30s\n③ 臂胸舒展（前推/后推/握拳）各20s\n④ 腰背扭转（侧腰/合十/骨盆环绕）各20s\n⑤ 坐姿脊柱前屈 30s\n⑥ 仰卧抱膝摇摆 30s\n⑦ 全身放松 2min\n\n【模块二：每日拉伸】8分钟\n⑧ 瑜伽拜日式 2轮（每轮2min）\n⑨ 鸽子式臀肌拉伸 2组×30s/侧（休10s）\n⑩ 坐姿前屈 2组×20s（休10s）\n⑪ 仰卧脊柱扭转 2组×20s/侧（休10s）\n\n【模块三：自主放松】15分钟\n⑫ 泡沫轴全身放松 5min\n⑬ 仰卧蝴蝶式 3min\n⑭ 仰卧倒箭式 3min\n⑮ 冥想呼吸 4min","video":"视频1：周六野10分钟拉伸瑜伽\nhttps://www.bilibili.com/video/BV1Q5411x7fw\n\n视频2：帕梅拉8分钟每日拉伸\n搜索：帕梅拉 每日拉伸","星期":"周六","day":"第21天"},{"date":"2026-09-21","time":"早晨 6:30-7:10（40分钟）","theme":"肩颈舒缓","week":"第6周","stage":"1-4","purpose":"改善肩颈僵硬,激活核心肌群","effect":"直角肩成型,核心力量爆发","detail":"【模块一：肩颈舒缓】15分钟\n① 抱头拉伸颈后侧 20s\n② 抱头侧向拉伸 20s/侧\n③ 单臂肩部下压 20s/侧\n④ 双臂画圈 60s\n⑤ 手肘手腕环绕 60s\n⑥ 胸部拉伸 20s\n⑦ 合十反向拉扯 20s\n\n【模块二：核心训练】15分钟\n⑧ 死虫式 2组×10次（休30s）\n⑨ 鸟狗式 2组×10次/侧（休30s）\n⑩ 平板支撑 2组×20s（休30s）\n⑪ 仰卧卷腹 2组×10次（休30s）\n⑫ 俄罗斯转体 2组×12次/侧（休30s）【强化期/突破期】\n⑬ 平板支撑转体 3组×10次/侧（休30s）【突破期】\n\n【模块三：整理】5分钟\n⑭ 全身拉伸 3min\n⑮ 深呼吸 2min","video":"视频1：欧阳春晓15min直角肩\nhttps://www.bilibili.com/video/BV1ag4y1B7Z9\n\n视频2：帕梅拉10min腹肌杀手\n搜索：帕梅拉 腹肌杀手","星期":"周一","day":"第22天"},{"date":"2026-09-23","time":"晚上：20:30-21:10（40分钟）","theme":"侧臀训练","week":"第6周","stage":"1-4","purpose":"改善臀部凹陷,增强腿部肌肉","effect":"蜜桃臀成型,臀腿线条流畅","detail":"【模块一：侧臀训练】12分钟\n① 髋部中立位 30s\n② 直腿侧举（右）20s\n③ 直腿侧举脉冲（右）20s\n④ 举腿前+后对角（右）20s\n⑤ 后对角脉冲（右）20s\n⑥ 直腿侧举保持（右）20s\n⑦ 慢速后对角举腿（右）20s\n⑧ 半侧平板撑（右）20s\n⑨ 消防栓式（右）20s\n⑩ 5x脉冲+5x保持（右）20s\n⑪ 左侧重复右侧全部动作\n\n【模块二：翘臀训练】10分钟\n⑫ 开胯（右/左）各20s\n⑬ 侧开腿后抬腿（右/左）各20s\n⑭ 臀桥 2组×10次（休30s）\n⑮ 蚌式开合 2组×10次/侧（休30s）\n⑯ 单腿臀桥 2组×12次/侧（休30s）【强化期/突破期】\n⑰ 保加利亚分腿蹲 3组×10次/侧（休30s）【突破期】\n\n【模块三：整理】8分钟\n⑱ 臀部拉伸（鸽子式）2min/侧\n⑲ 大腿前侧拉伸 2min/侧\n⑳ 小腿拉伸 2min","video":"视频1：帕梅拉12分钟侧臀训练\nhttps://www.bilibili.com/video/BV1X5411d71V\n\n视频2：周六野10分钟翘臀不粗腿\nhttps://www.bilibili.com/video/BV1Tt411g7Aw","星期":"周三","day":"第23天"},{"date":"2026-09-25","time":"早晨 6:30-7:10（40分钟）","theme":"灵活肩背","week":"第6周","stage":"1-4","purpose":"修复颈椎问题,改善脊柱灵活性","effect":"颈椎完全康复,体态挺拔","detail":"【模块一：灵活肩背】7分钟\n① 猫牛式脊柱伸展 2组×8次（休30s）\n② 胸椎灵活性训练 2组×8次/侧（休30s）\n③ 眼镜蛇式伸展 2组×20s（休30s）\n④ 婴儿式放松 2组×20s（休30s）\n⑤ 颈部侧屈拉伸 2组×20s/侧（休30s）\n\n【模块二：脊柱保养】14分钟\n⑥ 肩胛收缩YTWL 2组×8次（休30s）\n⑦ 麦肯基颈椎疗法 2组×8次（休30s）\n⑧ 站姿侧腰拉伸 2组×20s/侧（休30s）\n⑨ 骨盆环绕 2组×8次（休30s）\n⑩ 三角形前屈拉伸 2组×20s（休30s）\n⑪ 仰卧脊柱扭转 2组×20s/侧（休30s）\n⑫ 站姿后弯 3组×15s（休30s）【突破期】\n\n【模块三：自主放松】10分钟\n⑬ 泡沫轴滚背 3min\n⑭ 仰卧抱膝摇摆 3min\n⑮ 深呼吸冥想 4min","video":"视频1：帕梅拉6分钟灵活肩背\n搜索：帕梅拉 灵活肩背 脊柱\n\n视频2：体态大师脊柱保养\n搜索：体态大师 脊柱保养","星期":"周五","day":"第24天"},{"date":"2026-09-26","time":"午休12:00-12:40或晚间19:30-20:10（40分钟）","theme":"直角肩少女背","week":"第7周","stage":"1-4","purpose":"强化背部肌群,改善圆肩","effect":"直角肩完美,背部线条雕刻","detail":"【模块一：直角肩少女背】15分钟\n① 泡沫轴筋膜放松 2min\n② 俯卧W字伸展 2组×8次（休30s）\n③ 俯卧T字伸展 2组×8次（休30s）\n④ 俯卧Y字伸展 2组×8次（休30s）\n⑤ 俯卧L字伸展 2组×8次（休30s）\n⑥ 墙壁天使 2组×8次（休30s）\n⑦ 肩背动态拉伸 3min\n\n【模块二：上肢训练】9分钟\n⑧ 弹力带划船 2组×10次（休30s）\n⑨ 跪姿俯卧撑 2组×5次（休30s）\n⑩ 哑铃侧平举 2组×10次（休30s）\n⑪ 哑铃推举 3组×10次（休30s）【突破期】\n\n【模块三：整理】6分钟\n⑫ 肩背拉伸（十字）2min/侧\n⑬ 三头肌拉伸 2min/侧\n⑭ 深呼吸放松 2min","video":"视频1：欧阳春晓15min直角肩\nhttps://www.bilibili.com/video/BV1ag4y1B7Z9\n\n视频2：帕梅拉10min上肢训练\n搜索：帕梅拉 上肢训练","星期":"周六","day":"第25天"},{"date":"2026-09-28","time":"早晨 6:30-7:10（40分钟）","theme":"HIIT燃脂","week":"第7周","stage":"1-4","purpose":"提升代谢,燃烧脂肪","effect":"顽固脂肪歼灭,腹肌轮廓显现","detail":"【模块一：HIIT燃脂】10分钟\n① 开合跳 20s（休10s）×4轮\n② 高抬腿 20s（休10s）×4轮\n③ 深蹲侧步跳 20s（休10s）×4轮\n④ 登山跑 20s（休10s）×4轮\n⑤ 高位平板撑 20s（休10s）×4轮\n⑥ 平板开合 20s（休10s）×4轮\n⑦ 波比跳 20s（休10s）×4轮\n⑧ 海星式开合跳 20s（休10s）×4轮\n\n【模块二：站立腹部】10分钟\n⑨ 腹部侧拉 20s（休10s）×4轮\n⑩ 开合跳+扩胸 20s（休10s）×4轮\n⑪ 高抬腿 20s（休10s）×4轮\n⑫ 深蹲+侧卷腹 20s（休10s）×4轮\n⑬ 海星式开合跳 20s（休10s）×4轮\n⑭ 半波比跳 20s（休10s）×4轮\n⑮ 深蹲保持 20s（休10s）×4轮\n⑯ 平板支撑转体 3组×10次/侧（休30s）【突破期】\n\n【模块三：整理】10分钟\n⑰ 全身拉伸 5min\n⑱ 慢走调心率 3min\n⑲ 深呼吸放松 2min","video":"视频1：帕梅拉10分钟HIIT燃脂\nhttps://www.bilibili.com/video/BV1Np4y1i7rG\n\n视频2：帕梅拉10分钟HIIT+站立腹部\nhttps://www.bilibili.com/video/BV1LF411n7jw","星期":"周一","day":"第26天"},{"date":"2026-09-30","time":"上午 9:00-10:00（60分钟）","theme":"动态热身","week":"第7周","stage":"1-4","purpose":"综合强化全身肌群","effect":"全身肌肉均衡,力量爆发","detail":"【模块一：动态热身】5分钟\n① 开合跳 30s\n② 高抬腿 30s\n③ 手臂画圈 1min\n④ 原地慢跑 30s\n⑤ 动态拉伸 2min\n\n【模块二：全身HIIT】22分钟\n⑥ 深蹲 2组×10次（休30s）\n⑦ 跪姿俯卧撑 2组×5次（休30s）\n⑧ 弓步蹲 2组×8次/侧（休30s）\n⑨ 平板支撑 2组×20s（休30s）\n⑩ 登山跑 2组×20次（休30s）\n⑪ 波比跳 3组×8次（休30s）【强化期/突破期】\n⑫ 臀桥 2组×15次（休30s）\n⑬ 蚌式开合 2组×15次/侧（休30s）\n\n【模块三：腹部核心】9分钟\n⑭ 卷腹 2组×10次（休30s）\n⑮ 俄罗斯转体 2组×20次（休30s）【强化期/突破期】\n⑯ 反向卷腹 2组×8次（休30s）\n⑰ 鸟狗式 2组×10次/侧（休30s）【强化期】\n⑱ 平板支撑转体 3组×10次/侧（休30s）【突破期】\n\n【模块四：整理放松】15分钟\n⑲ 泡沫轴全身放松 5min\n⑳ 全身静态拉伸 5min\n㉑ 深呼吸冥想 5min","video":"视频：Chloe Ting 21天挑战Day1\nhttps://www.bilibili.com/opus/775544108885213193","星期":"周三","day":"第27天"},{"date":"2026-10-02","time":"下午 15:00-15:40（40分钟）","theme":"肩颈腰背拉伸","week":"第7周","stage":"1-4","purpose":"促进肌肉恢复,提升柔韧性","effect":"恢复加速,柔韧巅峰","detail":"【模块一：肩颈腰背拉伸】10分钟\n① 颈部拉伸（低头/抬头/侧向）各20s\n② 肩部舒展（下压/画圈）各30s\n③ 臂胸舒展（前推/后推/握拳）各20s\n④ 腰背扭转（侧腰/合十/骨盆环绕）各20s\n⑤ 坐姿脊柱前屈 30s\n⑥ 仰卧抱膝摇摆 30s\n⑦ 全身放松 2min\n\n【模块二：每日拉伸】8分钟\n⑧ 瑜伽拜日式 2轮（每轮2min）\n⑨ 鸽子式臀肌拉伸 2组×30s/侧（休10s）\n⑩ 坐姿前屈 2组×20s（休10s）\n⑪ 仰卧脊柱扭转 2组×20s/侧（休10s）\n\n【模块三：自主放松】15分钟\n⑫ 泡沫轴全身放松 5min\n⑬ 仰卧蝴蝶式 3min\n⑭ 仰卧倒箭式 3min\n⑮ 冥想呼吸 4min","video":"视频1：周六野10分钟拉伸瑜伽\nhttps://www.bilibili.com/video/BV1Q5411x7fw\n\n视频2：帕梅拉8分钟每日拉伸\n搜索：帕梅拉 每日拉伸","星期":"周五","day":"第28天"},{"date":"2026-10-03","time":"早晨 6:30-7:10（40分钟）","theme":"肩颈舒缓","week":"第8周","stage":"5-8","purpose":"改善肩颈僵硬,激活核心肌群","effect":"直角肩成型,核心力量爆发","detail":"【模块一：肩颈舒缓】15分钟\n① 抱头拉伸颈后侧 30s\n② 抱头侧向拉伸 30s/侧\n③ 单臂肩部下压 30s/侧\n④ 双臂画圈 60s\n⑤ 手肘手腕环绕 60s\n⑥ 胸部拉伸 30s\n⑦ 合十反向拉扯 30s\n\n【模块二：核心训练】18分钟\n⑧ 死虫式 3组×15次（休20s）\n⑨ 鸟狗式 3组×15次/侧（休20s）\n⑩ 平板支撑 3组×30s（休20s）\n⑪ 仰卧卷腹 3组×15次（休20s）\n⑫ 俄罗斯转体 3组×12次/侧（休20s）【强化期/突破期】\n⑬ 平板支撑转体 3组×10次/侧（休20s）【突破期】\n\n【模块三：整理】5分钟\n⑭ 全身拉伸 3min\n⑮ 深呼吸 2min","video":"视频1：欧阳春晓15min直角肩\nhttps://www.bilibili.com/video/BV1ag4y1B7Z9\n\n视频2：帕梅拉10min腹肌杀手\n搜索：帕梅拉 腹肌杀手","星期":"周六","day":"第29天"},{"date":"2026-10-05","time":"午休12:00-12:40或晚间19:30-20:10（40分钟）","theme":"侧臀训练","week":"第8周","stage":"5-8","purpose":"改善臀部凹陷,增强腿部肌肉","effect":"蜜桃臀成型,臀腿线条流畅","detail":"【模块一：侧臀训练】12分钟\n① 髋部中立位 30s\n② 直腿侧举（右）30s\n③ 直腿侧举脉冲（右）30s\n④ 举腿前+后对角（右）30s\n⑤ 后对角脉冲（右）30s\n⑥ 直腿侧举保持（右）30s\n⑦ 慢速后对角举腿（右）30s\n⑧ 半侧平板撑（右）30s\n⑨ 消防栓式（右）30s\n⑩ 5x脉冲+5x保持（右）30s\n⑪ 左侧重复右侧全部动作\n\n【模块二：翘臀训练】15分钟\n⑫ 开胯（右/左）各30s\n⑬ 侧开腿后抬腿（右/左）各30s\n⑭ 臀桥 3组×15次（休20s）\n⑮ 蚌式开合 3组×15次/侧（休20s）\n⑯ 单腿臀桥 3组×12次/侧（休20s）【强化期/突破期】\n⑰ 保加利亚分腿蹲 3组×10次/侧（休20s）【突破期】\n\n【模块三：整理】8分钟\n⑱ 臀部拉伸（鸽子式）2min/侧\n⑲ 大腿前侧拉伸 2min/侧\n⑳ 小腿拉伸 2min","video":"视频1：帕梅拉12分钟侧臀训练\nhttps://www.bilibili.com/video/BV1X5411d71V\n\n视频2：周六野10分钟翘臀不粗腿\nhttps://www.bilibili.com/video/BV1Tt411g7Aw","星期":"周一","day":"第30天"},{"date":"2026-10-07","time":"早晨 6:30-7:10（40分钟）","theme":"灵活肩背","week":"第8周","stage":"5-8","purpose":"修复颈椎问题,改善脊柱灵活性","effect":"颈椎完全康复,体态挺拔","detail":"【模块一：灵活肩背】12分钟\n① 猫牛式脊柱伸展 3组×12次（休20s）\n② 胸椎灵活性训练 3组×12次/侧（休20s）\n③ 眼镜蛇式伸展 3组×30s（休20s）\n④ 婴儿式放松 3组×30s（休20s）\n⑤ 颈部侧屈拉伸 3组×30s/侧（休20s）\n\n【模块二：脊柱保养】20分钟\n⑥ 肩胛收缩YTWL 3组×12次（休20s）\n⑦ 麦肯基颈椎疗法 3组×12次（休20s）\n⑧ 站姿侧腰拉伸 3组×30s/侧（休20s）\n⑨ 骨盆环绕 3组×12次（休20s）\n⑩ 三角形前屈拉伸 3组×30s（休20s）\n⑪ 仰卧脊柱扭转 3组×30s/侧（休20s）\n⑫ 站姿后弯 3组×15s（休20s）【突破期】\n\n【模块三：自主放松】8分钟\n⑬ 泡沫轴滚背 3min\n⑭ 仰卧抱膝摇摆 3min\n⑮ 深呼吸冥想 2min","video":"视频1：帕梅拉6分钟灵活肩背\n搜索：帕梅拉 灵活肩背 脊柱\n\n视频2：体态大师脊柱保养\n搜索：体态大师 脊柱保养","星期":"周三","day":"第31天"},{"date":"2026-10-09","time":"午休12:00-12:40或晚间19:30-20:10（40分钟）","theme":"直角肩少女背","week":"第8周","stage":"5-8","purpose":"强化背部肌群,改善圆肩","effect":"直角肩完美,背部线条雕刻","detail":"【模块一：直角肩少女背】18分钟\n① 泡沫轴筋膜放松 3min\n② 俯卧W字伸展 3组×12次（休20s）\n③ 俯卧T字伸展 3组×12次（休20s）\n④ 俯卧Y字伸展 3组×12次（休20s）\n⑤ 俯卧L字伸展 3组×12次（休20s）\n⑥ 墙壁天使 3组×12次（休20s）\n⑦ 肩背动态拉伸 3min\n\n【模块二：上肢训练】12分钟\n⑧ 弹力带划船 3组×15次（休20s）\n⑨ 俯卧撑 3组×10次（休20s）\n⑩ 哑铃侧平举 3组×12次（休20s）\n⑪ 哑铃推举 3组×10次（休20s）【突破期】\n\n【模块三：整理】5分钟\n⑫ 肩背拉伸（十字）2min/侧\n⑬ 三头肌拉伸 1min/侧\n⑭ 深呼吸放松 1min","video":"视频1：欧阳春晓15min直角肩\nhttps://www.bilibili.com/video/BV1ag4y1B7Z9\n\n视频2：帕梅拉10min上肢训练\n搜索：帕梅拉 上肢训练","星期":"周五","day":"第32天"},{"date":"2026-10-10","time":"早晨 6:30-7:10（40分钟）","theme":"HIIT燃脂","week":"第9周","stage":"5-8","purpose":"提升代谢,燃烧脂肪","effect":"顽固脂肪歼灭,腹肌轮廓显现","detail":"【模块一：HIIT燃脂】12分钟\n① 开合跳 30s（休10s）×4轮\n② 高抬腿 30s（休10s）×4轮\n③ 深蹲侧步跳 30s（休10s）×4轮\n④ 登山跑 30s（休10s）×4轮\n⑤ 高位平板撑 30s（休10s）×4轮\n⑥ 平板开合 30s（休10s）×4轮\n⑦ 波比跳 30s（休10s）×4轮\n⑧ 海星式开合跳 30s（休10s）×4轮\n\n【模块二：站立腹部】12分钟\n⑨ 腹部侧拉 30s（休10s）×4轮\n⑩ 开合跳+扩胸 30s（休10s）×4轮\n⑪ 高抬腿 30s（休10s）×4轮\n⑫ 深蹲+侧卷腹 30s（休10s）×4轮\n⑬ 海星式开合跳 30s（休10s）×4轮\n⑭ 半波比跳 30s（休10s）×4轮\n⑮ 深蹲保持 30s（休10s）×4轮\n⑯ 平板支撑转体 3组×10次/侧（休20s）【突破期】\n\n【模块三：整理】8分钟\n⑰ 全身拉伸 4min\n⑱ 慢走调心率 3min\n⑲ 深呼吸放松 1min","video":"视频1：帕梅拉10分钟HIIT燃脂\nhttps://www.bilibili.com/video/BV1Np4y1i7rG\n\n视频2：帕梅拉10分钟HIIT+站立腹部\nhttps://www.bilibili.com/video/BV1LF411n7jw","星期":"周六","day":"第33天"},{"date":"2026-10-12","time":"上午 9:00-10:00（60分钟）","theme":"动态热身","week":"第9周","stage":"5-8","purpose":"综合强化全身肌群","effect":"全身肌肉均衡,力量爆发","detail":"【模块一：动态热身】5分钟\n① 开合跳 45s\n② 高抬腿 45s\n③ 手臂画圈 1.5min\n④ 原地慢跑 45s\n⑤ 动态拉伸 2min\n\n【模块二：全身HIIT】26分钟\n⑥ 深蹲跳 3组×10次（休20s）\n⑦ 俯卧撑 3组×8次（休20s）\n⑧ 弓步蹲跳 3组×10次/侧（休20s）\n⑨ 平板支撑 3组×45s（休20s）\n⑩ 登山跑 3组×20次（休20s）\n⑪ 波比跳 3组×8次（休20s）【强化期/突破期】\n⑫ 臀桥 3组×20次（休20s）\n⑬ 蚌式开合 3组×20次/侧（休20s）\n\n【模块三：腹部核心】14分钟\n⑭ 卷腹 3组×15次（休20s）\n⑮ 俄罗斯转体 3组×15次（休20s）【强化期/突破期】\n⑯ 反向卷腹 3组×10次（休20s）\n⑰ 鸟狗式 3组×10次/侧（休20s）【强化期】\n⑱ 平板支撑转体 3组×10次/侧（休20s）【突破期】\n\n【模块四：整理放松】12分钟\n⑲ 泡沫轴全身放松 5min\n⑳ 全身静态拉伸 4min\n㉑ 深呼吸冥想 3min","video":"视频：Chloe Ting 21天挑战Day1\nhttps://www.bilibili.com/opus/775544108885213193","星期":"周一","day":"第34天"},{"date":"2026-10-14","time":"下午 15:00-15:40（40分钟）","theme":"肩颈腰背拉伸","week":"第9周","stage":"5-8","purpose":"促进肌肉恢复,提升柔韧性","effect":"恢复加速,柔韧巅峰","detail":"【模块一：肩颈腰背拉伸】10分钟\n① 颈部拉伸（低头/抬头/侧向）各30s\n② 肩部舒展（下压/画圈）各45s\n③ 臂胸舒展（前推/后推/握拳）各30s\n④ 腰背扭转（侧腰/合十/骨盆环绕）各30s\n⑤ 坐姿脊柱前屈 45s\n⑥ 仰卧抱膝摇摆 45s\n⑦ 全身放松 2min\n\n【模块二：每日拉伸】13分钟\n⑧ 瑜伽拜日式 3轮（每轮2min）\n⑨ 鸽子式臀肌拉伸 3组×45s/侧（休10s）\n⑩ 坐姿前屈 3组×30s（休10s）\n⑪ 仰卧脊柱扭转 3组×30s/侧（休10s）\n\n【模块三：自主放松】12分钟\n⑫ 泡沫轴全身放松 5min\n⑬ 仰卧蝴蝶式 3min\n⑭ 仰卧倒箭式 3min\n⑮ 冥想呼吸 4min","video":"视频1：周六野10分钟拉伸瑜伽\nhttps://www.bilibili.com/video/BV1Q5411x7fw\n\n视频2：帕梅拉8分钟每日拉伸\n搜索：帕梅拉 每日拉伸","星期":"周三","day":"第35天"},{"date":"2026-10-16","time":"早晨 6:30-7:10（40分钟）","theme":"肩颈舒缓","week":"第9周","stage":"5-8","purpose":"改善肩颈僵硬,激活核心肌群","effect":"直角肩成型,核心力量爆发","detail":"【模块一：肩颈舒缓】15分钟\n① 抱头拉伸颈后侧 30s\n② 抱头侧向拉伸 30s/侧\n③ 单臂肩部下压 30s/侧\n④ 双臂画圈 60s\n⑤ 手肘手腕环绕 60s\n⑥ 胸部拉伸 30s\n⑦ 合十反向拉扯 30s\n\n【模块二：核心训练】18分钟\n⑧ 死虫式 3组×15次（休20s）\n⑨ 鸟狗式 3组×15次/侧（休20s）\n⑩ 平板支撑 3组×30s（休20s）\n⑪ 仰卧卷腹 3组×15次（休20s）\n⑫ 俄罗斯转体 3组×12次/侧（休20s）【强化期/突破期】\n⑬ 平板支撑转体 3组×10次/侧（休20s）【突破期】\n\n【模块三：整理】5分钟\n⑭ 全身拉伸 3min\n⑮ 深呼吸 2min","video":"视频1：欧阳春晓15min直角肩\nhttps://www.bilibili.com/video/BV1ag4y1B7Z9\n\n视频2：帕梅拉10min腹肌杀手\n搜索：帕梅拉 腹肌杀手","星期":"周五","day":"第36天"},{"date":"2026-10-17","time":"午休12:00-12:40或晚间19:30-20:10（40分钟）","theme":"侧臀训练","week":"第10周","stage":"5-8","purpose":"改善臀部凹陷,增强腿部肌肉","effect":"蜜桃臀成型,臀腿线条流畅","detail":"【模块一：侧臀训练】12分钟\n① 髋部中立位 30s\n② 直腿侧举（右）30s\n③ 直腿侧举脉冲（右）30s\n④ 举腿前+后对角（右）30s\n⑤ 后对角脉冲（右）30s\n⑥ 直腿侧举保持（右）30s\n⑦ 慢速后对角举腿（右）30s\n⑧ 半侧平板撑（右）30s\n⑨ 消防栓式（右）30s\n⑩ 5x脉冲+5x保持（右）30s\n⑪ 左侧重复右侧全部动作\n\n【模块二：翘臀训练】15分钟\n⑫ 开胯（右/左）各30s\n⑬ 侧开腿后抬腿（右/左）各30s\n⑭ 臀桥 3组×15次（休20s）\n⑮ 蚌式开合 3组×15次/侧（休20s）\n⑯ 单腿臀桥 3组×12次/侧（休20s）【强化期/突破期】\n⑰ 保加利亚分腿蹲 3组×10次/侧（休20s）【突破期】\n\n【模块三：整理】8分钟\n⑱ 臀部拉伸（鸽子式）2min/侧\n⑲ 大腿前侧拉伸 2min/侧\n⑳ 小腿拉伸 2min","video":"视频1：帕梅拉12分钟侧臀训练\nhttps://www.bilibili.com/video/BV1X5411d71V\n\n视频2：周六野10分钟翘臀不粗腿\nhttps://www.bilibili.com/video/BV1Tt411g7Aw","星期":"周六","day":"第37天"},{"date":"2026-10-19","time":"早晨 6:30-7:10（40分钟）","theme":"灵活肩背","week":"第10周","stage":"5-8","purpose":"修复颈椎问题,改善脊柱灵活性","effect":"颈椎完全康复,体态挺拔","detail":"【模块一：灵活肩背】12分钟\n① 猫牛式脊柱伸展 3组×12次（休20s）\n② 胸椎灵活性训练 3组×12次/侧（休20s）\n③ 眼镜蛇式伸展 3组×30s（休20s）\n④ 婴儿式放松 3组×30s（休20s）\n⑤ 颈部侧屈拉伸 3组×30s/侧（休20s）\n\n【模块二：脊柱保养】20分钟\n⑥ 肩胛收缩YTWL 3组×12次（休20s）\n⑦ 麦肯基颈椎疗法 3组×12次（休20s）\n⑧ 站姿侧腰拉伸 3组×30s/侧（休20s）\n⑨ 骨盆环绕 3组×12次（休20s）\n⑩ 三角形前屈拉伸 3组×30s（休20s）\n⑪ 仰卧脊柱扭转 3组×30s/侧（休20s）\n⑫ 站姿后弯 3组×15s（休20s）【突破期】\n\n【模块三：自主放松】8分钟\n⑬ 泡沫轴滚背 3min\n⑭ 仰卧抱膝摇摆 3min\n⑮ 深呼吸冥想 2min","video":"视频1：帕梅拉6分钟灵活肩背\n搜索：帕梅拉 灵活肩背 脊柱\n\n视频2：体态大师脊柱保养\n搜索：体态大师 脊柱保养","星期":"周一","day":"第38天"},{"date":"2026-10-21","time":"午休12:00-12:40或晚间19:30-20:10（40分钟）","theme":"直角肩少女背","week":"第10周","stage":"5-8","purpose":"强化背部肌群,改善圆肩","effect":"直角肩完美,背部线条雕刻","detail":"【模块一：直角肩少女背】18分钟\n① 泡沫轴筋膜放松 3min\n② 俯卧W字伸展 3组×12次（休20s）\n③ 俯卧T字伸展 3组×12次（休20s）\n④ 俯卧Y字伸展 3组×12次（休20s）\n⑤ 俯卧L字伸展 3组×12次（休20s）\n⑥ 墙壁天使 3组×12次（休20s）\n⑦ 肩背动态拉伸 3min\n\n【模块二：上肢训练】12分钟\n⑧ 弹力带划船 3组×15次（休20s）\n⑨ 俯卧撑 3组×10次（休20s）\n⑩ 哑铃侧平举 3组×12次（休20s）\n⑪ 哑铃推举 3组×10次（休20s）【突破期】\n\n【模块三：整理】5分钟\n⑫ 肩背拉伸（十字）2min/侧\n⑬ 三头肌拉伸 1min/侧\n⑭ 深呼吸放松 1min","video":"视频1：欧阳春晓15min直角肩\nhttps://www.bilibili.com/video/BV1ag4y1B7Z9\n\n视频2：帕梅拉10min上肢训练\n搜索：帕梅拉 上肢训练","星期":"周三","day":"第39天"},{"date":"2026-10-23","time":"早晨 6:30-7:10（40分钟）","theme":"HIIT燃脂","week":"第10周","stage":"5-8","purpose":"提升代谢,燃烧脂肪","effect":"顽固脂肪歼灭,腹肌轮廓显现","detail":"【模块一：HIIT燃脂】12分钟\n① 开合跳 30s（休10s）×4轮\n② 高抬腿 30s（休10s）×4轮\n③ 深蹲侧步跳 30s（休10s）×4轮\n④ 登山跑 30s（休10s）×4轮\n⑤ 高位平板撑 30s（休10s）×4轮\n⑥ 平板开合 30s（休10s）×4轮\n⑦ 波比跳 30s（休10s）×4轮\n⑧ 海星式开合跳 30s（休10s）×4轮\n\n【模块二：站立腹部】12分钟\n⑨ 腹部侧拉 30s（休10s）×4轮\n⑩ 开合跳+扩胸 30s（休10s）×4轮\n⑪ 高抬腿 30s（休10s）×4轮\n⑫ 深蹲+侧卷腹 30s（休10s）×4轮\n⑬ 海星式开合跳 30s（休10s）×4轮\n⑭ 半波比跳 30s（休10s）×4轮\n⑮ 深蹲保持 30s（休10s）×4轮\n⑯ 平板支撑转体 3组×10次/侧（休20s）【突破期】\n\n【模块三：整理】8分钟\n⑰ 全身拉伸 4min\n⑱ 慢走调心率 3min\n⑲ 深呼吸放松 1min","video":"视频1：帕梅拉10分钟HIIT燃脂\nhttps://www.bilibili.com/video/BV1Np4y1i7rG\n\n视频2：帕梅拉10分钟HIIT+站立腹部\nhttps://www.bilibili.com/video/BV1LF411n7jw","星期":"周五","day":"第40天"},{"date":"2026-10-24","time":"上午 9:00-10:00（60分钟）","theme":"动态热身","week":"第11周","stage":"5-8","purpose":"综合强化全身肌群","effect":"全身肌肉均衡,力量爆发","detail":"【模块一：动态热身】5分钟\n① 开合跳 45s\n② 高抬腿 45s\n③ 手臂画圈 1.5min\n④ 原地慢跑 45s\n⑤ 动态拉伸 2min\n\n【模块二：全身HIIT】26分钟\n⑥ 深蹲跳 3组×10次（休20s）\n⑦ 俯卧撑 3组×8次（休20s）\n⑧ 弓步蹲跳 3组×10次/侧（休20s）\n⑨ 平板支撑 3组×45s（休20s）\n⑩ 登山跑 3组×20次（休20s）\n⑪ 波比跳 3组×8次（休20s）【强化期/突破期】\n⑫ 臀桥 3组×20次（休20s）\n⑬ 蚌式开合 3组×20次/侧（休20s）\n\n【模块三：腹部核心】14分钟\n⑭ 卷腹 3组×15次（休20s）\n⑮ 俄罗斯转体 3组×15次（休20s）【强化期/突破期】\n⑯ 反向卷腹 3组×10次（休20s）\n⑰ 鸟狗式 3组×10次/侧（休20s）【强化期】\n⑱ 平板支撑转体 3组×10次/侧（休20s）【突破期】\n\n【模块四：整理放松】12分钟\n⑲ 泡沫轴全身放松 5min\n⑳ 全身静态拉伸 4min\n㉑ 深呼吸冥想 3min","video":"视频：Chloe Ting 21天挑战Day1\nhttps://www.bilibili.com/opus/775544108885213193","星期":"周六","day":"第41天"},{"date":"2026-10-26","time":"下午 15:00-15:40（40分钟）","theme":"肩颈腰背拉伸","week":"第11周","stage":"5-8","purpose":"促进肌肉恢复,提升柔韧性","effect":"恢复加速,柔韧巅峰","detail":"【模块一：肩颈腰背拉伸】10分钟\n① 颈部拉伸（低头/抬头/侧向）各30s\n② 肩部舒展（下压/画圈）各45s\n③ 臂胸舒展（前推/后推/握拳）各30s\n④ 腰背扭转（侧腰/合十/骨盆环绕）各30s\n⑤ 坐姿脊柱前屈 45s\n⑥ 仰卧抱膝摇摆 45s\n⑦ 全身放松 2min\n\n【模块二：每日拉伸】13分钟\n⑧ 瑜伽拜日式 3轮（每轮2min）\n⑨ 鸽子式臀肌拉伸 3组×45s/侧（休10s）\n⑩ 坐姿前屈 3组×30s（休10s）\n⑪ 仰卧脊柱扭转 3组×30s/侧（休10s）\n\n【模块三：自主放松】12分钟\n⑫ 泡沫轴全身放松 5min\n⑬ 仰卧蝴蝶式 3min\n⑭ 仰卧倒箭式 3min\n⑮ 冥想呼吸 4min","video":"视频1：周六野10分钟拉伸瑜伽\nhttps://www.bilibili.com/video/BV1Q5411x7fw\n\n视频2：帕梅拉8分钟每日拉伸\n搜索：帕梅拉 每日拉伸","星期":"周一","day":"第42天"},{"date":"2026-10-28","time":"早晨 6:30-7:10（40分钟）","theme":"肩颈舒缓","week":"第11周","stage":"5-8","purpose":"改善肩颈僵硬,激活核心肌群","effect":"直角肩成型,核心力量爆发","detail":"【模块一：肩颈舒缓】15分钟\n① 抱头拉伸颈后侧 30s\n② 抱头侧向拉伸 30s/侧\n③ 单臂肩部下压 30s/侧\n④ 双臂画圈 60s\n⑤ 手肘手腕环绕 60s\n⑥ 胸部拉伸 30s\n⑦ 合十反向拉扯 30s\n\n【模块二：核心训练】18分钟\n⑧ 死虫式 3组×15次（休20s）\n⑨ 鸟狗式 3组×15次/侧（休20s）\n⑩ 平板支撑 3组×30s（休20s）\n⑪ 仰卧卷腹 3组×15次（休20s）\n⑫ 俄罗斯转体 3组×12次/侧（休20s）【强化期/突破期】\n⑬ 平板支撑转体 3组×10次/侧（休20s）【突破期】\n\n【模块三：整理】5分钟\n⑭ 全身拉伸 3min\n⑮ 深呼吸 2min","video":"视频1：欧阳春晓15min直角肩\nhttps://www.bilibili.com/video/BV1ag4y1B7Z9\n\n视频2：帕梅拉10min腹肌杀手\n搜索：帕梅拉 腹肌杀手","星期":"周三","day":"第43天"},{"date":"2026-10-30","time":"午休12:00-12:40或晚间19:30-20:10（40分钟）","theme":"侧臀训练","week":"第11周","stage":"5-8","purpose":"改善臀部凹陷,增强腿部肌肉","effect":"蜜桃臀成型,臀腿线条流畅","detail":"【模块一：侧臀训练】12分钟\n① 髋部中立位 30s\n② 直腿侧举（右）30s\n③ 直腿侧举脉冲（右）30s\n④ 举腿前+后对角（右）30s\n⑤ 后对角脉冲（右）30s\n⑥ 直腿侧举保持（右）30s\n⑦ 慢速后对角举腿（右）30s\n⑧ 半侧平板撑（右）30s\n⑨ 消防栓式（右）30s\n⑩ 5x脉冲+5x保持（右）30s\n⑪ 左侧重复右侧全部动作\n\n【模块二：翘臀训练】15分钟\n⑫ 开胯（右/左）各30s\n⑬ 侧开腿后抬腿（右/左）各30s\n⑭ 臀桥 3组×15次（休20s）\n⑮ 蚌式开合 3组×15次/侧（休20s）\n⑯ 单腿臀桥 3组×12次/侧（休20s）【强化期/突破期】\n⑰ 保加利亚分腿蹲 3组×10次/侧（休20s）【突破期】\n\n【模块三：整理】8分钟\n⑱ 臀部拉伸（鸽子式）2min/侧\n⑲ 大腿前侧拉伸 2min/侧\n⑳ 小腿拉伸 2min","video":"视频1：帕梅拉12分钟侧臀训练\nhttps://www.bilibili.com/video/BV1X5411d71V\n\n视频2：周六野10分钟翘臀不粗腿\nhttps://www.bilibili.com/video/BV1Tt411g7Aw","星期":"周五","day":"第44天"},{"date":"2026-10-31","time":"早晨 6:30-7:10（40分钟）","theme":"灵活肩背","week":"第12周","stage":"5-8","purpose":"修复颈椎问题,改善脊柱灵活性","effect":"颈椎完全康复,体态挺拔","detail":"【模块一：灵活肩背】12分钟\n① 猫牛式脊柱伸展 3组×12次（休20s）\n② 胸椎灵活性训练 3组×12次/侧（休20s）\n③ 眼镜蛇式伸展 3组×30s（休20s）\n④ 婴儿式放松 3组×30s（休20s）\n⑤ 颈部侧屈拉伸 3组×30s/侧（休20s）\n\n【模块二：脊柱保养】20分钟\n⑥ 肩胛收缩YTWL 3组×12次（休20s）\n⑦ 麦肯基颈椎疗法 3组×12次（休20s）\n⑧ 站姿侧腰拉伸 3组×30s/侧（休20s）\n⑨ 骨盆环绕 3组×12次（休20s）\n⑩ 三角形前屈拉伸 3组×30s（休20s）\n⑪ 仰卧脊柱扭转 3组×30s/侧（休20s）\n⑫ 站姿后弯 3组×15s（休20s）【突破期】\n\n【模块三：自主放松】8分钟\n⑬ 泡沫轴滚背 3min\n⑭ 仰卧抱膝摇摆 3min\n⑮ 深呼吸冥想 2min","video":"视频1：帕梅拉6分钟灵活肩背\n搜索：帕梅拉 灵活肩背 脊柱\n\n视频2：体态大师脊柱保养\n搜索：体态大师 脊柱保养","星期":"周六","day":"第45天"},{"date":"2026-11-02","time":"午休12:00-12:40或晚间19:30-20:10（40分钟）","theme":"直角肩少女背","week":"第12周","stage":"5-8","purpose":"强化背部肌群,改善圆肩","effect":"直角肩完美,背部线条雕刻","detail":"【模块一：直角肩少女背】18分钟\n① 泡沫轴筋膜放松 3min\n② 俯卧W字伸展 3组×12次（休20s）\n③ 俯卧T字伸展 3组×12次（休20s）\n④ 俯卧Y字伸展 3组×12次（休20s）\n⑤ 俯卧L字伸展 3组×12次（休20s）\n⑥ 墙壁天使 3组×12次（休20s）\n⑦ 肩背动态拉伸 3min\n\n【模块二：上肢训练】12分钟\n⑧ 弹力带划船 3组×15次（休20s）\n⑨ 俯卧撑 3组×10次（休20s）\n⑩ 哑铃侧平举 3组×12次（休20s）\n⑪ 哑铃推举 3组×10次（休20s）【突破期】\n\n【模块三：整理】5分钟\n⑫ 肩背拉伸（十字）2min/侧\n⑬ 三头肌拉伸 1min/侧\n⑭ 深呼吸放松 1min","video":"视频1：欧阳春晓15min直角肩\nhttps://www.bilibili.com/video/BV1ag4y1B7Z9\n\n视频2：帕梅拉10min上肢训练\n搜索：帕梅拉 上肢训练","星期":"周一","day":"第46天"},{"date":"2026-11-04","time":"早晨 6:30-7:10（40分钟）","theme":"HIIT燃脂","week":"第12周","stage":"5-8","purpose":"提升代谢,燃烧脂肪","effect":"顽固脂肪歼灭,腹肌轮廓显现","detail":"【模块一：HIIT燃脂】12分钟\n① 开合跳 30s（休10s）×4轮\n② 高抬腿 30s（休10s）×4轮\n③ 深蹲侧步跳 30s（休10s）×4轮\n④ 登山跑 30s（休10s）×4轮\n⑤ 高位平板撑 30s（休10s）×4轮\n⑥ 平板开合 30s（休10s）×4轮\n⑦ 波比跳 30s（休10s）×4轮\n⑧ 海星式开合跳 30s（休10s）×4轮\n\n【模块二：站立腹部】12分钟\n⑨ 腹部侧拉 30s（休10s）×4轮\n⑩ 开合跳+扩胸 30s（休10s）×4轮\n⑪ 高抬腿 30s（休10s）×4轮\n⑫ 深蹲+侧卷腹 30s（休10s）×4轮\n⑬ 海星式开合跳 30s（休10s）×4轮\n⑭ 半波比跳 30s（休10s）×4轮\n⑮ 深蹲保持 30s（休10s）×4轮\n⑯ 平板支撑转体 3组×10次/侧（休20s）【突破期】\n\n【模块三：整理】8分钟\n⑰ 全身拉伸 4min\n⑱ 慢走调心率 3min\n⑲ 深呼吸放松 1min","video":"视频1：帕梅拉10分钟HIIT燃脂\nhttps://www.bilibili.com/video/BV1Np4y1i7rG\n\n视频2：帕梅拉10分钟HIIT+站立腹部\nhttps://www.bilibili.com/video/BV1LF411n7jw","星期":"周三","day":"第47天"},{"date":"2026-11-06","time":"上午 9:00-10:00（60分钟）","theme":"动态热身","week":"第12周","stage":"5-8","purpose":"综合强化全身肌群","effect":"全身肌肉均衡,力量爆发","detail":"【模块一：动态热身】5分钟\n① 开合跳 45s\n② 高抬腿 45s\n③ 手臂画圈 1.5min\n④ 原地慢跑 45s\n⑤ 动态拉伸 2min\n\n【模块二：全身HIIT】26分钟\n⑥ 深蹲跳 3组×10次（休20s）\n⑦ 俯卧撑 3组×8次（休20s）\n⑧ 弓步蹲跳 3组×10次/侧（休20s）\n⑨ 平板支撑 3组×45s（休20s）\n⑩ 登山跑 3组×20次（休20s）\n⑪ 波比跳 3组×8次（休20s）【强化期/突破期】\n⑫ 臀桥 3组×20次（休20s）\n⑬ 蚌式开合 3组×20次/侧（休20s）\n\n【模块三：腹部核心】14分钟\n⑭ 卷腹 3组×15次（休20s）\n⑮ 俄罗斯转体 3组×15次（休20s）【强化期/突破期】\n⑯ 反向卷腹 3组×10次（休20s）\n⑰ 鸟狗式 3组×10次/侧（休20s）【强化期】\n⑱ 平板支撑转体 3组×10次/侧（休20s）【突破期】\n\n【模块四：整理放松】12分钟\n⑲ 泡沫轴全身放松 5min\n⑳ 全身静态拉伸 4min\n㉑ 深呼吸冥想 3min","video":"视频：Chloe Ting 21天挑战Day1\nhttps://www.bilibili.com/opus/775544108885213193","星期":"周五","day":"第48天"},{"date":"2026-11-07","time":"下午 15:00-15:40（40分钟）","theme":"肩颈腰背拉伸","week":"第13周","stage":"5-8","purpose":"促进肌肉恢复,提升柔韧性","effect":"恢复加速,柔韧巅峰","detail":"【模块一：肩颈腰背拉伸】10分钟\n① 颈部拉伸（低头/抬头/侧向）各30s\n② 肩部舒展（下压/画圈）各45s\n③ 臂胸舒展（前推/后推/握拳）各30s\n④ 腰背扭转（侧腰/合十/骨盆环绕）各30s\n⑤ 坐姿脊柱前屈 45s\n⑥ 仰卧抱膝摇摆 45s\n⑦ 全身放松 2min\n\n【模块二：每日拉伸】13分钟\n⑧ 瑜伽拜日式 3轮（每轮2min）\n⑨ 鸽子式臀肌拉伸 3组×45s/侧（休10s）\n⑩ 坐姿前屈 3组×30s（休10s）\n⑪ 仰卧脊柱扭转 3组×30s/侧（休10s）\n\n【模块三：自主放松】12分钟\n⑫ 泡沫轴全身放松 5min\n⑬ 仰卧蝴蝶式 3min\n⑭ 仰卧倒箭式 3min\n⑮ 冥想呼吸 4min","video":"视频1：周六野10分钟拉伸瑜伽\nhttps://www.bilibili.com/video/BV1Q5411x7fw\n\n视频2：帕梅拉8分钟每日拉伸\n搜索：帕梅拉 每日拉伸","星期":"周六","day":"第49天"},{"date":"2026-11-09","time":"早晨 6:30-7:10（40分钟）","theme":"肩颈舒缓","week":"第13周","stage":"5-8","purpose":"改善肩颈僵硬,激活核心肌群","effect":"直角肩成型,核心力量爆发","detail":"【模块一：肩颈舒缓】15分钟\n① 抱头拉伸颈后侧 30s\n② 抱头侧向拉伸 30s/侧\n③ 单臂肩部下压 30s/侧\n④ 双臂画圈 60s\n⑤ 手肘手腕环绕 60s\n⑥ 胸部拉伸 30s\n⑦ 合十反向拉扯 30s\n\n【模块二：核心训练】18分钟\n⑧ 死虫式 3组×15次（休20s）\n⑨ 鸟狗式 3组×15次/侧（休20s）\n⑩ 平板支撑 3组×30s（休20s）\n⑪ 仰卧卷腹 3组×15次（休20s）\n⑫ 俄罗斯转体 3组×12次/侧（休20s）【强化期/突破期】\n⑬ 平板支撑转体 3组×10次/侧（休20s）【突破期】\n\n【模块三：整理】5分钟\n⑭ 全身拉伸 3min\n⑮ 深呼吸 2min","video":"视频1：欧阳春晓15min直角肩\nhttps://www.bilibili.com/video/BV1ag4y1B7Z9\n\n视频2：帕梅拉10min腹肌杀手\n搜索：帕梅拉 腹肌杀手","星期":"周一","day":"第50天"},{"date":"2026-11-11","time":"午休12:00-12:40或晚间19:30-20:10（40分钟）","theme":"侧臀训练","week":"第13周","stage":"5-8","purpose":"改善臀部凹陷,增强腿部肌肉","effect":"蜜桃臀成型,臀腿线条流畅","detail":"【模块一：侧臀训练】12分钟\n① 髋部中立位 30s\n② 直腿侧举（右）30s\n③ 直腿侧举脉冲（右）30s\n④ 举腿前+后对角（右）30s\n⑤ 后对角脉冲（右）30s\n⑥ 直腿侧举保持（右）30s\n⑦ 慢速后对角举腿（右）30s\n⑧ 半侧平板撑（右）30s\n⑨ 消防栓式（右）30s\n⑩ 5x脉冲+5x保持（右）30s\n⑪ 左侧重复右侧全部动作\n\n【模块二：翘臀训练】15分钟\n⑫ 开胯（右/左）各30s\n⑬ 侧开腿后抬腿（右/左）各30s\n⑭ 臀桥 3组×15次（休20s）\n⑮ 蚌式开合 3组×15次/侧（休20s）\n⑯ 单腿臀桥 3组×12次/侧（休20s）【强化期/突破期】\n⑰ 保加利亚分腿蹲 3组×10次/侧（休20s）【突破期】\n\n【模块三：整理】8分钟\n⑱ 臀部拉伸（鸽子式）2min/侧\n⑲ 大腿前侧拉伸 2min/侧\n⑳ 小腿拉伸 2min","video":"视频1：帕梅拉12分钟侧臀训练\nhttps://www.bilibili.com/video/BV1X5411d71V\n\n视频2：周六野10分钟翘臀不粗腿\nhttps://www.bilibili.com/video/BV1Tt411g7Aw","星期":"周三","day":"第51天"},{"date":"2026-11-13","time":"早晨 6:30-7:10（40分钟）","theme":"灵活肩背","week":"第13周","stage":"5-8","purpose":"修复颈椎问题,改善脊柱灵活性","effect":"颈椎完全康复,体态挺拔","detail":"【模块一：灵活肩背】12分钟\n① 猫牛式脊柱伸展 3组×12次（休20s）\n② 胸椎灵活性训练 3组×12次/侧（休20s）\n③ 眼镜蛇式伸展 3组×30s（休20s）\n④ 婴儿式放松 3组×30s（休20s）\n⑤ 颈部侧屈拉伸 3组×30s/侧（休20s）\n\n【模块二：脊柱保养】20分钟\n⑥ 肩胛收缩YTWL 3组×12次（休20s）\n⑦ 麦肯基颈椎疗法 3组×12次（休20s）\n⑧ 站姿侧腰拉伸 3组×30s/侧（休20s）\n⑨ 骨盆环绕 3组×12次（休20s）\n⑩ 三角形前屈拉伸 3组×30s（休20s）\n⑪ 仰卧脊柱扭转 3组×30s/侧（休20s）\n⑫ 站姿后弯 3组×15s（休20s）【突破期】\n\n【模块三：自主放松】8分钟\n⑬ 泡沫轴滚背 3min\n⑭ 仰卧抱膝摇摆 3min\n⑮ 深呼吸冥想 2min","video":"视频1：帕梅拉6分钟灵活肩背\n搜索：帕梅拉 灵活肩背 脊柱\n\n视频2：体态大师脊柱保养\n搜索：体态大师 脊柱保养","星期":"周五","day":"第52天"},{"date":"2026-11-14","time":"午休12:00-12:40或晚间19:30-20:10（40分钟）","theme":"直角肩少女背","week":"第14周","stage":"5-8","purpose":"强化背部肌群,改善圆肩","effect":"直角肩完美,背部线条雕刻","detail":"【模块一：直角肩少女背】18分钟\n① 泡沫轴筋膜放松 3min\n② 俯卧W字伸展 3组×12次（休20s）\n③ 俯卧T字伸展 3组×12次（休20s）\n④ 俯卧Y字伸展 3组×12次（休20s）\n⑤ 俯卧L字伸展 3组×12次（休20s）\n⑥ 墙壁天使 3组×12次（休20s）\n⑦ 肩背动态拉伸 3min\n\n【模块二：上肢训练】12分钟\n⑧ 弹力带划船 3组×15次（休20s）\n⑨ 俯卧撑 3组×10次（休20s）\n⑩ 哑铃侧平举 3组×12次（休20s）\n⑪ 哑铃推举 3组×10次（休20s）【突破期】\n\n【模块三：整理】5分钟\n⑫ 肩背拉伸（十字）2min/侧\n⑬ 三头肌拉伸 1min/侧\n⑭ 深呼吸放松 1min","video":"视频1：欧阳春晓15min直角肩\nhttps://www.bilibili.com/video/BV1ag4y1B7Z9\n\n视频2：帕梅拉10min上肢训练\n搜索：帕梅拉 上肢训练","星期":"周六","day":"第53天"},{"date":"2026-11-16","time":"早晨 6:30-7:10（40分钟）","theme":"HIIT燃脂","week":"第14周","stage":"5-8","purpose":"提升代谢,燃烧脂肪","effect":"顽固脂肪歼灭,腹肌轮廓显现","detail":"【模块一：HIIT燃脂】12分钟\n① 开合跳 30s（休10s）×4轮\n② 高抬腿 30s（休10s）×4轮\n③ 深蹲侧步跳 30s（休10s）×4轮\n④ 登山跑 30s（休10s）×4轮\n⑤ 高位平板撑 30s（休10s）×4轮\n⑥ 平板开合 30s（休10s）×4轮\n⑦ 波比跳 30s（休10s）×4轮\n⑧ 海星式开合跳 30s（休10s）×4轮\n\n【模块二：站立腹部】12分钟\n⑨ 腹部侧拉 30s（休10s）×4轮\n⑩ 开合跳+扩胸 30s（休10s）×4轮\n⑪ 高抬腿 30s（休10s）×4轮\n⑫ 深蹲+侧卷腹 30s（休10s）×4轮\n⑬ 海星式开合跳 30s（休10s）×4轮\n⑭ 半波比跳 30s（休10s）×4轮\n⑮ 深蹲保持 30s（休10s）×4轮\n⑯ 平板支撑转体 3组×10次/侧（休20s）【突破期】\n\n【模块三：整理】8分钟\n⑰ 全身拉伸 4min\n⑱ 慢走调心率 3min\n⑲ 深呼吸放松 1min","video":"视频1：帕梅拉10分钟HIIT燃脂\nhttps://www.bilibili.com/video/BV1Np4y1i7rG\n\n视频2：帕梅拉10分钟HIIT+站立腹部\nhttps://www.bilibili.com/video/BV1LF411n7jw","星期":"周一","day":"第54天"},{"date":"2026-11-18","time":"上午 9:00-10:00（60分钟）","theme":"动态热身","week":"第14周","stage":"5-8","purpose":"综合强化全身肌群","effect":"全身肌肉均衡,力量爆发","detail":"【模块一：动态热身】5分钟\n① 开合跳 45s\n② 高抬腿 45s\n③ 手臂画圈 1.5min\n④ 原地慢跑 45s\n⑤ 动态拉伸 2min\n\n【模块二：全身HIIT】26分钟\n⑥ 深蹲跳 3组×10次（休20s）\n⑦ 俯卧撑 3组×8次（休20s）\n⑧ 弓步蹲跳 3组×10次/侧（休20s）\n⑨ 平板支撑 3组×45s（休20s）\n⑩ 登山跑 3组×20次（休20s）\n⑪ 波比跳 3组×8次（休20s）【强化期/突破期】\n⑫ 臀桥 3组×20次（休20s）\n⑬ 蚌式开合 3组×20次/侧（休20s）\n\n【模块三：腹部核心】14分钟\n⑭ 卷腹 3组×15次（休20s）\n⑮ 俄罗斯转体 3组×15次（休20s）【强化期/突破期】\n⑯ 反向卷腹 3组×10次（休20s）\n⑰ 鸟狗式 3组×10次/侧（休20s）【强化期】\n⑱ 平板支撑转体 3组×10次/侧（休20s）【突破期】\n\n【模块四：整理放松】12分钟\n⑲ 泡沫轴全身放松 5min\n⑳ 全身静态拉伸 4min\n㉑ 深呼吸冥想 3min","video":"视频：Chloe Ting 21天挑战Day1\nhttps://www.bilibili.com/opus/775544108885213193","星期":"周三","day":"第55天"},{"date":"2026-11-20","time":"下午 15:00-15:40（40分钟）","theme":"肩颈腰背拉伸","week":"第14周","stage":"5-8","purpose":"促进肌肉恢复,提升柔韧性","effect":"恢复加速,柔韧巅峰","detail":"【模块一：肩颈腰背拉伸】10分钟\n① 颈部拉伸（低头/抬头/侧向）各30s\n② 肩部舒展（下压/画圈）各45s\n③ 臂胸舒展（前推/后推/握拳）各30s\n④ 腰背扭转（侧腰/合十/骨盆环绕）各30s\n⑤ 坐姿脊柱前屈 45s\n⑥ 仰卧抱膝摇摆 45s\n⑦ 全身放松 2min\n\n【模块二：每日拉伸】13分钟\n⑧ 瑜伽拜日式 3轮（每轮2min）\n⑨ 鸽子式臀肌拉伸 3组×45s/侧（休10s）\n⑩ 坐姿前屈 3组×30s（休10s）\n⑪ 仰卧脊柱扭转 3组×30s/侧（休10s）\n\n【模块三：自主放松】12分钟\n⑫ 泡沫轴全身放松 5min\n⑬ 仰卧蝴蝶式 3min\n⑭ 仰卧倒箭式 3min\n⑮ 冥想呼吸 4min","video":"视频1：周六野10分钟拉伸瑜伽\nhttps://www.bilibili.com/video/BV1Q5411x7fw\n\n视频2：帕梅拉8分钟每日拉伸\n搜索：帕梅拉 每日拉伸","星期":"周五","day":"第56天"},{"date":"2026-11-21","time":"早晨 6:30-7:10（40分钟）","theme":"肩颈舒缓","week":"第15周","stage":"9-12","purpose":"改善肩颈僵硬,激活核心肌群","effect":"直角肩成型,核心力量爆发","detail":"【模块一：肩颈舒缓】15分钟\n① 抱头拉伸颈后侧 45s\n② 抱头侧向拉伸 45s/侧\n③ 单臂肩部下压 45s/侧\n④ 双臂画圈 60s\n⑤ 手肘手腕环绕 60s\n⑥ 胸部拉伸 45s\n⑦ 合十反向拉扯 45s\n\n【模块二：核心训练】15分钟\n⑧ 死虫式 4组×20次（休15s）\n⑨ 鸟狗式 4组×20次/侧（休15s）\n⑩ 平板支撑 4组×45s（休15s）\n⑪ 仰卧卷腹 4组×20次（休15s）\n⑫ 俄罗斯转体 4组×12次/侧（休15s）【强化期/突破期】\n⑬ 平板支撑转体 3组×10次/侧（休15s）【突破期】\n\n【模块三：整理】5分钟\n⑭ 全身拉伸 3min\n⑮ 深呼吸 2min","video":"视频1：欧阳春晓15min直角肩\nhttps://www.bilibili.com/video/BV1ag4y1B7Z9\n\n视频2：帕梅拉10min腹肌杀手\n搜索：帕梅拉 腹肌杀手","星期":"周六","day":"第57天"},{"date":"2026-11-23","time":"午休12:00-12:40或晚间19:30-20:10（40分钟）","theme":"侧臀训练","week":"第15周","stage":"9-12","purpose":"改善臀部凹陷,增强腿部肌肉","effect":"蜜桃臀成型,臀腿线条流畅","detail":"【模块一：侧臀训练】12分钟\n① 髋部中立位 30s\n② 直腿侧举（右）45s\n③ 直腿侧举脉冲（右）45s\n④ 举腿前+后对角（右）45s\n⑤ 后对角脉冲（右）45s\n⑥ 直腿侧举保持（右）45s\n⑦ 慢速后对角举腿（右）45s\n⑧ 半侧平板撑（右）45s\n⑨ 消防栓式（右）45s\n⑩ 5x脉冲+5x保持（右）45s\n⑪ 左侧重复右侧全部动作\n\n【模块二：翘臀训练】15分钟\n⑫ 开胯（右/左）各45s\n⑬ 侧开腿后抬腿（右/左）各45s\n⑭ 臀桥 4组×20次（休15s）\n⑮ 蚌式开合 4组×20次/侧（休15s）\n⑯ 单腿臀桥 4组×12次/侧（休15s）【强化期/突破期】\n⑰ 保加利亚分腿蹲 3组×10次/侧（休15s）【突破期】\n\n【模块三：整理】8分钟\n⑱ 臀部拉伸（鸽子式）2min/侧\n⑲ 大腿前侧拉伸 2min/侧\n⑳ 小腿拉伸 2min","video":"视频1：帕梅拉12分钟侧臀训练\nhttps://www.bilibili.com/video/BV1X5411d71V\n\n视频2：周六野10分钟翘臀不粗腿\nhttps://www.bilibili.com/video/BV1Tt411g7Aw","星期":"周一","day":"第58天"},{"date":"2026-11-25","time":"早晨 6:30-7:10（40分钟）","theme":"灵活肩背","week":"第15周","stage":"9-12","purpose":"修复颈椎问题,改善脊柱灵活性","effect":"颈椎完全康复,体态挺拔","detail":"【模块一：灵活肩背】17分钟\n① 猫牛式脊柱伸展 4组×15次（休15s）\n② 胸椎灵活性训练 4组×15次/侧（休15s）\n③ 眼镜蛇式伸展 4组×45s（休15s）\n④ 婴儿式放松 4组×45s（休15s）\n⑤ 颈部侧屈拉伸 4组×45s/侧（休15s）\n\n【模块二：脊柱保养】17分钟\n⑥ 肩胛收缩YTWL 4组×15次（休15s）\n⑦ 麦肯基颈椎疗法 4组×15次（休15s）\n⑧ 站姿侧腰拉伸 4组×45s/侧（休15s）\n⑨ 骨盆环绕 4组×15次（休15s）\n⑩ 三角形前屈拉伸 4组×45s（休15s）\n⑪ 仰卧脊柱扭转 4组×45s/侧（休15s）\n⑫ 站姿后弯 3组×15s（休15s）【突破期】\n\n【模块三：自主放松】6分钟\n⑬ 泡沫轴滚背 3min\n⑭ 仰卧抱膝摇摆 0min\n⑮ 深呼吸冥想 3min","video":"视频1：帕梅拉6分钟灵活肩背\n搜索：帕梅拉 灵活肩背 脊柱\n\n视频2：体态大师脊柱保养\n搜索：体态大师 脊柱保养","星期":"周三","day":"第59天"},{"date":"2026-11-27","time":"午休12:00-12:40或晚间19:30-20:10（40分钟）","theme":"直角肩少女背","week":"第15周","stage":"9-12","purpose":"强化背部肌群,改善圆肩","effect":"直角肩完美,背部线条雕刻","detail":"【模块一：直角肩少女背】18分钟\n① 泡沫轴筋膜放松 3min\n② 俯卧W字伸展 4组×15次（休15s）\n③ 俯卧T字伸展 4组×15次（休15s）\n④ 俯卧Y字伸展 4组×15次（休15s）\n⑤ 俯卧L字伸展 4组×15次（休15s）\n⑥ 墙壁天使 4组×15次（休15s）\n⑦ 肩背动态拉伸 3min\n\n【模块二：上肢训练】15分钟\n⑧ 弹力带划船 4组×20次（休15s）\n⑨ 俯卧撑 4组×15次（休15s）\n⑩ 哑铃侧平举 4组×15次（休15s）\n⑪ 哑铃推举 3组×10次（休15s）【突破期】\n\n【模块三：整理】5分钟\n⑫ 肩背拉伸（十字）2min/侧\n⑬ 三头肌拉伸 1min/侧\n⑭ 深呼吸放松 1min","video":"视频1：欧阳春晓15min直角肩\nhttps://www.bilibili.com/video/BV1ag4y1B7Z9\n\n视频2：帕梅拉10min上肢训练\n搜索：帕梅拉 上肢训练","星期":"周五","day":"第60天"},{"date":"2026-11-28","time":"早晨 6:30-7:10（40分钟）","theme":"HIIT燃脂","week":"第16周","stage":"9-12","purpose":"提升代谢,燃烧脂肪","effect":"顽固脂肪歼灭,腹肌轮廓显现","detail":"【模块一：HIIT燃脂】15分钟\n① 开合跳 40s（休10s）×4轮\n② 高抬腿 40s（休10s）×4轮\n③ 深蹲侧步跳 40s（休10s）×4轮\n④ 登山跑 40s（休10s）×4轮\n⑤ 高位平板撑 40s（休10s）×4轮\n⑥ 平板开合 40s（休10s）×4轮\n⑦ 波比跳 40s（休10s）×4轮\n⑧ 海星式开合跳 40s（休10s）×4轮\n\n【模块二：站立腹部】15分钟\n⑨ 腹部侧拉 40s（休10s）×4轮\n⑩ 开合跳+扩胸 40s（休10s）×4轮\n⑪ 高抬腿 40s（休10s）×4轮\n⑫ 深蹲+侧卷腹 40s（休10s）×4轮\n⑬ 海星式开合跳 40s（休10s）×4轮\n⑭ 半波比跳 40s（休10s）×4轮\n⑮ 深蹲保持 40s（休10s）×4轮\n⑯ 平板支撑转体 3组×10次/侧（休15s）【突破期】\n\n【模块三：整理】5分钟\n⑰ 全身拉伸 3min\n⑱ 慢走调心率 1min\n⑲ 深呼吸放松 1min","video":"视频1：帕梅拉10分钟HIIT燃脂\nhttps://www.bilibili.com/video/BV1Np4y1i7rG\n\n视频2：帕梅拉10分钟HIIT+站立腹部\nhttps://www.bilibili.com/video/BV1LF411n7jw","星期":"周六","day":"第61天"},{"date":"2026-11-30","time":"上午 9:00-10:00（60分钟）","theme":"动态热身","week":"第16周","stage":"9-12","purpose":"综合强化全身肌群","effect":"全身肌肉均衡,力量爆发","detail":"【模块一：动态热身】5分钟\n① 开合跳 60s\n② 高抬腿 60s\n③ 手臂画圈 2min\n④ 原地慢跑 60s\n⑤ 动态拉伸 1min\n\n【模块二：全身HIIT】37分钟\n⑥ 深蹲跳 4组×12次（休15s）\n⑦ 俯卧撑 4组×15次（休15s）\n⑧ 弓步蹲 3组×10次/侧（休15s）\n⑨ 平板支撑 4组×60s（休15s）\n⑩ 登山跑 3组×30次（休15s）\n⑪ 波比跳 3组×8次（休15s）【强化期/突破期】\n⑫ 臀桥 4组×25次（休15s）\n⑬ 蚌式开合 4组×25次/侧（休15s）\n\n【模块三：腹部核心】14分钟\n⑭ 卷腹 4组×20次（休15s）\n⑮ 俄罗斯转体 4组×20次（休15s）【强化期/突破期】\n⑯ 反向卷腹 4组×15次（休15s）\n⑰ 鸟狗式 4组×10次/侧（休15s）【强化期】\n⑱ 平板支撑转体 3组×10次/侧（休15s）【突破期】\n\n【模块四：整理放松】10分钟\n⑲ 泡沫轴全身放松 5min\n⑳ 全身静态拉伸 3min\n㉑ 深呼吸冥想 3min","video":"视频：Chloe Ting 21天挑战Day1\nhttps://www.bilibili.com/opus/775544108885213193","星期":"周一","day":"第62天"},{"date":"2026-12-02","time":"下午 15:00-15:40（40分钟）","theme":"肩颈腰背拉伸","week":"第16周","stage":"9-12","purpose":"促进肌肉恢复,提升柔韧性","effect":"恢复加速,柔韧巅峰","detail":"【模块一：肩颈腰背拉伸】12分钟\n① 颈部拉伸（低头/抬头/侧向）各45s\n② 肩部舒展（下压/画圈）各60s\n③ 臂胸舒展（前推/后推/握拳）各45s\n④ 腰背扭转（侧腰/合十/骨盆环绕）各45s\n⑤ 坐姿脊柱前屈 60s\n⑥ 仰卧抱膝摇摆 60s\n⑦ 全身放松 2min\n\n【模块二：每日拉伸】17分钟\n⑧ 瑜伽拜日式 4轮（每轮2min）\n⑨ 鸽子式臀肌拉伸 4组×60s/侧（休10s）\n⑩ 坐姿前屈 4组×45s（休10s）\n⑪ 仰卧脊柱扭转 4组×45s/侧（休10s）\n\n【模块三：自主放松】15分钟\n⑫ 泡沫轴全身放松 5min\n⑬ 仰卧蝴蝶式 3min\n⑭ 仰卧倒箭式 3min\n⑮ 冥想呼吸 4min","video":"视频1：周六野10分钟拉伸瑜伽\nhttps://www.bilibili.com/video/BV1Q5411x7fw\n\n视频2：帕梅拉8分钟每日拉伸\n搜索：帕梅拉 每日拉伸","星期":"周三","day":"第63天"},{"date":"2026-12-04","time":"早晨 6:30-7:10（40分钟）","theme":"肩颈舒缓","week":"第16周","stage":"9-12","purpose":"改善肩颈僵硬,激活核心肌群","effect":"直角肩成型,核心力量爆发","detail":"【模块一：肩颈舒缓】15分钟\n① 抱头拉伸颈后侧 45s\n② 抱头侧向拉伸 45s/侧\n③ 单臂肩部下压 45s/侧\n④ 双臂画圈 60s\n⑤ 手肘手腕环绕 60s\n⑥ 胸部拉伸 45s\n⑦ 合十反向拉扯 45s\n\n【模块二：核心训练】15分钟\n⑧ 死虫式 4组×20次（休15s）\n⑨ 鸟狗式 4组×20次/侧（休15s）\n⑩ 平板支撑 4组×45s（休15s）\n⑪ 仰卧卷腹 4组×20次（休15s）\n⑫ 俄罗斯转体 4组×12次/侧（休15s）【强化期/突破期】\n⑬ 平板支撑转体 3组×10次/侧（休15s）【突破期】\n\n【模块三：整理】5分钟\n⑭ 全身拉伸 3min\n⑮ 深呼吸 2min","video":"视频1：欧阳春晓15min直角肩\nhttps://www.bilibili.com/video/BV1ag4y1B7Z9\n\n视频2：帕梅拉10min腹肌杀手\n搜索：帕梅拉 腹肌杀手","星期":"周五","day":"第64天"},{"date":"2026-12-05","time":"午休12:00-12:40或晚间19:30-20:10（40分钟）","theme":"侧臀训练","week":"第17周","stage":"9-12","purpose":"改善臀部凹陷,增强腿部肌肉","effect":"蜜桃臀成型,臀腿线条流畅","detail":"【模块一：侧臀训练】12分钟\n① 髋部中立位 30s\n② 直腿侧举（右）45s\n③ 直腿侧举脉冲（右）45s\n④ 举腿前+后对角（右）45s\n⑤ 后对角脉冲（右）45s\n⑥ 直腿侧举保持（右）45s\n⑦ 慢速后对角举腿（右）45s\n⑧ 半侧平板撑（右）45s\n⑨ 消防栓式（右）45s\n⑩ 5x脉冲+5x保持（右）45s\n⑪ 左侧重复右侧全部动作\n\n【模块二：翘臀训练】15分钟\n⑫ 开胯（右/左）各45s\n⑬ 侧开腿后抬腿（右/左）各45s\n⑭ 臀桥 4组×20次（休15s）\n⑮ 蚌式开合 4组×20次/侧（休15s）\n⑯ 单腿臀桥 4组×12次/侧（休15s）【强化期/突破期】\n⑰ 保加利亚分腿蹲 3组×10次/侧（休15s）【突破期】\n\n【模块三：整理】8分钟\n⑱ 臀部拉伸（鸽子式）2min/侧\n⑲ 大腿前侧拉伸 2min/侧\n⑳ 小腿拉伸 2min","video":"视频1：帕梅拉12分钟侧臀训练\nhttps://www.bilibili.com/video/BV1X5411d71V\n\n视频2：周六野10分钟翘臀不粗腿\nhttps://www.bilibili.com/video/BV1Tt411g7Aw","星期":"周六","day":"第65天"},{"date":"2026-12-07","time":"早晨 6:30-7:10（40分钟）","theme":"灵活肩背","week":"第17周","stage":"9-12","purpose":"修复颈椎问题,改善脊柱灵活性","effect":"颈椎完全康复,体态挺拔","detail":"【模块一：灵活肩背】17分钟\n① 猫牛式脊柱伸展 4组×15次（休15s）\n② 胸椎灵活性训练 4组×15次/侧（休15s）\n③ 眼镜蛇式伸展 4组×45s（休15s）\n④ 婴儿式放松 4组×45s（休15s）\n⑤ 颈部侧屈拉伸 4组×45s/侧（休15s）\n\n【模块二：脊柱保养】17分钟\n⑥ 肩胛收缩YTWL 4组×15次（休15s）\n⑦ 麦肯基颈椎疗法 4组×15次（休15s）\n⑧ 站姿侧腰拉伸 4组×45s/侧（休15s）\n⑨ 骨盆环绕 4组×15次（休15s）\n⑩ 三角形前屈拉伸 4组×45s（休15s）\n⑪ 仰卧脊柱扭转 4组×45s/侧（休15s）\n⑫ 站姿后弯 3组×15s（休15s）【突破期】\n\n【模块三：自主放松】6分钟\n⑬ 泡沫轴滚背 3min\n⑭ 仰卧抱膝摇摆 0min\n⑮ 深呼吸冥想 3min","video":"视频1：帕梅拉6分钟灵活肩背\n搜索：帕梅拉 灵活肩背 脊柱\n\n视频2：体态大师脊柱保养\n搜索：体态大师 脊柱保养","星期":"周一","day":"第66天"},{"date":"2026-12-09","time":"午休12:00-12:40或晚间19:30-20:10（40分钟）","theme":"直角肩少女背","week":"第17周","stage":"9-12","purpose":"强化背部肌群,改善圆肩","effect":"直角肩完美,背部线条雕刻","detail":"【模块一：直角肩少女背】18分钟\n① 泡沫轴筋膜放松 3min\n② 俯卧W字伸展 4组×15次（休15s）\n③ 俯卧T字伸展 4组×15次（休15s）\n④ 俯卧Y字伸展 4组×15次（休15s）\n⑤ 俯卧L字伸展 4组×15次（休15s）\n⑥ 墙壁天使 4组×15次（休15s）\n⑦ 肩背动态拉伸 3min\n\n【模块二：上肢训练】15分钟\n⑧ 弹力带划船 4组×20次（休15s）\n⑨ 俯卧撑 4组×15次（休15s）\n⑩ 哑铃侧平举 4组×15次（休15s）\n⑪ 哑铃推举 3组×10次（休15s）【突破期】\n\n【模块三：整理】5分钟\n⑫ 肩背拉伸（十字）2min/侧\n⑬ 三头肌拉伸 1min/侧\n⑭ 深呼吸放松 1min","video":"视频1：欧阳春晓15min直角肩\nhttps://www.bilibili.com/video/BV1ag4y1B7Z9\n\n视频2：帕梅拉10min上肢训练\n搜索：帕梅拉 上肢训练","星期":"周三","day":"第67天"},{"date":"2026-12-11","time":"早晨 6:30-7:10（40分钟）","theme":"HIIT燃脂","week":"第17周","stage":"9-12","purpose":"提升代谢,燃烧脂肪","effect":"顽固脂肪歼灭,腹肌轮廓显现","detail":"【模块一：HIIT燃脂】15分钟\n① 开合跳 40s（休10s）×4轮\n② 高抬腿 40s（休10s）×4轮\n③ 深蹲侧步跳 40s（休10s）×4轮\n④ 登山跑 40s（休10s）×4轮\n⑤ 高位平板撑 40s（休10s）×4轮\n⑥ 平板开合 40s（休10s）×4轮\n⑦ 波比跳 40s（休10s）×4轮\n⑧ 海星式开合跳 40s（休10s）×4轮\n\n【模块二：站立腹部】15分钟\n⑨ 腹部侧拉 40s（休10s）×4轮\n⑩ 开合跳+扩胸 40s（休10s）×4轮\n⑪ 高抬腿 40s（休10s）×4轮\n⑫ 深蹲+侧卷腹 40s（休10s）×4轮\n⑬ 海星式开合跳 40s（休10s）×4轮\n⑭ 半波比跳 40s（休10s）×4轮\n⑮ 深蹲保持 40s（休10s）×4轮\n⑯ 平板支撑转体 3组×10次/侧（休15s）【突破期】\n\n【模块三：整理】5分钟\n⑰ 全身拉伸 3min\n⑱ 慢走调心率 1min\n⑲ 深呼吸放松 1min","video":"视频1：帕梅拉10分钟HIIT燃脂\nhttps://www.bilibili.com/video/BV1Np4y1i7rG\n\n视频2：帕梅拉10分钟HIIT+站立腹部\nhttps://www.bilibili.com/video/BV1LF411n7jw","星期":"周五","day":"第68天"},{"date":"2026-12-12","time":"上午 9:00-10:00（60分钟）","theme":"动态热身","week":"第18周","stage":"9-12","purpose":"综合强化全身肌群","effect":"全身肌肉均衡,力量爆发","detail":"【模块一：动态热身】5分钟\n① 开合跳 60s\n② 高抬腿 60s\n③ 手臂画圈 2min\n④ 原地慢跑 60s\n⑤ 动态拉伸 1min\n\n【模块二：全身HIIT】37分钟\n⑥ 深蹲跳 4组×12次（休15s）\n⑦ 俯卧撑 4组×15次（休15s）\n⑧ 弓步蹲 3组×10次/侧（休15s）\n⑨ 平板支撑 4组×60s（休15s）\n⑩ 登山跑 3组×30次（休15s）\n⑪ 波比跳 3组×8次（休15s）【强化期/突破期】\n⑫ 臀桥 4组×25次（休15s）\n⑬ 蚌式开合 4组×25次/侧（休15s）\n\n【模块三：腹部核心】14分钟\n⑭ 卷腹 4组×20次（休15s）\n⑮ 俄罗斯转体 4组×20次（休15s）【强化期/突破期】\n⑯ 反向卷腹 4组×15次（休15s）\n⑰ 鸟狗式 4组×10次/侧（休15s）【强化期】\n⑱ 平板支撑转体 3组×10次/侧（休15s）【突破期】\n\n【模块四：整理放松】10分钟\n⑲ 泡沫轴全身放松 5min\n⑳ 全身静态拉伸 3min\n㉑ 深呼吸冥想 3min","video":"视频：Chloe Ting 21天挑战Day1\nhttps://www.bilibili.com/opus/775544108885213193","星期":"周六","day":"第69天"},{"date":"2026-12-14","time":"下午 15:00-15:40（40分钟）","theme":"肩颈腰背拉伸","week":"第18周","stage":"9-12","purpose":"促进肌肉恢复,提升柔韧性","effect":"恢复加速,柔韧巅峰","detail":"【模块一：肩颈腰背拉伸】12分钟\n① 颈部拉伸（低头/抬头/侧向）各45s\n② 肩部舒展（下压/画圈）各60s\n③ 臂胸舒展（前推/后推/握拳）各45s\n④ 腰背扭转（侧腰/合十/骨盆环绕）各45s\n⑤ 坐姿脊柱前屈 60s\n⑥ 仰卧抱膝摇摆 60s\n⑦ 全身放松 2min\n\n【模块二：每日拉伸】17分钟\n⑧ 瑜伽拜日式 4轮（每轮2min）\n⑨ 鸽子式臀肌拉伸 4组×60s/侧（休10s）\n⑩ 坐姿前屈 4组×45s（休10s）\n⑪ 仰卧脊柱扭转 4组×45s/侧（休10s）\n\n【模块三：自主放松】15分钟\n⑫ 泡沫轴全身放松 5min\n⑬ 仰卧蝴蝶式 3min\n⑭ 仰卧倒箭式 3min\n⑮ 冥想呼吸 4min","video":"视频1：周六野10分钟拉伸瑜伽\nhttps://www.bilibili.com/video/BV1Q5411x7fw\n\n视频2：帕梅拉8分钟每日拉伸\n搜索：帕梅拉 每日拉伸","星期":"周一","day":"第70天"},{"date":"2026-12-16","time":"早晨 6:30-7:10（40分钟）","theme":"肩颈舒缓","week":"第18周","stage":"9-12","purpose":"改善肩颈僵硬,激活核心肌群","effect":"直角肩成型,核心力量爆发","detail":"【模块一：肩颈舒缓】15分钟\n① 抱头拉伸颈后侧 45s\n② 抱头侧向拉伸 45s/侧\n③ 单臂肩部下压 45s/侧\n④ 双臂画圈 60s\n⑤ 手肘手腕环绕 60s\n⑥ 胸部拉伸 45s\n⑦ 合十反向拉扯 45s\n\n【模块二：核心训练】15分钟\n⑧ 死虫式 4组×20次（休15s）\n⑨ 鸟狗式 4组×20次/侧（休15s）\n⑩ 平板支撑 4组×45s（休15s）\n⑪ 仰卧卷腹 4组×20次（休15s）\n⑫ 俄罗斯转体 4组×12次/侧（休15s）【强化期/突破期】\n⑬ 平板支撑转体 3组×10次/侧（休15s）【突破期】\n\n【模块三：整理】5分钟\n⑭ 全身拉伸 3min\n⑮ 深呼吸 2min","video":"视频1：欧阳春晓15min直角肩\nhttps://www.bilibili.com/video/BV1ag4y1B7Z9\n\n视频2：帕梅拉10min腹肌杀手\n搜索：帕梅拉 腹肌杀手","星期":"周三","day":"第71天"},{"date":"2026-12-18","time":"午休12:00-12:40或晚间19:30-20:10（40分钟）","theme":"侧臀训练","week":"第18周","stage":"9-12","purpose":"改善臀部凹陷,增强腿部肌肉","effect":"蜜桃臀成型,臀腿线条流畅","detail":"【模块一：侧臀训练】12分钟\n① 髋部中立位 30s\n② 直腿侧举（右）45s\n③ 直腿侧举脉冲（右）45s\n④ 举腿前+后对角（右）45s\n⑤ 后对角脉冲（右）45s\n⑥ 直腿侧举保持（右）45s\n⑦ 慢速后对角举腿（右）45s\n⑧ 半侧平板撑（右）45s\n⑨ 消防栓式（右）45s\n⑩ 5x脉冲+5x保持（右）45s\n⑪ 左侧重复右侧全部动作\n\n【模块二：翘臀训练】15分钟\n⑫ 开胯（右/左）各45s\n⑬ 侧开腿后抬腿（右/左）各45s\n⑭ 臀桥 4组×20次（休15s）\n⑮ 蚌式开合 4组×20次/侧（休15s）\n⑯ 单腿臀桥 4组×12次/侧（休15s）【强化期/突破期】\n⑰ 保加利亚分腿蹲 3组×10次/侧（休15s）【突破期】\n\n【模块三：整理】8分钟\n⑱ 臀部拉伸（鸽子式）2min/侧\n⑲ 大腿前侧拉伸 2min/侧\n⑳ 小腿拉伸 2min","video":"视频1：帕梅拉12分钟侧臀训练\nhttps://www.bilibili.com/video/BV1X5411d71V\n\n视频2：周六野10分钟翘臀不粗腿\nhttps://www.bilibili.com/video/BV1Tt411g7Aw","星期":"周五","day":"第72天"},{"date":"2026-12-19","time":"早晨 6:30-7:10（40分钟）","theme":"灵活肩背","week":"第19周","stage":"9-12","purpose":"修复颈椎问题,改善脊柱灵活性","effect":"颈椎完全康复,体态挺拔","detail":"【模块一：灵活肩背】17分钟\n① 猫牛式脊柱伸展 4组×15次（休15s）\n② 胸椎灵活性训练 4组×15次/侧（休15s）\n③ 眼镜蛇式伸展 4组×45s（休15s）\n④ 婴儿式放松 4组×45s（休15s）\n⑤ 颈部侧屈拉伸 4组×45s/侧（休15s）\n\n【模块二：脊柱保养】17分钟\n⑥ 肩胛收缩YTWL 4组×15次（休15s）\n⑦ 麦肯基颈椎疗法 4组×15次（休15s）\n⑧ 站姿侧腰拉伸 4组×45s/侧（休15s）\n⑨ 骨盆环绕 4组×15次（休15s）\n⑩ 三角形前屈拉伸 4组×45s（休15s）\n⑪ 仰卧脊柱扭转 4组×45s/侧（休15s）\n⑫ 站姿后弯 3组×15s（休15s）【突破期】\n\n【模块三：自主放松】6分钟\n⑬ 泡沫轴滚背 3min\n⑭ 仰卧抱膝摇摆 0min\n⑮ 深呼吸冥想 3min","video":"视频1：帕梅拉6分钟灵活肩背\n搜索：帕梅拉 灵活肩背 脊柱\n\n视频2：体态大师脊柱保养\n搜索：体态大师 脊柱保养","星期":"周六","day":"第73天"},{"date":"2026-12-21","time":"午休12:00-12:40或晚间19:30-20:10（40分钟）","theme":"直角肩少女背","week":"第19周","stage":"9-12","purpose":"强化背部肌群,改善圆肩","effect":"直角肩完美,背部线条雕刻","detail":"【模块一：直角肩少女背】18分钟\n① 泡沫轴筋膜放松 3min\n② 俯卧W字伸展 4组×15次（休15s）\n③ 俯卧T字伸展 4组×15次（休15s）\n④ 俯卧Y字伸展 4组×15次（休15s）\n⑤ 俯卧L字伸展 4组×15次（休15s）\n⑥ 墙壁天使 4组×15次（休15s）\n⑦ 肩背动态拉伸 3min\n\n【模块二：上肢训练】15分钟\n⑧ 弹力带划船 4组×20次（休15s）\n⑨ 俯卧撑 4组×15次（休15s）\n⑩ 哑铃侧平举 4组×15次（休15s）\n⑪ 哑铃推举 3组×10次（休15s）【突破期】\n\n【模块三：整理】5分钟\n⑫ 肩背拉伸（十字）2min/侧\n⑬ 三头肌拉伸 1min/侧\n⑭ 深呼吸放松 1min","video":"视频1：欧阳春晓15min直角肩\nhttps://www.bilibili.com/video/BV1ag4y1B7Z9\n\n视频2：帕梅拉10min上肢训练\n搜索：帕梅拉 上肢训练","星期":"周一","day":"第74天"},{"date":"2026-12-23","time":"早晨 6:30-7:10（40分钟）","theme":"HIIT燃脂","week":"第19周","stage":"9-12","purpose":"提升代谢,燃烧脂肪","effect":"顽固脂肪歼灭,腹肌轮廓显现","detail":"【模块一：HIIT燃脂】15分钟\n① 开合跳 40s（休10s）×4轮\n② 高抬腿 40s（休10s）×4轮\n③ 深蹲侧步跳 40s（休10s）×4轮\n④ 登山跑 40s（休10s）×4轮\n⑤ 高位平板撑 40s（休10s）×4轮\n⑥ 平板开合 40s（休10s）×4轮\n⑦ 波比跳 40s（休10s）×4轮\n⑧ 海星式开合跳 40s（休10s）×4轮\n\n【模块二：站立腹部】15分钟\n⑨ 腹部侧拉 40s（休10s）×4轮\n⑩ 开合跳+扩胸 40s（休10s）×4轮\n⑪ 高抬腿 40s（休10s）×4轮\n⑫ 深蹲+侧卷腹 40s（休10s）×4轮\n⑬ 海星式开合跳 40s（休10s）×4轮\n⑭ 半波比跳 40s（休10s）×4轮\n⑮ 深蹲保持 40s（休10s）×4轮\n⑯ 平板支撑转体 3组×10次/侧（休15s）【突破期】\n\n【模块三：整理】5分钟\n⑰ 全身拉伸 3min\n⑱ 慢走调心率 1min\n⑲ 深呼吸放松 1min","video":"视频1：帕梅拉10分钟HIIT燃脂\nhttps://www.bilibili.com/video/BV1Np4y1i7rG\n\n视频2：帕梅拉10分钟HIIT+站立腹部\nhttps://www.bilibili.com/video/BV1LF411n7jw","星期":"周三","day":"第75天"},{"date":"2026-12-25","time":"上午 9:00-10:00（60分钟）","theme":"动态热身","week":"第19周","stage":"9-12","purpose":"综合强化全身肌群","effect":"全身肌肉均衡,力量爆发","detail":"【模块一：动态热身】5分钟\n① 开合跳 60s\n② 高抬腿 60s\n③ 手臂画圈 2min\n④ 原地慢跑 60s\n⑤ 动态拉伸 1min\n\n【模块二：全身HIIT】37分钟\n⑥ 深蹲跳 4组×12次（休15s）\n⑦ 俯卧撑 4组×15次（休15s）\n⑧ 弓步蹲 3组×10次/侧（休15s）\n⑨ 平板支撑 4组×60s（休15s）\n⑩ 登山跑 3组×30次（休15s）\n⑪ 波比跳 3组×8次（休15s）【强化期/突破期】\n⑫ 臀桥 4组×25次（休15s）\n⑬ 蚌式开合 4组×25次/侧（休15s）\n\n【模块三：腹部核心】14分钟\n⑭ 卷腹 4组×20次（休15s）\n⑮ 俄罗斯转体 4组×20次（休15s）【强化期/突破期】\n⑯ 反向卷腹 4组×15次（休15s）\n⑰ 鸟狗式 4组×10次/侧（休15s）【强化期】\n⑱ 平板支撑转体 3组×10次/侧（休15s）【突破期】\n\n【模块四：整理放松】10分钟\n⑲ 泡沫轴全身放松 5min\n⑳ 全身静态拉伸 3min\n㉑ 深呼吸冥想 3min","video":"视频：Chloe Ting 21天挑战Day1\nhttps://www.bilibili.com/opus/775544108885213193","星期":"周五","day":"第76天"},{"date":"2026-12-26","time":"下午 15:00-15:40（40分钟）","theme":"肩颈腰背拉伸","week":"第20周","stage":"9-12","purpose":"促进肌肉恢复,提升柔韧性","effect":"恢复加速,柔韧巅峰","detail":"【模块一：肩颈腰背拉伸】12分钟\n① 颈部拉伸（低头/抬头/侧向）各45s\n② 肩部舒展（下压/画圈）各60s\n③ 臂胸舒展（前推/后推/握拳）各45s\n④ 腰背扭转（侧腰/合十/骨盆环绕）各45s\n⑤ 坐姿脊柱前屈 60s\n⑥ 仰卧抱膝摇摆 60s\n⑦ 全身放松 2min\n\n【模块二：每日拉伸】17分钟\n⑧ 瑜伽拜日式 4轮（每轮2min）\n⑨ 鸽子式臀肌拉伸 4组×60s/侧（休10s）\n⑩ 坐姿前屈 4组×45s（休10s）\n⑪ 仰卧脊柱扭转 4组×45s/侧（休10s）\n\n【模块三：自主放松】15分钟\n⑫ 泡沫轴全身放松 5min\n⑬ 仰卧蝴蝶式 3min\n⑭ 仰卧倒箭式 3min\n⑮ 冥想呼吸 4min","video":"视频1：周六野10分钟拉伸瑜伽\nhttps://www.bilibili.com/video/BV1Q5411x7fw\n\n视频2：帕梅拉8分钟每日拉伸\n搜索：帕梅拉 每日拉伸","星期":"周六","day":"第77天"},{"date":"2026-12-28","time":"早晨 6:30-7:10（40分钟）","theme":"肩颈舒缓","week":"第20周","stage":"9-12","purpose":"改善肩颈僵硬,激活核心肌群","effect":"直角肩成型,核心力量爆发","detail":"【模块一：肩颈舒缓】15分钟\n① 抱头拉伸颈后侧 45s\n② 抱头侧向拉伸 45s/侧\n③ 单臂肩部下压 45s/侧\n④ 双臂画圈 60s\n⑤ 手肘手腕环绕 60s\n⑥ 胸部拉伸 45s\n⑦ 合十反向拉扯 45s\n\n【模块二：核心训练】15分钟\n⑧ 死虫式 4组×20次（休15s）\n⑨ 鸟狗式 4组×20次/侧（休15s）\n⑩ 平板支撑 4组×45s（休15s）\n⑪ 仰卧卷腹 4组×20次（休15s）\n⑫ 俄罗斯转体 4组×12次/侧（休15s）【强化期/突破期】\n⑬ 平板支撑转体 3组×10次/侧（休15s）【突破期】\n\n【模块三：整理】5分钟\n⑭ 全身拉伸 3min\n⑮ 深呼吸 2min","video":"视频1：欧阳春晓15min直角肩\nhttps://www.bilibili.com/video/BV1ag4y1B7Z9\n\n视频2：帕梅拉10min腹肌杀手\n搜索：帕梅拉 腹肌杀手","星期":"周一","day":"第78天"},{"date":"2026-12-30","time":"午休12:00-12:40或晚间19:30-20:10（40分钟）","theme":"侧臀训练","week":"第20周","stage":"9-12","purpose":"改善臀部凹陷,增强腿部肌肉","effect":"蜜桃臀成型,臀腿线条流畅","detail":"【模块一：侧臀训练】12分钟\n① 髋部中立位 30s\n② 直腿侧举（右）45s\n③ 直腿侧举脉冲（右）45s\n④ 举腿前+后对角（右）45s\n⑤ 后对角脉冲（右）45s\n⑥ 直腿侧举保持（右）45s\n⑦ 慢速后对角举腿（右）45s\n⑧ 半侧平板撑（右）45s\n⑨ 消防栓式（右）45s\n⑩ 5x脉冲+5x保持（右）45s\n⑪ 左侧重复右侧全部动作\n\n【模块二：翘臀训练】15分钟\n⑫ 开胯（右/左）各45s\n⑬ 侧开腿后抬腿（右/左）各45s\n⑭ 臀桥 4组×20次（休15s）\n⑮ 蚌式开合 4组×20次/侧（休15s）\n⑯ 单腿臀桥 4组×12次/侧（休15s）【强化期/突破期】\n⑰ 保加利亚分腿蹲 3组×10次/侧（休15s）【突破期】\n\n【模块三：整理】8分钟\n⑱ 臀部拉伸（鸽子式）2min/侧\n⑲ 大腿前侧拉伸 2min/侧\n⑳ 小腿拉伸 2min","video":"视频1：帕梅拉12分钟侧臀训练\nhttps://www.bilibili.com/video/BV1X5411d71V\n\n视频2：周六野10分钟翘臀不粗腿\nhttps://www.bilibili.com/video/BV1Tt411g7Aw","星期":"周三","day":"第79天"},{"date":"2027-01-01","time":"早晨 6:30-7:10（40分钟）","theme":"灵活肩背","week":"第20周","stage":"9-12","purpose":"修复颈椎问题,改善脊柱灵活性","effect":"颈椎完全康复,体态挺拔","detail":"【模块一：灵活肩背】17分钟\n① 猫牛式脊柱伸展 4组×15次（休15s）\n② 胸椎灵活性训练 4组×15次/侧（休15s）\n③ 眼镜蛇式伸展 4组×45s（休15s）\n④ 婴儿式放松 4组×45s（休15s）\n⑤ 颈部侧屈拉伸 4组×45s/侧（休15s）\n\n【模块二：脊柱保养】17分钟\n⑥ 肩胛收缩YTWL 4组×15次（休15s）\n⑦ 麦肯基颈椎疗法 4组×15次（休15s）\n⑧ 站姿侧腰拉伸 4组×45s/侧（休15s）\n⑨ 骨盆环绕 4组×15次（休15s）\n⑩ 三角形前屈拉伸 4组×45s（休15s）\n⑪ 仰卧脊柱扭转 4组×45s/侧（休15s）\n⑫ 站姿后弯 3组×15s（休15s）【突破期】\n\n【模块三：自主放松】6分钟\n⑬ 泡沫轴滚背 3min\n⑭ 仰卧抱膝摇摆 0min\n⑮ 深呼吸冥想 3min","video":"视频1：帕梅拉6分钟灵活肩背\n搜索：帕梅拉 灵活肩背 脊柱\n\n视频2：体态大师脊柱保养\n搜索：体态大师 脊柱保养","星期":"周五","day":"第80天"},{"date":"2027-01-02","time":"午休12:00-12:40或晚间19:30-20:10（40分钟）","theme":"直角肩少女背","week":"第21周","stage":"9-12","purpose":"强化背部肌群,改善圆肩","effect":"直角肩完美,背部线条雕刻","detail":"【模块一：直角肩少女背】18分钟\n① 泡沫轴筋膜放松 3min\n② 俯卧W字伸展 4组×15次（休15s）\n③ 俯卧T字伸展 4组×15次（休15s）\n④ 俯卧Y字伸展 4组×15次（休15s）\n⑤ 俯卧L字伸展 4组×15次（休15s）\n⑥ 墙壁天使 4组×15次（休15s）\n⑦ 肩背动态拉伸 3min\n\n【模块二：上肢训练】15分钟\n⑧ 弹力带划船 4组×20次（休15s）\n⑨ 俯卧撑 4组×15次（休15s）\n⑩ 哑铃侧平举 4组×15次（休15s）\n⑪ 哑铃推举 3组×10次（休15s）【突破期】\n\n【模块三：整理】5分钟\n⑫ 肩背拉伸（十字）2min/侧\n⑬ 三头肌拉伸 1min/侧\n⑭ 深呼吸放松 1min","video":"视频1：欧阳春晓15min直角肩\nhttps://www.bilibili.com/video/BV1ag4y1B7Z9\n\n视频2：帕梅拉10min上肢训练\n搜索：帕梅拉 上肢训练","星期":"周六","day":"第81天"},{"date":"2027-01-04","time":"早晨 6:30-7:10（40分钟）","theme":"HIIT燃脂","week":"第21周","stage":"9-12","purpose":"提升代谢,燃烧脂肪","effect":"顽固脂肪歼灭,腹肌轮廓显现","detail":"【模块一：HIIT燃脂】15分钟\n① 开合跳 40s（休10s）×4轮\n② 高抬腿 40s（休10s）×4轮\n③ 深蹲侧步跳 40s（休10s）×4轮\n④ 登山跑 40s（休10s）×4轮\n⑤ 高位平板撑 40s（休10s）×4轮\n⑥ 平板开合 40s（休10s）×4轮\n⑦ 波比跳 40s（休10s）×4轮\n⑧ 海星式开合跳 40s（休10s）×4轮\n\n【模块二：站立腹部】15分钟\n⑨ 腹部侧拉 40s（休10s）×4轮\n⑩ 开合跳+扩胸 40s（休10s）×4轮\n⑪ 高抬腿 40s（休10s）×4轮\n⑫ 深蹲+侧卷腹 40s（休10s）×4轮\n⑬ 海星式开合跳 40s（休10s）×4轮\n⑭ 半波比跳 40s（休10s）×4轮\n⑮ 深蹲保持 40s（休10s）×4轮\n⑯ 平板支撑转体 3组×10次/侧（休15s）【突破期】\n\n【模块三：整理】5分钟\n⑰ 全身拉伸 3min\n⑱ 慢走调心率 1min\n⑲ 深呼吸放松 1min","video":"视频1：帕梅拉10分钟HIIT燃脂\nhttps://www.bilibili.com/video/BV1Np4y1i7rG\n\n视频2：帕梅拉10分钟HIIT+站立腹部\nhttps://www.bilibili.com/video/BV1LF411n7jw","星期":"周一","day":"第82天"},{"date":"2027-01-06","time":"上午 9:00-10:00（60分钟）","theme":"动态热身","week":"第21周","stage":"9-12","purpose":"综合强化全身肌群","effect":"全身肌肉均衡,力量爆发","detail":"【模块一：动态热身】5分钟\n① 开合跳 60s\n② 高抬腿 60s\n③ 手臂画圈 2min\n④ 原地慢跑 60s\n⑤ 动态拉伸 1min\n\n【模块二：全身HIIT】37分钟\n⑥ 深蹲跳 4组×12次（休15s）\n⑦ 俯卧撑 4组×15次（休15s）\n⑧ 弓步蹲 3组×10次/侧（休15s）\n⑨ 平板支撑 4组×60s（休15s）\n⑩ 登山跑 3组×30次（休15s）\n⑪ 波比跳 3组×8次（休15s）【强化期/突破期】\n⑫ 臀桥 4组×25次（休15s）\n⑬ 蚌式开合 4组×25次/侧（休15s）\n\n【模块三：腹部核心】14分钟\n⑭ 卷腹 4组×20次（休15s）\n⑮ 俄罗斯转体 4组×20次（休15s）【强化期/突破期】\n⑯ 反向卷腹 4组×15次（休15s）\n⑰ 鸟狗式 4组×10次/侧（休15s）【强化期】\n⑱ 平板支撑转体 3组×10次/侧（休15s）【突破期】\n\n【模块四：整理放松】10分钟\n⑲ 泡沫轴全身放松 5min\n⑳ 全身静态拉伸 3min\n㉑ 深呼吸冥想 3min","video":"视频：Chloe Ting 21天挑战Day1\nhttps://www.bilibili.com/opus/775544108885213193","星期":"周三","day":"第83天"},{"date":"2027-01-08","time":"下午 15:00-15:40（40分钟）","theme":"肩颈腰背拉伸","week":"第21周","stage":"9-12","purpose":"促进肌肉恢复,提升柔韧性","effect":"恢复加速,柔韧巅峰","detail":"【模块一：肩颈腰背拉伸】12分钟\n① 颈部拉伸（低头/抬头/侧向）各45s\n② 肩部舒展（下压/画圈）各60s\n③ 臂胸舒展（前推/后推/握拳）各45s\n④ 腰背扭转（侧腰/合十/骨盆环绕）各45s\n⑤ 坐姿脊柱前屈 60s\n⑥ 仰卧抱膝摇摆 60s\n⑦ 全身放松 2min\n\n【模块二：每日拉伸】17分钟\n⑧ 瑜伽拜日式 4轮（每轮2min）\n⑨ 鸽子式臀肌拉伸 4组×60s/侧（休10s）\n⑩ 坐姿前屈 4组×45s（休10s）\n⑪ 仰卧脊柱扭转 4组×45s/侧（休10s）\n\n【模块三：自主放松】15分钟\n⑫ 泡沫轴全身放松 5min\n⑬ 仰卧蝴蝶式 3min\n⑭ 仰卧倒箭式 3min\n⑮ 冥想呼吸 4min","video":"视频1：周六野10分钟拉伸瑜伽\nhttps://www.bilibili.com/video/BV1Q5411x7fw\n\n视频2：帕梅拉8分钟每日拉伸\n搜索：帕梅拉 每日拉伸","星期":"周五","day":"第84天"}],"写作练习":[{"stage":"第一阶段：基础入门","date":"2026-08-15","name":"了解网文行业现状","content":"阅读网文平台榜单规则，了解各平台特点（番茄/起点/晋江等）","day":"第1天","week":"第1周","duration":"30分钟","type":"理论学习","星期":"周六"},{"stage":"第一阶段：基础入门","date":"2026-08-17","name":"确定创作方向","content":"选择感兴趣的题材（玄幻/都市/言情/悬疑等），确定目标平台","day":"第2天","week":"第1周","duration":"30分钟","type":"理论学习","星期":"周一"},{"stage":"第一阶段：基础入门","date":"2026-08-18","name":"阅读经典开篇","content":"精读3本目标题材热门作品的前3章，标记吸引点","day":"第3天","week":"第1周","duration":"40分钟","type":"阅读拆文","星期":"周二"},{"stage":"第一阶段：基础入门","date":"2026-08-19","name":"拆文分析-结构","content":"拆解1本热门作品：分析开篇结构、节奏、钩子设置","day":"第4天","week":"第1周","duration":"40分钟","type":"阅读拆文","星期":"周三"},{"stage":"第一阶段：基础入门","date":"2026-08-20","name":"拆文分析-人物","content":"拆解人物设定：主角性格、金手指、反派塑造方法","day":"第5天","week":"第1周","duration":"40分钟","type":"阅读拆文","星期":"周四"},{"stage":"第一阶段：基础入门","date":"2026-08-21","name":"拆文分析-爽点","content":"拆解爽点设计：打脸、升级、反转、期待感营造","day":"第6天","week":"第1周","duration":"40分钟","type":"阅读拆文","星期":"周五"},{"stage":"第一阶段：基础入门","date":"2026-08-22","name":"学习基础理论","content":"学习网文基础：黄金三章、节奏控制、悬念设置","day":"第7天","week":"第2周","duration":"30分钟","type":"理论学习","星期":"周六"},{"stage":"第一阶段：基础入门","date":"2026-08-24","name":"学习人物塑造","content":"学习主角塑造：人设标签、成长弧线、读者代入感","day":"第8天","week":"第2周","duration":"30分钟","type":"理论学习","星期":"周一"},{"stage":"第一阶段：基础入门","date":"2026-08-25","name":"学习世界观构建","content":"学习世界观搭建：力量体系、地图、势力分布","day":"第9天","week":"第2周","duration":"30分钟","type":"理论学习","星期":"周二"},{"stage":"第一阶段：基础入门","date":"2026-08-26","name":"整理素材库","content":"建立个人素材库：收集有趣的人设、情节、台词、场景","day":"第10天","week":"第2周","duration":"30分钟","type":"素材积累","星期":"周三"},{"stage":"第一阶段：基础入门","date":"2026-08-27","name":"构思作品大纲","content":"确定新书核心：书名、简介、主角、主线、结局方向","day":"第11天","week":"第2周","duration":"40分钟","type":"创作准备","星期":"周四"},{"stage":"第一阶段：基础入门","date":"2026-08-28","name":"完善故事大纲","content":"细化大纲：分卷规划、关键节点、高潮设计","day":"第12天","week":"第2周","duration":"40分钟","type":"创作准备","星期":"周五"},{"stage":"第二阶段：仿写训练","date":"2026-08-29","name":"仿写开篇-节奏","content":"仿写1篇热门作品开篇（500字）：模仿其节奏和钩子","day":"第13天","week":"第3周","duration":"40分钟","type":"仿写练习","星期":"周六"},{"stage":"第二阶段：仿写训练","date":"2026-08-31","name":"仿写开篇-冲突","content":"仿写1篇作品开篇（500字）：模仿冲突引入方式","day":"第14天","week":"第3周","duration":"40分钟","type":"仿写练习","星期":"周一"},{"stage":"第二阶段：仿写训练","date":"2026-09-01","name":"仿写人物出场","content":"仿写主角出场片段（300字）：练习人物塑造","day":"第15天","week":"第3周","duration":"40分钟","type":"仿写练习","星期":"周二"},{"stage":"第二阶段：仿写训练","date":"2026-09-02","name":"仿写对话","content":"仿写对话片段（300字）：练习自然对话与信息传递","day":"第16天","week":"第3周","duration":"40分钟","type":"仿写练习","星期":"周三"},{"stage":"第二阶段：仿写训练","date":"2026-09-03","name":"仿写打斗场景","content":"仿写打斗/冲突场景（400字）：练习动作描写与节奏","day":"第17天","week":"第3周","duration":"40分钟","type":"仿写练习","星期":"周四"},{"stage":"第二阶段：仿写训练","date":"2026-09-04","name":"仿写情感戏","content":"仿写情感互动片段（300字）：练习情绪渲染","day":"第18天","week":"第3周","duration":"40分钟","type":"仿写练习","星期":"周五"},{"stage":"第二阶段：仿写训练","date":"2026-09-05","name":"仿写爽点段落","content":"仿写打脸/升级爽点片段（400字）：练习爽感营造","day":"第19天","week":"第4周","duration":"40分钟","type":"仿写练习","星期":"周六"},{"stage":"第二阶段：仿写训练","date":"2026-09-07","name":"仿写悬念设置","content":"仿写悬念钩子片段（300字）：练习留钩子技巧","day":"第20天","week":"第4周","duration":"40分钟","type":"仿写练习","星期":"周一"},{"stage":"第二阶段：仿写训练","date":"2026-09-08","name":"仿写环境描写","content":"仿写世界观展示片段（300字）：练习背景融入叙事","day":"第21天","week":"第4周","duration":"40分钟","type":"仿写练习","星期":"周二"},{"stage":"第二阶段：仿写训练","date":"2026-09-09","name":"仿写转场","content":"仿写章节转场（200字）：练习节奏过渡","day":"第22天","week":"第4周","duration":"30分钟","type":"仿写练习","星期":"周三"},{"stage":"第二阶段：仿写训练","date":"2026-09-10","name":"仿写反派塑造","content":"仿写反派出场片段（300字）：练习反派魅力","day":"第23天","week":"第4周","duration":"40分钟","type":"仿写练习","星期":"周四"},{"stage":"第二阶段：仿写训练","date":"2026-09-11","name":"仿写群像","content":"仿写群像互动片段（400字）：练习多人物场景","day":"第24天","week":"第4周","duration":"40分钟","type":"仿写练习","星期":"周五"},{"stage":"第二阶段：仿写训练","date":"2026-09-12","name":"独立开篇练习1","content":"独立创作作品第1章（1500字）：开篇+主角出场","day":"第25天","week":"第5周","duration":"50分钟","type":"独立创作","星期":"周六"},{"stage":"第二阶段：仿写训练","date":"2026-09-14","name":"独立开篇练习2","content":"独立创作作品第2章（1500字）：冲突引入+金手指","day":"第26天","week":"第5周","duration":"50分钟","type":"独立创作","星期":"周一"},{"stage":"第二阶段：仿写训练","date":"2026-09-15","name":"独立开篇练习3","content":"独立创作作品第3章（1500字）：第一个小高潮","day":"第27天","week":"第5周","duration":"50分钟","type":"独立创作","星期":"周二"},{"stage":"第二阶段：仿写训练","date":"2026-09-16","name":"修改开篇1-3章","content":"修改完善前3章：打磨节奏、删减冗余、强化钩子","day":"第28天","week":"第5周","duration":"50分钟","type":"修改打磨","星期":"周三"},{"stage":"第二阶段：仿写训练","date":"2026-09-17","name":"仿写情节推进","content":"仿写情节推进片段（500字）：练习主线推进","day":"第29天","week":"第5周","duration":"40分钟","type":"仿写练习","星期":"周四"},{"stage":"第二阶段：仿写训练","date":"2026-09-18","name":"仿写支线设计","content":"仿写支线任务片段（400字）：练习支线与主线交织","day":"第30天","week":"第5周","duration":"40分钟","type":"仿写练习","星期":"周五"},{"stage":"第二阶段：仿写训练","date":"2026-09-19","name":"仿写升级体系","content":"仿写升级/突破片段（400字）：练习力量体系展示","day":"第31天","week":"第6周","duration":"40分钟","type":"仿写练习","星期":"周六"},{"stage":"第二阶段：仿写训练","date":"2026-09-21","name":"仿写情感高潮","content":"仿写情感高潮片段（400字）：练习情绪爆发","day":"第32天","week":"第6周","duration":"40分钟","type":"仿写练习","星期":"周一"},{"stage":"第二阶段：仿写训练","date":"2026-09-22","name":"仿写伏笔回收","content":"仿写伏笔回收片段（300字）：练习前后呼应","day":"第33天","week":"第6周","duration":"40分钟","type":"仿写练习","星期":"周二"},{"stage":"第二阶段：仿写训练","date":"2026-09-23","name":"仿写 cliffhanger","content":"仿写章节结尾钩子（200字）：练习断章技巧","day":"第34天","week":"第6周","duration":"30分钟","type":"仿写练习","星期":"周三"},{"stage":"第二阶段：仿写训练","date":"2026-09-24","name":"仿写多线叙事","content":"仿写多线并进片段（500字）：练习视角切换","day":"第35天","week":"第6周","duration":"40分钟","type":"仿写练习","星期":"周四"},{"stage":"第二阶段：仿写训练","date":"2026-09-25","name":"仿写日常过渡","content":"仿写日常/过渡片段（300字）：练习张弛有度","day":"第36天","week":"第6周","duration":"30分钟","type":"仿写练习","星期":"周五"},{"stage":"第三阶段：独立创作","date":"2026-09-26","name":"创作第4-5章","content":"创作第4-5章（3000字）：推进主线，引入第一个反派","day":"第37天","week":"第7周","duration":"50分钟","type":"独立创作","星期":"周六"},{"stage":"第三阶段：独立创作","date":"2026-09-28","name":"创作第6-7章","content":"创作第6-7章（3000字）：小高潮+收获","day":"第38天","week":"第7周","duration":"50分钟","type":"独立创作","星期":"周一"},{"stage":"第三阶段：独立创作","date":"2026-09-29","name":"创作第8-9章","content":"创作第8-9章（3000字）：转折+新地图/新人物","day":"第39天","week":"第7周","duration":"50分钟","type":"独立创作","星期":"周二"},{"stage":"第三阶段：独立创作","date":"2026-09-30","name":"创作第10章","content":"创作第10章（1500字）：第一卷收尾+大钩子","day":"第40天","week":"第7周","duration":"50分钟","type":"独立创作","星期":"周三"},{"stage":"第三阶段：独立创作","date":"2026-10-01","name":"修改1-10章","content":"通读修改前10章：检查节奏、逻辑、人设一致性","day":"第41天","week":"第7周","duration":"50分钟","type":"修改打磨","星期":"周四"},{"stage":"第三阶段：独立创作","date":"2026-10-02","name":"创作第11-12章","content":"创作第11-12章（3000字）：第二卷开篇+新冲突","day":"第42天","week":"第7周","duration":"50分钟","type":"独立创作","星期":"周五"},{"stage":"第三阶段：独立创作","date":"2026-10-03","name":"创作第13-14章","content":"创作第13-14章（3000字）：升级+打脸","day":"第43天","week":"第8周","duration":"50分钟","type":"独立创作","星期":"周六"},{"stage":"第三阶段：独立创作","date":"2026-10-05","name":"创作第15-16章","content":"创作第15-16章（3000字）：情感线推进","day":"第44天","week":"第8周","duration":"50分钟","type":"独立创作","星期":"周一"},{"stage":"第三阶段：独立创作","date":"2026-10-06","name":"创作第17-18章","content":"创作第17-18章（3000字）：中期高潮铺垫","day":"第45天","week":"第8周","duration":"50分钟","type":"独立创作","星期":"周二"},{"stage":"第三阶段：独立创作","date":"2026-10-07","name":"创作第19-20章","content":"创作第19-20章（3000字）：中期小高潮","day":"第46天","week":"第8周","duration":"50分钟","type":"独立创作","星期":"周三"},{"stage":"第三阶段：独立创作","date":"2026-10-08","name":"修改11-20章","content":"通读修改第11-20章：优化节奏，删减水字数","day":"第47天","week":"第8周","duration":"50分钟","type":"修改打磨","星期":"周四"},{"stage":"第三阶段：独立创作","date":"2026-10-09","name":"创作第21-22章","content":"创作第21-22章（3000字）：支线展开","day":"第48天","week":"第8周","duration":"50分钟","type":"独立创作","星期":"周五"},{"stage":"第三阶段：独立创作","date":"2026-10-10","name":"创作第23-24章","content":"创作第23-24章（3000字）：反派升级+危机","day":"第49天","week":"第9周","duration":"50分钟","type":"独立创作","星期":"周六"},{"stage":"第三阶段：独立创作","date":"2026-10-12","name":"创作第25-26章","content":"创作第25-26章（3000字）：破局+反击","day":"第50天","week":"第9周","duration":"50分钟","type":"独立创作","星期":"周一"},{"stage":"第三阶段：独立创作","date":"2026-10-13","name":"创作第27-28章","content":"创作第27-28章（3000字）：收获+新目标","day":"第51天","week":"第9周","duration":"50分钟","type":"独立创作","星期":"周二"},{"stage":"第三阶段：独立创作","date":"2026-10-14","name":"创作第29-30章","content":"创作第29-30章（3000字）：第二卷收尾","day":"第52天","week":"第9周","duration":"50分钟","type":"独立创作","星期":"周三"},{"stage":"第三阶段：独立创作","date":"2026-10-15","name":"修改21-30章","content":"通读修改第21-30章：确保30章内故事完整有吸引力","day":"第53天","week":"第9周","duration":"50分钟","type":"修改打磨","星期":"周四"},{"stage":"第三阶段：独立创作","date":"2026-10-16","name":"创作第31-32章","content":"创作第31-32章（3000字）：第三卷开篇","day":"第54天","week":"第9周","duration":"50分钟","type":"独立创作","星期":"周五"},{"stage":"第三阶段：独立创作","date":"2026-10-17","name":"创作第33-34章","content":"创作第33-34章（3000字）：新地图探索","day":"第55天","week":"第10周","duration":"50分钟","type":"独立创作","星期":"周六"},{"stage":"第三阶段：独立创作","date":"2026-10-19","name":"创作第35-36章","content":"创作第35-36章（3000字）：中期大高潮","day":"第56天","week":"第10周","duration":"50分钟","type":"独立创作","星期":"周一"},{"stage":"第三阶段：独立创作","date":"2026-10-20","name":"创作第37-38章","content":"创作第37-38章（3000字）：转折+代价","day":"第57天","week":"第10周","duration":"50分钟","type":"独立创作","星期":"周二"},{"stage":"第三阶段：独立创作","date":"2026-10-21","name":"创作第39-40章","content":"创作第39-40章（3000字）：阶段性胜利+新悬念","day":"第58天","week":"第10周","duration":"50分钟","type":"独立创作","星期":"周三"},{"stage":"第三阶段：独立创作","date":"2026-10-22","name":"修改31-40章","content":"通读修改第31-40章：打磨至可发布水准","day":"第59天","week":"第10周","duration":"50分钟","type":"修改打磨","星期":"周四"},{"stage":"第三阶段：独立创作","date":"2026-10-23","name":"整理前40章","content":"整理前40章文档：统一格式、检查错别字、制作目录","day":"第60天","week":"第10周","duration":"40分钟","type":"修改打磨","星期":"周五"},{"stage":"第四阶段：提升投稿","date":"2026-10-24","name":"学习投稿规则","content":"研究目标平台投稿规则：字数要求、签约标准、推荐机制","day":"第61天","week":"第11周","duration":"30分钟","type":"投稿准备","星期":"周六"},{"stage":"第四阶段：提升投稿","date":"2026-10-26","name":"制作投稿材料","content":"准备投稿材料：大纲、人设表、前3章精修版","day":"第62天","week":"第11周","duration":"40分钟","type":"投稿准备","星期":"周一"},{"stage":"第四阶段：提升投稿","date":"2026-10-27","name":"精修前3章","content":"精修前3章至投稿水准：黄金三章打磨","day":"第63天","week":"第11周","duration":"50分钟","type":"修改打磨","星期":"周二"},{"stage":"第四阶段：提升投稿","date":"2026-10-28","name":"撰写作品简介","content":"撰写吸引人的作品简介+书名优化","day":"第64天","week":"第11周","duration":"30分钟","type":"投稿准备","星期":"周三"},{"stage":"第四阶段：提升投稿","date":"2026-10-29","name":"创作第41-42章","content":"创作第41-42章（3000字）：保持更新节奏","day":"第65天","week":"第11周","duration":"50分钟","type":"独立创作","星期":"周四"},{"stage":"第四阶段：提升投稿","date":"2026-10-30","name":"创作第43-44章","content":"创作第43-44章（3000字）：推进至后期","day":"第66天","week":"第11周","duration":"50分钟","type":"独立创作","星期":"周五"},{"stage":"第四阶段：提升投稿","date":"2026-10-31","name":"创作第45-46章","content":"创作第45-46章（3000字）：后期高潮铺垫","day":"第67天","week":"第12周","duration":"50分钟","type":"独立创作","星期":"周六"},{"stage":"第四阶段：提升投稿","date":"2026-11-02","name":"创作第47-48章","content":"创作第47-48章（3000字）：后期大高潮","day":"第68天","week":"第12周","duration":"50分钟","type":"独立创作","星期":"周一"},{"stage":"第四阶段：提升投稿","date":"2026-11-03","name":"创作第49-50章","content":"创作第49-50章（3000字）：收尾+结局铺垫","day":"第69天","week":"第12周","duration":"50分钟","type":"独立创作","星期":"周二"},{"stage":"第四阶段：提升投稿","date":"2026-11-04","name":"创作结局章","content":"创作最终章（1500字）：圆满或开放式结局","day":"第70天","week":"第12周","duration":"50分钟","type":"独立创作","星期":"周三"},{"stage":"第四阶段：提升投稿","date":"2026-11-05","name":"全书通读修改","content":"通读全篇修改：检查bug、统一设定、优化文笔","day":"第71天","week":"第12周","duration":"60分钟","type":"修改打磨","星期":"周四"},{"stage":"第四阶段：提升投稿","date":"2026-11-06","name":"投稿/发布","content":"选择平台投稿或发布，制定后续更新计划","day":"第72天","week":"第12周","duration":"30分钟","type":"投稿准备","星期":"周五"}]}};
+const SCHEDULE = SCHEDULE_WRAPPER.data || {};
+const SCHEDULE_META = SCHEDULE_WRAPPER.meta || {};
+const PLAN_START = (SCHEDULE_META && SCHEDULE_META.start) || today();
+const ITEMS = ["锻炼","写作练习"];
+const META = {
+  "锻炼":{short:"锻",color:"#10b981"},
+  "写作练习":{short:"写",color:"#f59e0b"}
+};
+const DEFAULT_HABITS = [
+  {id:"h1", name:"睡觉不上床干躺着", type:"avoid", def:"上床即睡，不躺着刷手机 / 发呆"},
+  {id:"h2", name:"早上醒了就起床", type:"keep", def:"醒来不赖床，立即起身"},
+  {id:"h3", name:"在家不看短剧", type:"avoid", def:"在家期间不刷抖音 / 快手等短剧"},
+  {id:"h4", name:"看小说", type:"keep", def:"用看小说替代刷短剧"},
+];
+function habitDefs(){ return (RECORDS.habitDefs && RECORDS.habitDefs.length) ? RECORDS.habitDefs : DEFAULT_HABITS; }
+function habitMap(id){ return (RECORDS.habits && RECORDS.habits[id]) || {}; }
+
+/* ---------- 2026 法定节假日 / 调休上班（国务院办公厅 国办发明电〔2025〕7号） ---------- */
+const HOLIDAY_2026 = {
+  name:{
+    "2026-01-01":"元旦","2026-01-02":"元旦","2026-01-03":"元旦",
+    "2026-02-15":"春节","2026-02-16":"春节","2026-02-17":"春节","2026-02-18":"春节","2026-02-19":"春节",
+    "2026-02-20":"春节","2026-02-21":"春节","2026-02-22":"春节","2026-02-23":"春节",
+    "2026-04-04":"清明","2026-04-05":"清明","2026-04-06":"清明",
+    "2026-05-01":"劳动节","2026-05-02":"劳动节","2026-05-03":"劳动节","2026-05-04":"劳动节","2026-05-05":"劳动节",
+    "2026-06-19":"端午","2026-06-20":"端午","2026-06-21":"端午",
+    "2026-09-25":"中秋","2026-09-26":"中秋","2026-09-27":"中秋",
+    "2026-10-01":"国庆","2026-10-02":"国庆","2026-10-03":"国庆","2026-10-04":"国庆","2026-10-05":"国庆","2026-10-06":"国庆","2026-10-07":"国庆"
+  },
+  makeup:["2026-01-04","2026-02-14","2026-02-28","2026-05-09","2026-09-20","2026-10-10"]
+}
+/* 2026 农历月表：monthName, startDate(YYYY-MM-DD), days */
+const LUNAR_2026 = [
+  {n:"正月",s:"2026-02-17",d:29},
+  {n:"二月",s:"2026-03-18",d:30},
+  {n:"三月",s:"2026-04-17",d:30},
+  {n:"四月",s:"2026-05-17",d:29},
+  {n:"五月",s:"2026-06-15",d:30},
+  {n:"六月",s:"2026-07-15",d:29},
+  {n:"七月",s:"2026-08-13",d:29},
+  {n:"八月",s:"2026-09-11",d:30},
+  {n:"九月",s:"2026-10-11",d:30},
+  {n:"十月",s:"2026-11-10",d:29},
+  {n:"冬月",s:"2026-12-09",d:30},
+  {n:"腊月",s:"2027-01-08",d:29}
+];
+const LUNAR_DAY = ["初一","初二","初三","初四","初五","初六","初七","初八","初九","初十","十一","十二","十三","十四","十五","十六","十七","十八","十九","二十","廿一","廿二","廿三","廿四","廿五","廿六","廿七","廿八","廿九","三十"];
+/* 公历 2026 节气（精确到日） */
+const SOLAR_TERMS_2026 = {
+  "2026-02-04":"立春","2026-02-19":"雨水","2026-03-06":"惊蛰","2026-03-21":"春分",
+  "2026-04-05":"清明","2026-04-20":"谷雨","2026-05-06":"立夏","2026-05-21":"小满",
+  "2026-06-06":"芒种","2026-06-21":"夏至","2026-07-07":"小暑","2026-07-23":"大暑",
+  "2026-08-07":"立秋","2026-08-23":"处暑","2026-09-07":"白露","2026-09-23":"秋分",
+  "2026-10-08":"寒露","2026-10-23":"霜降","2026-11-07":"立冬","2026-11-22":"小雪",
+  "2026-12-07":"大雪","2026-12-22":"冬至","2027-01-05":"小寒","2027-01-20":"大寒"
+};
+/* 公历节日/纪念日 */
+const FESTIVALS_2026 = {
+  "2026-01-01":"元旦","2026-01-11":"中国人民警察节",
+  "2026-02-14":"情人节",
+  "2026-03-03":"元宵节","2026-03-08":"妇女节","2026-03-12":"植树节","2026-03-15":"消费者权益日",
+  "2026-04-01":"愚人节","2026-04-22":"地球日","2026-04-23":"世界读书日",
+  "2026-05-01":"劳动节","2026-05-04":"青年节","2026-05-11":"母亲节(2026年)",
+  "2026-06-01":"儿童节","2026-06-21":"父亲节(2026年)",
+  "2026-07-01":"建党节","2026-07-11":"世界人口日",
+  "2026-08-01":"建军节","2026-08-19":"七夕节",
+  "2026-09-10":"教师节","2026-09-28":"孔子诞辰",
+  "2026-10-01":"国庆节","2026-10-25":"重阳节(农历九月初九)",
+  "2026-11-26":"感恩节(2026年)","2026-12-13":"国家公祭日",
+  "2026-12-24":"平安夜","2026-12-25":"圣诞节"
+};
+function lunarOf(ds){
+  try{
+    const d=parse(ds);
+    for(let i=0;i<LUNAR_2026.length;i++){
+      const m=LUNAR_2026[i];
+      const ms=parse(m.s); const diff=Math.round((d-ms)/86400000);
+      if(diff>=0 && diff<m.d) return m.n+LUNAR_DAY[diff];
+    }
+    return "";
+  }catch(e){ return ""; }
+}
+function termOf(ds){ return SOLAR_TERMS_2026[ds]||""; }
+function festOf(ds){ return FESTIVALS_2026[ds]||""; }
+const DAY_LABEL={work:"工作日",weekend:"周末",holiday:"节假日",makeup:"调休上班"};
+const DAY_COLOR={work:"#64748b",weekend:"#94a3b8",holiday:"#ef4444",makeup:"#f59e0b"};
+/* 日期类型：用户覆盖 > 调休上班 > 法定节假日 > 按星期判定 */
+function dayType(ds){
+  try{
+    const ov=(RECORDS.dayTypes&&RECORDS.dayTypes[ds]);
+    if(ov) return ov;
+    if(HOLIDAY_2026.makeup.indexOf(ds)>=0) return "makeup";
+    if(HOLIDAY_2026.name[ds]) return "holiday";
+    const wd=parse(ds).getDay();
+    return (wd===0||wd===6)?"weekend":"work";
+  }catch(e){ return "work"; }
+}
+function dayName(ds){ return HOLIDAY_2026.name[ds]||""; }
+function setDayType(ds,type){
+  if(!RECORDS.dayTypes) RECORDS.dayTypes={};
+  if(type){ RECORDS.dayTypes[ds]=type; } else { delete RECORDS.dayTypes[ds]; }
+}
+
+const CFG_KEY="wb_sb_cfg", OFF_KEY="wb_offline_cache";
+
+const SMAP = {};
+ITEMS.forEach(it=>{ SMAP[it]={}; (SCHEDULE[it]||[]).forEach(e=>{ SMAP[it][e.date]=e; }); });
+
+let RECORDS = {};          // 打卡数据（云端为权威）
+let SYNC = "init";         // init|syncing|synced|offline|nocfg|error
+let cfg = loadCfg();
+// 文件内置了默认 Supabase 项目（testapp / llqcoqkjedxkdpyskavx，已确认存在）；
+// 未在「设置云端」单独配置时自动使用。注意：免费项目闲置约 7 天会自动暂停，届时需到 Supabase 后台 Resume。
+if(!cfg || !cfg.url || !cfg.anon){ cfg = { url: SUPABASE.url, anon: SUPABASE.anon }; }
+
+function loadCfg(){ try{return JSON.parse(localStorage.getItem(CFG_KEY))||{}}catch(e){return{}} }
+function saveCfg(c){ localStorage.setItem(CFG_KEY, JSON.stringify(c)); }
+function pad(n){return n<10?"0"+n:""+n;}
+function fmt(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());}
+function parse(s){const p=s.split("-");return new Date(+p[0],+p[1]-1,+p[2],12,0,0);}
+function today(){return fmt(new Date());}
+function shiftDate(ds, delta){ const p=ds.split("-"); const d=new Date(+p[0],+p[1]-1,+p[2]); d.setDate(d.getDate()+delta); return fmt(d); }
+function weekdayOf(ds){ const d=parse(ds); return ["周日","周一","周二","周三","周四","周五","周六"][d.getDay()]; }
+function inWeek(ds){const d=parse(ds);const ms=mondayOf(new Date());const me=new Date(ms);me.setDate(me.getDate()+7);return d>=ms && d<me;}
+function mondayOf(d){const x=new Date(d);const day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);x.setHours(0,0,0,0);return x;}
+
+function isChecked(it,ds){return !!(RECORDS[it]&&RECORDS[it][ds]);}
+
+/* ---------- 顺序推进模型（不完全绑定日期） ---------- */
+function seqOf(it){ return (SCHEDULE[it]||[]).filter(e=>e.date >= PLAN_START); }   // 有效序列：仅 PLAN_START 起
+function currentIdx(it){ const s=seqOf(it); for(let i=0;i<s.length;i++){ if(!isChecked(it,s[i].date)) return i; } return s.length; }
+function activeEntry(it){ const s=seqOf(it); const i=currentIdx(it); return i<s.length ? s[i] : null; }   // 当前待办（第一项未完成则一直是它）
+function nextEntry(it){ const s=seqOf(it); const i=currentIdx(it)+1; return i<s.length ? s[i] : null; }
+function doneCount(it){ const s=seqOf(it); let n=0; s.forEach(e=>{ if(isChecked(it,e.date)) n++; }); return n; }
+
+function escapeHtml(s){return (s==null?"":String(s)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function linkify(s){return escapeHtml(s).replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');}
+function checkSvg(){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>';}
+function warnSvg(){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>';}
+
+function summaryOf(it,e){
+  if(it==="锻炼") return e.theme||"训练";
+  if(it==="写作练习") return e.name||"写作任务";
+  return "";
+}
+function subOf(it,e){
+  if(it==="锻炼") return [e.time,e.week].filter(Boolean).join(" · ");
+  if(it==="写作练习") return [e.type,e.duration].filter(Boolean).join(" · ");
+  return "";
+}
+function detailHtml(it,e){
+  let rows=[];
+  if(it==="锻炼"){
+    rows.push(["训练主题",e.theme],["锻炼时间",e.time],["周次/阶段",[e.week,e.stage].filter(Boolean).join(" / ")],
+      ["训练目的",e.purpose],["预期效果",e.effect],["详细内容",e.detail,"pre"],["跟练视频",e.video,"pre"]);
+  } else {
+    rows.push(["任务名称",e.name],["任务内容",e.content,"pre"],["任务类型",e.type],
+      ["建议时长",e.duration],["周计划",[e.week,e.day].filter(Boolean).join(" / ")]);
+  }
+  return rows.map(([k,v,pre])=>'<div class="drow"><div class="dk">'+k+'</div><div class="dv '+(pre?'pre':'')+'">'+(pre?linkify(v||""):escapeHtml(v||""))+'</div></div>').join("");
+}
+/* 首页「今日打卡」精简详情：锻炼=训练目的/详细内容/跟练视频；写作=任务内容/建议时长 */
+function homeDetailHtml(it,e){
+  let rows=[];
+  if(it==="锻炼") rows.push(["训练目的",e.purpose],["详细内容",e.detail,"pre"],["跟练视频",e.video,"pre"]);
+  else rows.push(["任务内容",e.content,"pre"],["建议时长",e.duration]);
+  return rows.map(function(r){
+    const k=r[0], v=r[1], pre=r[2];
+    return '<div class="drow"><div class="dk">'+k+'</div><div class="dv '+(pre?'pre':'')+'">'+(pre?linkify(v||""):escapeHtml(v||""))+'</div></div>';
+  }).join("");
+}
+
+/* ---------- 云端存储（Supabase REST：离线优先 + 本地主存储 + 异步同步 + 版本冲突） ---------- */
+const LOCAL_KEY="wb_local_records";
+function saveLocal(){ try{ localStorage.setItem(LOCAL_KEY, JSON.stringify(RECORDS)); }catch(e){} }
+function loadLocal(){ try{ const x=localStorage.getItem(LOCAL_KEY); return x?JSON.parse(x):null; }catch(e){ return null; } }
+function bumpVersion(){ if(!RECORDS._meta) RECORDS._meta={}; RECORDS._meta.version=(RECORDS._meta.version||0)+1; RECORDS._meta.updated_at=new Date().toISOString(); }
+// PRD FR-43：同步成功后把各记录的 sync_status 置为 synced，并记录 synced_at
+function markSynced(){
+  if(!RECORDS._meta) RECORDS._meta={};
+  RECORDS._meta.sync_status="synced";
+  RECORDS._meta.synced_at=new Date().toISOString();
+  ITEMS.forEach(function(it){
+    const m=RECORDS[it]; if(!m) return;
+    Object.keys(m).forEach(function(ds){ const r=m[ds]; if(r && typeof r==="object" && r.sync_status) r.sync_status="synced"; });
+  });
+}
+function markPending(){
+  if(!RECORDS._meta) RECORDS._meta={};
+  RECORDS._meta.sync_status="pending";
+}
+
+function headers(){ return { "apikey": cfg.anon, "Authorization":"Bearer "+cfg.anon, "Content-Type":"application/json" }; }
+function tableUrl(){ let u=cfg.url||""; if(u.endsWith("/")) u=u.slice(0,-1); return u + "/rest/v1/checkin_state"; }
+
+function pruneOldRecords(){
+  if(!PLAN_START) return false;
+  let changed=false;
+  ITEMS.forEach(it=>{ if(RECORDS[it]){ Object.keys(RECORDS[it]).forEach(ds=>{ if(ds < PLAN_START){ delete RECORDS[it][ds]; changed=true; } }); } });
+  return changed;
+}
+
+let _saveTimer=null, _saveFails=0, _cloudVersion=0, _lastErr="", _diagDone=false;
+function hasPending(){ return _saveFails>0 || SYNC==="pending"; }
+
+async function cloudLoad(){
+  if(!cfg.url || !cfg.anon){ SYNC="nocfg"; renderStatus(); render(); return; }
+  const local=loadLocal();
+  if(local){ RECORDS=local; render(); }            // 本地秒开
+  SYNC="syncing"; renderStatus();
+  try{
+    const r=await fetch(tableUrl()+"?id=eq.default&select=data", { headers: headers() });
+    if(!r.ok){ let t=""; try{ t=(await r.text()).slice(0,300); }catch(_){} throw new Error("load "+r.status+" "+t); }
+    const rows=await r.json();
+    const remote=rows[0];
+    if(remote && remote.data){
+      // 云端表没有独立的 version 列，版本号放在 data._meta.version 里
+      _cloudVersion = ((remote.data && remote.data._meta && remote.data._meta.version) || 0);
+      const lv=(RECORDS._meta&&RECORDS._meta.version)||0;
+      if(_cloudVersion>lv && hasPending()){
+        if(confirm("检测到云端有更新的记录（其他设备同步过）。\n点「确定」用云端版本覆盖本机未同步的改动；点「取消」保留本机并上传覆盖云端。")){
+          RECORDS=remote.data;
+        }
+      } else if(_cloudVersion>lv){
+        RECORDS=remote.data;                        // 云端更新且本机无未同步改动，直接采用
+      } else if(lv>_cloudVersion){
+        cloudSave({immediate:true});                // 本机比云端新（离线期间的打卡）：立即上传，否则数据会一直卡在本地
+      }
+      const __pruned=pruneOldRecords();
+      saveLocal();
+      SYNC="synced"; localStorage.removeItem(OFF_KEY); _saveFails=0;
+      renderStatus(); render();
+      if(__pruned) cloudSave();
+    } else {
+      SYNC="synced"; renderStatus(); render();
+      cloudSave();                                  // 云端无记录，上传本地
+    }
+  }catch(e){
+    _lastErr=(e&&e.message)||String(e); SYNC="offline"; renderStatus(); render();
+    if(!_diagDone){ _diagDone=true; cloudSelfTest(); }   // 自动诊断：页面直接显示真实 HTTP 码
+  }
+}
+
+async function cloudSave(opts){
+  saveLocal();                                      // 本地始终是主存储，立即落盘
+  bumpVersion();
+  if(!cfg.url || !cfg.anon){ SYNC="nocfg"; renderStatus(); return; }
+  if(_saveTimer) clearTimeout(_saveTimer);
+  _saveTimer=setTimeout(async ()=>{
+    SYNC="syncing"; renderStatus();
+    try{
+      const body={ id:"default", data:RECORDS, updated_at:new Date().toISOString() };
+      // upsert：首次插入、之后更新统一用 POST + merge-duplicates，
+      // 避免 PATCH 对“0 行匹配”返回 200 假成功导致数据没真正写进云端
+      let r=await fetch(tableUrl(), { method:"POST", headers:Object.assign(headers(),{"Prefer":"resolution=merge-duplicates,return=minimal"}), body:JSON.stringify(body) });
+      if(!r.ok){ let t=""; try{ t=(await r.text()).slice(0,300); }catch(_){} throw new Error("save "+r.status+" "+t); }
+      markSynced(); saveLocal();          // 同步成功：写回 sync_status=synced 与 synced_at
+      SYNC="synced"; _saveFails=0; _lastErr=""; localStorage.removeItem(OFF_KEY);
+    }catch(e){
+      markPending(); saveLocal();         // 同步失败：标记为待同步，联网后自动重传
+      _lastErr=(e&&e.message)||String(e); _saveFails++; SYNC="pending"; scheduleRetry();
+    }
+    renderStatus();
+  }, (opts&&opts.immediate)?0:400);
+}
+
+function scheduleRetry(){
+  if(_saveFails>=8) return;
+  const wait=Math.min(30000, 1500*Math.pow(2,_saveFails));
+  setTimeout(()=>{ if(SYNC==="pending") cloudSave(); }, wait);
+}
+function retryNow(){ _saveFails=0; cloudSave({immediate:true}); }
+
+/* 云端自检：把真实的 HTTP 状态码和错误原文显示出来，便于定位（表不存在 / RLS 拦截 / 网络问题） */
+async function cloudSelfTest(){
+  const out=document.getElementById("diagOut");
+  if(!out) return;
+  out.style.display="block";
+  const lines=[];
+  const push=function(s){ lines.push(s); out.textContent=lines.join("\n"); };
+  push("=== 云端自检 ===");
+  push("Project URL : "+(cfg.url||"(空)"));
+  push("anon key    : "+(cfg.anon?(cfg.anon.slice(0,24)+"…  共"+cfg.anon.length+"位"):"(空)"));
+  push("请求地址     : "+tableUrl());
+  push("");
+  push("【1/2 读取测试】…");
+  try{
+    const r=await fetch(tableUrl()+"?id=eq.default&select=id,updated_at", { headers: headers() });
+    let t=""; try{ t=await r.text(); }catch(_){}
+    push("读取结果：HTTP "+r.status+"  "+(t?t.slice(0,300):"(空响应体)"));
+  }catch(e){ push("读取异常："+((e&&e.message)||e)); }
+  push("");
+  push("【2/2 写入测试(upsert)】…");
+  try{
+    const body={ id:"default", data:RECORDS, updated_at:new Date().toISOString() };
+    const r=await fetch(tableUrl(), { method:"POST", headers:Object.assign(headers(),{"Prefer":"resolution=merge-duplicates,return=minimal"}), body:JSON.stringify(body) });
+    let t=""; try{ t=await r.text(); }catch(_){}
+    push("写入结果：HTTP "+r.status+"  "+(t?t.slice(0,300):"(空响应体)"));
+  }catch(e){ push("写入异常："+((e&&e.message)||e)); }
+  push("");
+  push("最近一次同步错误："+(_lastErr||"(无)"));
+  push("当前同步状态："+SYNC);
+  push("");
+  push("↑ 请把以上内容完整发给我。");
+}
+
+async function toggle(it,ds){
+  if(!RECORDS[it]) RECORDS[it]={};
+  if(RECORDS[it][ds]){ delete RECORDS[it][ds]; }
+  else { RECORDS[it][ds]={ts:Date.now(), updated_at:new Date().toISOString(), sync_status:"pending"}; }
+  render();
+  if(SYNC==="nocfg"){ return; }   // 未配置云端：只本地预览，不降级存储
+  await cloudSave();
+}
+
+function renderStatus(){
+  const dot=document.getElementById("syncDot"), txt=document.getElementById("syncText");
+  const map={ init:["syncing","连接中…"], syncing:["syncing","同步中…"], synced:["synced","已同步"],
+    offline:["offline","离线（缓存）"], nocfg:["nocfg","未配置云端"], error:["error","连接异常"], pending:["pending","待同步"] };
+  const m=map[SYNC]||map.init; dot.className="sync-dot "+m[0];
+  let label=m[1];
+  try{                                    // 已同步时附带最后同步时间
+    if(SYNC==="synced" && RECORDS && RECORDS._meta && RECORDS._meta.synced_at){
+      const d=new Date(RECORDS._meta.synced_at);
+      label="已同步 "+pad(d.getHours())+":"+pad(d.getMinutes());
+    }
+  }catch(e){}
+  txt.textContent=label;
+  document.getElementById("nocfg").style.display = (SYNC==="nocfg")?"block":"none";
+  const ob=document.getElementById("offBanner");
+  ob.style.display = (SYNC==="offline"||SYNC==="pending")?"block":"none";
+  if(SYNC==="offline"){
+    ob.textContent="云端连接异常（" + (_lastErr||"未知原因") + "）。打卡已暂存本地。常见原因：① Supabase 免费项目闲置约7天被自动暂停，需到 Supabase 后台 Restore 恢复；② checkin_state 表或 anon 的 RLS 策略未创建。详见页面下方自检结果。";
+  }
+  document.getElementById("errBanner").style.display = (SYNC==="error")?"block":"none";
+  const rb=document.getElementById("btnRetry"); if(rb) rb.style.display=(SYNC==="pending"||SYNC==="offline")?"inline-block":"none";
+}
+
+/* ---------- 渲染 ---------- */
+function renderToday(){
+  const t = today();
+  const overdue = [];
+  let html = "";
+  ITEMS.forEach(it=>{
+    const e = activeEntry(it);
+    let body, action;
+    if(e){
+      const done = isChecked(it, e.date);
+      const daysAgo = Math.round((parse(t)-parse(e.date))/86400000);
+      body = '<div class="c-sum">'+escapeHtml(summaryOf(it,e))+'</div>'
+        + '<div class="c-sub">'+escapeHtml(subOf(it,e))+'</div>'
+        + '<div class="c-sub">计划日 '+e.date+'（'+(e.week||"")+'）· 第 '+(currentIdx(it)+1)+' / '+seqOf(it).length+' 项</div>';
+      if(done){
+        body += '<div class="c-done-tag">已完成 · 已顺延至下一项</div>';
+        action = '<button class="btn done" data-act="uncheck" data-it="'+it+'" data-ds="'+e.date+'">'+checkSvg()+' 已完成 · 取消</button>';
+      } else {
+        if(e.date < t) body += '<div class="c-sub" style="color:var(--red);font-weight:700">已顺延 '+daysAgo+' 天（当天未打卡 → 记为缺卡）</div>';
+        action = '<button class="btn primary" data-act="check" data-it="'+it+'" data-ds="'+e.date+'">'+checkSvg()+' 打卡（完成本项）</button>';
+      }
+    } else {
+      body = '<div class="c-sum muted">🎉 '+escapeHtml(it)+' 已全部完成</div>';
+      action = '<button class="btn ghost" disabled>已完成</button>';
+    }
+    html += '<div class="tcard"><div class="tcard-h"><span class="badge" style="background:'+META[it].color+'">'+META[it].short+'</span><span class="tname">'+it+'</span></div>'
+      + '<div class="tcard-b">'+body+'</div><div class="tcard-a">'+action+'</div>'
+      + (e?'<div class="tdetail" id="det-'+it+'">'+detailHtml(it,e)+'</div><button class="linkbtn" data-act="toggle-detail" data-it="'+it+'">查看详细内容 / 视频</button>':'')
+      + '</div>';
+  });
+  // 缺卡（内容已顺延到下一天）：所有“过去的有计划日且未完成”的条目
+  ITEMS.forEach(it=>{
+    seqOf(it).forEach(en=>{
+      if(en.date < t && !isChecked(it,en.date)){
+        overdue.push({it:it,ds:en.date,sum:summaryOf(it,en)});
+      }
+    });
+  });
+  let ob = "";
+  if(overdue.length){
+    overdue.sort((a,b)=>a.ds<b.ds?1:-1);
+    ob = '<div class="overdue"><div class="od-title">'+warnSvg()+' 缺卡待补（共 '+overdue.length+' 项 · 内容已顺延，不丢不乱）</div>';
+    overdue.forEach(o=>{
+      ob += '<div class="od-row"><span class="od-dot"></span><span class="od-name">'+o.it+'</span>'
+        + '<span class="od-date">'+o.ds+'</span>'
+        + '<span class="od-sum">'+escapeHtml(o.sum)+'</span>'
+        + '<button class="btn mini" data-act="check" data-it="'+o.it+'" data-ds="'+o.ds+'">补卡</button></div>';
+    });
+    ob += '</div>';
+  }
+  document.getElementById("todayList").innerHTML = html;
+  document.getElementById("overdueBox").innerHTML = ob;
+}
+
+function renderTomorrow(){
+  const t=today();
+  const wdTitle=document.getElementById("tomorrowDate");
+  if(wdTitle) wdTitle.textContent="下一项（顺序推进，不绑定日期）";
+  let html="";
+  ITEMS.forEach(it=>{
+    const e=nextEntry(it);
+    let body, action;
+    if(e){
+      const done=isChecked(it,e.date);
+      body='<div class="c-sum">'+escapeHtml(summaryOf(it,e))+'</div><div class="c-sub">'+escapeHtml(subOf(it,e))+'</div><div class="c-sub">计划日 '+e.date+'（'+(e.week||"")+'）</div>';
+      if(done){
+        body+='<div class="c-done-tag">已提前打卡</div>';
+        action='<button class="btn done" data-act="uncheck" data-it="'+it+'" data-ds="'+e.date+'">'+checkSvg()+' 已完成 · 取消</button>';
+      } else {
+        action='<button class="btn primary" data-act="check" data-it="'+it+'" data-ds="'+e.date+'">'+checkSvg()+' 提前打卡</button>';
+      }
+    } else {
+      body='<div class="c-sum muted">'+escapeHtml(it)+' 已无更多计划</div>';
+      action='<button class="btn ghost" disabled>—</button>';
+    }
+    html+='<div class="tcard"><div class="tcard-h"><span class="badge" style="background:'+META[it].color+'">'+META[it].short+'</span><span class="tname">'+it+'</span></div>'
+      + '<div class="tcard-b">'+body+'</div><div class="tcard-a">'+action+'</div>'
+      + (e?'<div class="tdetail" id="det-t-'+it+'">'+detailHtml(it,e)+'</div><button class="linkbtn" data-act="toggle-detail" data-it="t-'+it+'">查看详细内容 / 视频</button>':'')
+      + '</div>';
+  });
+  document.getElementById("tomorrowList").innerHTML=html;
+}
+
+function currentWeekOf(it){
+  const t=today();
+  if(SMAP[it][t] && SMAP[it][t].week) return SMAP[it][t].week;
+  let best=null;
+  (SCHEDULE[it]||[]).forEach(e=>{ if(e.date<=t && (!best||e.date>best)) best=e.date; });
+  if(best && SMAP[it][best] && SMAP[it][best].week) return SMAP[it][best].week;
+  if((SCHEDULE[it]||[])[0]) return SCHEDULE[it][0].week;
+  return null;
+}
+function donut(pct){
+  const r=26, c=2*Math.PI*r, off=c*(1-pct);
+  return '<svg width="72" height="72" viewBox="0 0 72 72">'
+    + '<circle cx="36" cy="36" r="'+r+'" fill="none" stroke="var(--soft)" stroke-width="9"/>'
+    + '<circle cx="36" cy="36" r="'+r+'" fill="none" stroke="var(--primary)" stroke-width="9" stroke-linecap="round" stroke-dasharray="'+c.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'" transform="rotate(-90 36 36)"/>'
+    + '<text x="36" y="41" text-anchor="middle" font-size="15" font-weight="800" fill="var(--text)">'+Math.round(pct*100)+'%</text></svg>';
+}
+function renderHeat(){
+  const todayD=new Date();
+  const dates=[];
+  for(let i=34;i>=0;i--){const d=new Date(todayD);d.setDate(d.getDate()-i);dates.push(fmt(d));}
+  const tStr=fmt(todayD);
+  let html='<div class="heat-head">每一行代表一个项目，横向为最近 35 天。绿色=已打卡，红色=漏打卡，蓝色=计划中，灰=无计划。<b>统计页为只读视图</b>，补卡请到「打卡」页。</div>';
+  ITEMS.forEach(it=>{
+    let row='<div class="heat-row"><div class="heat-label"><span class="badge sm" style="background:'+META[it].color+'">'+META[it].short+'</span>'+it+'</div><div class="heat-cells">';
+    dates.forEach(ds=>{
+      const checked=isChecked(it,ds);
+      const sched=!!SMAP[it][ds] && ds >= PLAN_START;
+      const past = ds < tStr;
+      let cls="hc";
+      if(checked) cls+=" on";
+      else if(sched && past) cls+=" miss";
+      else if(sched) cls+=" fut";
+      row += '<span class="'+cls+'" title="'+ds+(sched?" · 有计划":"")+(checked?" · 已打卡":"")+'"></span>';   // 统计页只读：不绑打卡事件
+    });
+    row += '</div></div>';
+    html += row;
+  });
+  html += '<div class="heat-legend"><span><i class="hc on"></i>已打卡</span><span><i class="hc miss"></i>漏打卡</span><span><i class="hc fut"></i>计划中</span><span><i class="hc"></i>无计划</span></div>';
+  document.getElementById("heatList").innerHTML=html;
+}
+
+/* ---------- 睡眠记录 ---------- */
+function getSleep(ds){ return (RECORDS.sleep && RECORDS.sleep[ds]) || null; }
+function sleepMet(bed){
+  if(!bed) return null;
+  // 目标：18:00–22:00 之间就寝算达标（10点前睡）；凌晨（<06:00）视为跨天，肯定未达标
+  if(bed < "06:00") return false;
+  return bed >= "18:00" && bed <= "22:00";
+}
+function sleepDur(bed,wake){
+  if(!bed || !wake) return null;
+  const [bh,bm]=bed.split(":").map(Number), [wh,wm]=wake.split(":").map(Number);
+  let mins=(wh*60+wm)-(bh*60+bm); if(mins<0) mins+=1440;
+  return mins/60;
+}
+function renderSleep(){
+  const t=today();
+  const s=getSleep(t);
+  const bedIn=document.getElementById("bedIn"), wakeIn=document.getElementById("wakeIn");
+  if(bedIn && bedIn.value==="") bedIn.value = s ? s.bed : "";
+  if(wakeIn && wakeIn.value==="") wakeIn.value = s ? s.wake : "";
+  const res=document.getElementById("sleepResult");
+  if(s){
+    const met=sleepMet(s.bed);
+    let html="";
+    if(met===true) html+='<div class="c-done-tag">'+checkSvg()+' 达标（就寝 '+s.bed+'，≤22:00）</div>';
+    else if(met===false) html+='<div style="color:var(--red);font-weight:700;font-size:12.5px;margin-top:4px">'+warnSvg()+' 未达标（就寝 '+s.bed+'，晚于 22:00）</div>';
+    const dur=sleepDur(s.bed,s.wake);
+    if(dur!=null) html+='<div class="c-sub">睡眠时长：'+dur.toFixed(1)+' 小时</div>';
+    res.innerHTML=html;
+  } else {
+    res.innerHTML='<div class="c-sub">尚未记录今日睡眠</div>';
+  }
+  // 本周达标统计（周一到周日）
+  const ms=mondayOf(new Date()), me=new Date(ms); me.setDate(me.getDate()+7);
+  let total=0, met=0;
+  for(let d=new Date(ms); d<me; d.setDate(d.getDate()+1)){
+    const rec=getSleep(fmt(d));
+    if(rec){ total++; if(sleepMet(rec.bed)===true) met++; }
+  }
+  const pct= total ? met/total : 0;
+  const card=document.getElementById("sleepWeekCard");
+  if(card) card.innerHTML='<div class="wdonut">'+donut(pct)+'</div><div class="wmeta">'
+    + '<div class="wname"><span class="badge sm" style="background:#8b5cf6">睡</span>睡眠达标</div>'
+    + '<div class="wcount"><b>'+met+'</b> / '+total+' 天</div>'
+    + '<div class="wsub">本周（周一~周日）· 达标率</div></div>';
+}
+
+function totalCount(){let n=0;for(const it in RECORDS)for(const ds in RECORDS[it])n++;return n;}
+function renderBackupHint(){
+  const n=totalCount();
+  const box=document.getElementById("bkHint");
+  if(n>=30){ box.textContent="已积累 "+n+" 条打卡记录，建议点右上角「导出备份」以防丢失。"; box.style.display="block"; }
+  else box.style.display="none";
+}
+
+function habitStreak(id){
+  const m=habitMap(id); let s=0; const d=new Date();
+  if(!m[fmt(d)]) d.setDate(d.getDate()-1);
+  while(m[fmt(d)]===true){ s++; d.setDate(d.getDate()-1); }
+  return s;
+}
+function habitWeekRate(id){
+  const m=habitMap(id); const ms=mondayOf(new Date()); const td=new Date();
+  let elapsed=Math.floor((td-ms)/86400000)+1; if(elapsed<1) elapsed=1;
+  let met=0;
+  for(let i=0;i<elapsed;i++){ const d=new Date(ms); d.setDate(d.getDate()+i); if(m[fmt(d)]===true) met++; }
+  return {met:met, elapsed:elapsed, pct: elapsed? met/elapsed:0};
+}
+function renderHabit(){
+  const defs=habitDefs(); const t=today(); let html="";
+  defs.forEach(h=>{
+    const m=habitMap(h.id); const v=(t in m)? m[t] : null;
+    const tl=h.type==="avoid"?"戒除":"养成"; const tc=h.type==="avoid"?"avoid":"keep";
+    html+='<div class="habit-row"><div class="habit-info">'
+      +'<div class="habit-name">'+escapeHtml(h.name)+'</div>'
+      +'<div class="habit-def"><span class="habit-tag '+tc+'">'+tl+'</span>'+escapeHtml(h.def||"")+'</div>'
+      +'<div class="habit-streak">🔥 连续 '+habitStreak(h.id)+' 天</div></div>'
+      +'<div class="seg">'
+      +'<button class="seg-btn '+(v===true?'on-y':'')+'" data-act="habit" data-id="'+h.id+'" data-val="1">达标</button>'
+      +'<button class="seg-btn '+(v===false?'on-n':'')+'" data-act="habit" data-id="'+h.id+'" data-val="0">未达标</button>'
+      +'</div></div>';
+  });
+  if(!defs.length) html='<div class="c-sum muted">还没有习惯，点下方「管理习惯」添加。</div>';
+  const box=document.getElementById("habitToday"); if(box) box.innerHTML=html;
+}
+function renderHabitWeek(){
+  const defs=habitDefs(); let html="";
+  defs.forEach(h=>{ const r=habitWeekRate(h.id);
+    html+='<div class="habit-card"><div class="wdonut">'+donut(r.pct)+'</div><div class="wmeta">'
+      +'<div class="wname">'+escapeHtml(h.name)+'</div>'
+      +'<div class="wcount"><b>'+r.met+'</b> / '+r.elapsed+' 天</div>'
+      +'<div class="wsub">本周（周一~周日）达标率</div></div></div>';
+  });
+  const box=document.getElementById("habitWeekList"); if(box) box.innerHTML=html;
+}
+function renderHabitHeat(){
+  const defs=habitDefs(); const td=new Date(); const dates=[];
+  for(let i=13;i>=0;i--){ const d=new Date(td); d.setDate(d.getDate()-i); dates.push(fmt(d)); }
+  let html='<div class="heat-head">绿色=达标，红色=未达标，灰=未记录。点击格子可补记过去日期。</div>';
+  defs.forEach(h=>{ const m=habitMap(h.id);
+    let row='<div class="habit-heat-row"><div class="habit-heat-label">'+escapeHtml(h.name)+'</div><div class="heat-cells">';
+    dates.forEach(ds=>{ const v=m[ds]; let cls="hc"; if(v===true) cls+=" on"; else if(v===false) cls+=" miss";
+      row+='<span class="'+cls+'" data-act="habitcell" data-id="'+h.id+'" data-ds="'+ds+'" title="'+ds+'"></span>'; });
+    row+='</div></div>'; html+=row;
+  });
+  html+='<div class="heat-legend"><span><i class="hc on"></i>达标</span><span><i class="hc miss"></i>未达标</span><span><i class="hc"></i>未记录</span></div>';
+  const box=document.getElementById("habitHeatList"); if(box) box.innerHTML=html;
+}
+function renderSleepHist(){
+  const box=document.getElementById("sleepHist"); if(!box) return;
+  let html='<div class="sec-title" style="margin-top:14px">近期睡眠 <span class="tag">最近 7 天</span></div><div class="grid">';
+  const td=new Date();
+  for(let i=6;i>=0;i--){ const d=new Date(td); d.setDate(d.getDate()-i); const ds=fmt(d); const s=getSleep(ds);
+    let inner='<div class="tcard"><div class="tcard-h"><span class="badge sm" style="background:#8b5cf6">'+weekdayOf(ds)+'</span><span class="tname" style="font-size:13px">'+ds.slice(5)+'</span></div><div class="tcard-b">';
+    if(s){ const met=sleepMet(s.bed); const dur=sleepDur(s.bed,s.wake);
+      inner+='<div class="c-sum" style="font-size:13px">就寝 '+s.bed+' · 起床 '+(s.wake||'—')+'</div>';
+      inner+='<div class="c-sub">'+(met?'✅ 达标':'⚠️ 未达标')+(dur!=null?(' · '+dur.toFixed(1)+'h'):'')+'</div>';
+    } else { inner+='<div class="c-sum muted" style="font-size:13px">未记录</div>'; }
+    inner+='</div></div>'; html+=inner;
+  }
+  html+='</div>'; box.innerHTML=html;
+}
+async function toggleHabit(id, val){
+  if(!RECORDS.habits) RECORDS.habits={};
+  if(!RECORDS.habits[id]) RECORDS.habits[id]={};
+  const cur=RECORDS.habits[id][today()]; const b=(val==="1");
+  if(cur===b) delete RECORDS.habits[id][today()]; else RECORDS.habits[id][today()]=b;
+  renderHabit(); renderHabitWeek(); renderHabitHeat();
+  if(SYNC!=="nocfg") await cloudSave();
+}
+function render(){
+  [renderSleep,renderSleepHist,renderHabit,renderHabitWeek,renderHabitHeat,renderBackupHint,renderHome,renderStats,renderDocs,renderManage].forEach(function(f){ try{ f(); }catch(e){ console.error("render error in "+(f&&f.name), e); } });
+}
+
+/* ---------- 事件 ---------- */
+document.addEventListener("click",function(e){
+  const el=e.target.closest("[data-act]"); if(!el)return;
+  const act=el.dataset.act, it=el.dataset.it, ds=el.dataset.ds;
+  if(act==="habit"){ toggleHabit(el.dataset.id, el.dataset.val); }
+  else if(act==="habitcell"){ const id=el.dataset.id, dsv=el.dataset.ds;
+    if(!RECORDS.habits)RECORDS.habits={}; if(!RECORDS.habits[id])RECORDS.habits[id]={};
+    const cur=RECORDS.habits[id][dsv]; const nv = cur===undefined? true : (cur===true? false : true);
+    RECORDS.habits[id][dsv]=nv; renderHabit(); renderHabitWeek(); renderHabitHeat();
+    if(SYNC!=="nocfg") cloudSave();
+  }
+  else if(act==="check"||act==="uncheck"){ toggle(it,ds); }
+  else if(act==="toggle"){ const diff=Math.round((parse(today())-parse(ds))/86400000); if(Math.abs(diff)>3){ alert(diff>0?"补打卡仅支持近 3 天（含今天）的日期。":"提前打卡仅支持未来 3 天内的日期。"); return; } toggle(it,ds); }
+  else if(act==="toggle-detail"){ const d=document.getElementById("det-"+it); if(d) d.classList.toggle("show"); }
+  else if(act==="rec-more"){ _recLimit=99999; renderStatRecords(); }
+  else if(act==="rec-less"){ _recLimit=20; renderStatRecords(); }
+  else if(act==="home-toggle"){
+    const d=document.getElementById("det-"+it); if(!d) return;
+    const now=d.classList.toggle("show");
+    setHomeOpen(it, now);
+    const ch=document.querySelector('[data-home-chev="'+it+'"]'); if(ch) ch.textContent = now?"▾ 收起":"▸ 展开";
+    document.querySelectorAll('[data-home-lbl="'+it+'"]').forEach(function(b){ b.textContent = now?"收起内容":"展开内容"; });
+  }
+});
+document.getElementById("btnRetry").addEventListener("click",function(){ retryNow(); });
+document.getElementById("btnDiag").addEventListener("click",function(){ cloudSelfTest(); });
+document.getElementById("btnPush").addEventListener("click",function(){ if(SYNC==="nocfg"){ alert("请先「设置云端」配置 Supabase。"); return; } cloudSave({immediate:true}); });
+document.getElementById("btnCfg").addEventListener("click",function(){
+  document.getElementById("cfgUrl").value=cfg.url||"";
+  document.getElementById("cfgKey").value=cfg.anon||"";
+  document.getElementById("cfgModal").classList.add("show");
+});
+document.getElementById("cfgCancel").addEventListener("click",function(){
+  document.getElementById("cfgModal").classList.remove("show");
+});
+document.getElementById("cfgSave").addEventListener("click",function(){
+  const u=document.getElementById("cfgUrl").value.trim();
+  const k=document.getElementById("cfgKey").value.trim();
+  if(!u||!k){ alert("请填写 Project URL 和 anon key"); return; }
+  cfg={url:u,anon:k}; saveCfg(cfg);
+  document.getElementById("cfgModal").classList.remove("show");
+  cloudLoad();
+});
+document.getElementById("btnExport").addEventListener("click",function(){
+  const data={records:RECORDS,exportedAt:new Date().toISOString(),type:"daily-checkin-cloud-backup"};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download="签到备份_"+today()+".json"; a.click(); URL.revokeObjectURL(a.href);
+});
+document.getElementById("btnImport").addEventListener("click",function(){ document.getElementById("fileIn").click(); });
+document.getElementById("btnExportCsv").addEventListener("click",function(){
+  const rows=[["模块","计划日","状态","完成时间"]];
+  ITEMS.forEach(function(it){ const o=RECORDS[it]||{}; Object.keys(o).forEach(function(ds){ const v=o[ds]; rows.push([it,ds,"已打卡",(v&&v.ts)?new Date(v.ts).toLocaleString("zh-CN"):""]); }); });
+  if(RECORDS.habits) Object.keys(RECORDS.habits).forEach(function(id){ const o=RECORDS.habits[id]||{}; Object.keys(o).forEach(function(ds){ const v=o[ds]; rows.push(["习惯:"+id,ds,(v===true?"已完成":(v===false?"未完成":"—")),""]); }); });
+  const csv="﻿"+rows.map(function(r){return r.map(function(c){return '"'+String(c==null?"":c).replace(/"/g,'""')+'"';}).join(",");}).join("\r\n");
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="签到记录_"+today()+".csv"; a.click(); URL.revokeObjectURL(a.href);
+});
+document.getElementById("fileIn").addEventListener("change",function(ev){
+  const f=ev.target.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=function(){
+    try{
+      const d=JSON.parse(r.result);
+      let src={};
+      if(d.records) src=d.records;
+      else if(d.data && typeof d.data==="object") src=d.data;
+      else if(typeof d==="object") src=d;
+      for(const it in src){ if(it==="_meta"){ RECORDS._meta=src._meta; continue; } if(!RECORDS[it])RECORDS[it]={}; for(const ds in src[it]) RECORDS[it][ds]=src[it][ds]; }
+      if(SYNC==="nocfg"){ alert("已合并到本地预览，但当前未配置云端，保存后不会上传。请先「设置云端」。");
+        render(); }
+      else { alert("导入成功，已合并并同步到云端。"); cloudSave(); }
+    }catch(err){ alert("导入失败：文件格式不正确。"); }
+  };
+  r.readAsText(f); ev.target.value="";
+});
+document.getElementById("btnClearAll").addEventListener("click",function(){
+  if(confirm("确定清空全部打卡数据？此操作不可恢复，建议先导出备份。")){
+    RECORDS={};
+    if(SYNC==="nocfg"){ render(); alert("本机预览已清空（未配置云端，未上传）。"); }
+    else { alert("已全部清空，正在同步到云端。"); cloudSave(); }
+  }
+});
+document.getElementById("btnResetCheckin").addEventListener("click",function(){
+  if(confirm("重置打卡记录？将清除「锻炼 / 写作练习」的全部打卡记录（保留习惯养成与睡眠记录），记录从今天重新开始。此操作不可恢复，建议先点「导出备份」。")){
+    ITEMS.forEach(function(it){ delete RECORDS[it]; });
+    render();
+    if(SYNC==="nocfg"){ alert("本机预览已重置（未配置云端，未上传）。"); }
+    else { alert("打卡记录已重置，正在同步到云端，从今天重新开始。"); cloudSave(); }
+  }
+});
+
+document.getElementById("btnSaveSleep").addEventListener("click",function(){
+  const bed=document.getElementById("bedIn").value;
+  const wake=document.getElementById("wakeIn").value;
+  if(!bed){ alert("请填写就寝时间"); return; }
+  if(!RECORDS.sleep) RECORDS.sleep={};
+  RECORDS.sleep[today()]={bed:bed, wake:wake, ts:Date.now()};
+  render();
+  if(SYNC==="nocfg"){ alert("已记录（本地预览，未配置云端，保存后不会上传，请先设置云端）。"); }
+  else { cloudSave(); }
+});
+
+// init
+/* ---------- 首页（PRD F1：今日 / 本周 / 预计下周） ---------- */
+function curStreak(){
+  let n=0, cur=today();
+  for(let i=0;i<400;i++){
+    let any=false;
+    ITEMS.forEach(function(it){ if(isChecked(it,cur)) any=true; });
+    if(!any) break;
+    n++; cur=shiftDate(cur,-1);
+  }
+  return n;
+}
+function rangeEntries(offset){
+  const ms=mondayOf(new Date()); ms.setDate(ms.getDate()+7*offset);
+  const me=new Date(ms); me.setDate(me.getDate()+7);
+  const out={};
+  ITEMS.forEach(function(it){ out[it]=seqOf(it).filter(function(e){ const d=parse(e.date); return d>=ms && d<me; }); });
+  return out;
+}
+function renderWeekTable(offset, elId, center){
+  const el=document.getElementById(elId); if(!el) return;
+  let days;
+  if(center){
+    const t0=new Date();
+    days=[]; for(let i=-3;i<=3;i++){ const d=new Date(t0); d.setDate(d.getDate()+i); days.push(fmt(d)); }
+  } else {
+    const ms=mondayOf(new Date()); ms.setDate(ms.getDate()+7*offset);
+    days=[]; for(let i=0;i<7;i++){ const d=new Date(ms); d.setDate(d.getDate()+i); days.push(fmt(d)); }
+  }
+  const td=today();
+  let h='<div class="timetable">'
+    +'<div class="tt-row tt-head"><div class="tt-cell tt-corner">事项 ＼ 日期</div>';
+  days.forEach(function(ds){
+    const wn=weekdayOf(ds).slice(2);
+    const isToday=ds===td;
+    h+='<div class="tt-cell'+(isToday?' tt-today':'')+'">'+(isToday?"今天":"周"+wn)+'<br><span class="tt-d">'+ds.slice(5)+'</span></div>';
+  });
+  h+='</div>';
+  ITEMS.forEach(function(it){
+    h+='<div class="tt-row"><div class="tt-cell tt-item"><span class="tt-dot" style="background:'+META[it].color+'"></span>'+escapeHtml(it)+'</div>';
+    days.forEach(function(ds){
+      let ent=null; const s=seqOf(it); for(let k=0;k<s.length;k++){ if(s[k].date===ds){ ent=s[k]; break; } }
+      if(!ent){ h+='<div class="tt-cell tt-none">—</div>'; return; }
+      const done=isChecked(it,ds);
+      const txt=escapeHtml(summaryOf(it,ent));
+      if(done){ h+='<div class="tt-cell tt-done" data-act="ttcheck" data-it="'+it+'" data-ds="'+ds+'"><span class="tt-st">✓</span><span class="tt-tx">'+txt+'</span></div>'; }
+      else if(ds<=td){ h+='<div class="tt-cell tt-undo" data-act="ttcheck" data-it="'+it+'" data-ds="'+ds+'"><span class="tt-tx">'+txt+'</span></div>'; }
+      else { h+='<div class="tt-cell tt-plan" data-act="ttcheck" data-it="'+it+'" data-ds="'+ds+'"><span class="tt-tx">'+txt+'</span></div>'; }
+    });
+    h+='</div>';
+  });
+  h+='</div>';
+  el.innerHTML=h;
+}
+/* 首页「今日打卡」详情展开状态（默认收起，按模块记忆） */
+const HOME_OPEN_KEY="wb_home_open";
+let _homeOpen=null;
+function loadHomeOpen(){ if(_homeOpen) return _homeOpen; try{ _homeOpen=JSON.parse(localStorage.getItem(HOME_OPEN_KEY)||"{}")||{}; }catch(e){ _homeOpen={}; } return _homeOpen; }
+function homeOpen(it){ const m=loadHomeOpen(); return m.hasOwnProperty(it)? !!m[it] : false; }   // 默认收起
+function setHomeOpen(it,v){ const m=loadHomeOpen(); m[it]=!!v; try{ localStorage.setItem(HOME_OPEN_KEY, JSON.stringify(m)); }catch(e){} }
+
+function renderHome(){
+  try{
+    const t=today(), dt=dayType(t), hn=dayName(t);
+    const g=document.getElementById("homeGreet");
+    if(g) g.innerHTML="今天 · "+t+" "+weekdayOf(t)+" <span class=\"tag\" style=\"background:"+DAY_COLOR[dt]+";color:#fff\">"+DAY_LABEL[dt]+(hn?" · "+hn:"")+"</span>";
+    const st=curStreak();
+    const sk=document.getElementById("homeStreak");
+    if(sk) sk.textContent = st>0 ? ("已连续 "+st+" 天") : "今天重新开始";
+    let html="", a=0, b=0, todayDone=0;
+    ITEMS.forEach(function(it){
+      a+=doneCount(it); b+=seqOf(it).length;
+      let e=seqOf(it).find(function(x){ return x.date===t; });   // 今日打卡：优先今天，保证与「本周待完成」联动
+      const isToday=!!e;
+      if(!e) e=activeEntry(it);                                   // 今天无安排则回退到下一个待办（补卡）
+      const ok = e ? isChecked(it,e.date) : false;
+      const future = e && !isToday && e.date>t;
+      if(isToday && ok) todayDone++;
+      const hk="h-"+it;                                   // 首页详情区的唯一 key
+      const open = e ? homeOpen(hk) : false;
+      html+="<div class=\"tcard"+(ok?" done":"")+"\">"
+        + "<div class=\"tcard-h"+(e?" toggle":"")+"\""+(e?" data-act=\"home-toggle\" data-it=\""+hk+"\"":'')+">"
+        + "<span class=\"badge\" style=\"background:"+META[it].color+"\">"+META[it].short+"</span>"
+        + "<span class=\"tname\">"+(e?escapeHtml(summaryOf(it,e)):"已完成全部计划")+"</span>"
+        + (e?"<span class=\"chev\" data-home-chev=\""+hk+"\">"+(open?"▾ 收起":"▸ 展开")+"</span>":"")
+        + "</div>";
+      if(e){
+        html+="<div class=\"tcard-b\" style=\"font-size:12px;color:var(--muted)\">"+escapeHtml(subOf(it,e))+"</div>";
+        html+="<div class=\"tdetail"+(open?" show":"")+"\" id=\"det-"+hk+"\">"+homeDetailHtml(it,e)+"</div>";
+        let lbl, act="homecheck", dis="";
+        if(ok){ lbl="已完成 ✓（点击撤销）"; }
+        else if(isToday){ lbl="完成打卡"; }
+        else if(future){ lbl="未开始（"+e.date+"）"; act=""; dis=" disabled style=\"opacity:.5;cursor:not-allowed\""; }
+        else { lbl="补卡 · "+e.date; }
+        html+="<div class=\"tcard-a row\">"
+          + "<button class=\"btn "+(ok?"":"primary")+"\" data-act=\""+act+"\" data-it=\""+it+"\" data-ds=\""+e.date+"\""+dis+">"+lbl+"</button>"
+          + "<button class=\"linkbtn sm\" data-act=\"home-toggle\" data-it=\""+hk+"\" data-home-lbl=\""+hk+"\">"+(open?"收起内容":"展开内容")+"</button>"
+          + "</div>";
+      } else {
+        html+="<div class=\"tcard-b\" style=\"font-size:12px;color:var(--muted)\">今日无安排，全部计划已完成 🎉</div>";
+      }
+      html+="</div>";
+    });
+    let ovHtml="";
+    if(PLAN_START && t < PLAN_START){
+      const left=Math.round((parse(PLAN_START)-parse(t))/86400000);
+      ovHtml+="<div style=\"font-size:13px;color:var(--muted)\">计划将于 <b style=\"color:var(--fg)\">"+PLAN_START+"</b> 开始，还有 <b style=\"color:#f59e0b\">"+left+"</b> 天 · 期间可先熟悉各模块</div>";
+    }
+    ovHtml+="<div style=\"font-size:13px;color:var(--muted)\">今日完成 <b style=\"color:var(--fg)\">"+todayDone+" / "+ITEMS.length+"</b> · 累计 "+a+" / "+b+"</div>";
+    const ov=document.getElementById("homeOverview");
+    if(ov) ov.innerHTML=ovHtml;
+    const ht=document.getElementById("homeToday");
+    if(ht) ht.innerHTML="<div class=\"grid\">"+html+"</div>";
+    renderWeekTable(0,"homeWeek", true);
+  }catch(e){}
+}
+
+/* ---------- 统计（PRD F2：周/月 + 日历热力图 + 法定节假日标记） ---------- */
+let statMode="week", statOffset=0, calYear=(new Date()).getFullYear(), calMonth=(new Date()).getMonth()+1, calCat="all";
+function statPeriod(){
+  if(statMode==="week"){
+    const ms=mondayOf(new Date()); ms.setDate(ms.getDate()+7*statOffset);
+    const me=new Date(ms); me.setDate(me.getDate()+7);
+    return {from:fmt(ms), to:fmt(new Date(me.getTime()-86400000))};
+  }
+  const d=new Date(); d.setDate(1); d.setMonth(d.getMonth()+statOffset);
+  const e=new Date(d.getFullYear(), d.getMonth()+1, 0);
+  return {from:fmt(d), to:fmt(e)};
+}
+function fmtCN(ds){ const p=String(ds).split("-"); return (+p[0])+"年"+(+p[1])+"月"+(+p[2])+"日"; }
+function renderStats(){
+  try{
+    const p=statPeriod();
+    const rg=document.getElementById("statRange"); if(rg) rg.textContent=p.from+" ~ "+p.to;
+    // 坚持打卡统计：开始日期 / 已坚持天数 / 共多少天
+    const start=PLAN_START, tdy=today();
+    const totalDays=Math.max(0, Math.round((parse(tdy)-parse(start))/86400000)+1);
+    const checkedSet=new Set();
+    ITEMS.forEach(function(it){ const rec=RECORDS[it]||{}; Object.keys(rec).forEach(function(ds){ if(rec[ds] && ds>=start && ds<=tdy) checkedSet.add(ds); }); });
+    const checkedDays=checkedSet.size;
+    // 当前连续打卡天数：从今天往前，连续有任一事项打卡的天数（今天未打卡则从昨天起算）
+    let streak=0; { let cur=new Date(parse(tdy)); while(cur>=parse(start)){ const ds=fmt(cur); if(ITEMS.some(function(it){ return isChecked(it,ds); })) streak++; else break; cur.setDate(cur.getDate()-1); } }
+    const adhere= totalDays? Math.round(checkedDays/totalDays*100):0;
+    const sk=document.getElementById("statStreak");
+    if(sk) sk.innerHTML="自 <b style=\"color:var(--fg)\">"+fmtCN(start)+"</b> 起开始打卡，累计坚持 <b style=\"color:#0F9D6E\">"+checkedDays+"</b> / 共 <b style=\"color:var(--fg)\">"+totalDays+"</b> 天（坚持率 "+adhere+"%）；当前连续打卡 <b style=\"color:#0F9D6E\">"+streak+"</b> 天。";
+    let tot=0, dn=0; const per={};
+    ITEMS.forEach(function(it){
+      const list=seqOf(it).filter(function(e){ return e.date>=p.from && e.date<=p.to; });
+      const d=list.filter(function(e){ return isChecked(it,e.date); }).length;
+      per[it]={done:d,total:list.length}; tot+=list.length; dn+=d;
+    });
+    const rate= tot? Math.round(dn/tot*100) : 0;
+    const col = rate>=80?"#0F9D6E":(rate>=50?"#f59e0b":"#ef4444");
+    const ov=document.getElementById("statOverview");
+    if(ov) ov.innerHTML="<div class=\"wcard\"><div style=\"font-size:13px;color:var(--muted)\">完成</div><div style=\"font-size:22px;font-weight:800\">"+dn+" / "+tot+"　<span style=\"color:"+col+"\">"+rate+"%</span></div></div>";
+    let bh="";
+    ITEMS.forEach(function(it){
+      const o=per[it]; const r=o.total?Math.round(o.done/o.total*100):0;
+      bh+="<div style=\"margin:9px 0\"><div style=\"font-size:12px;color:var(--muted)\">"+it+"　"+o.done+"/"+o.total+"</div><div style=\"height:8px;background:#eef2f7;border-radius:5px;overflow:hidden\"><div style=\"height:100%;width:"+r+"%;background:"+META[it].color+"\"></div></div></div>";
+    });
+    const bb=document.getElementById("statBars"); if(bb) bb.innerHTML=bh;
+    const lg=document.getElementById("statLegend");
+    if(lg){
+      let s="";
+      ["holiday","makeup","weekend","work"].forEach(function(k){
+        s+="<span><span style=\"display:inline-block;width:8px;height:8px;border-radius:2px;background:"+DAY_COLOR[k]+";margin-right:4px\"></span>"+DAY_LABEL[k]+"</span>";
+      });
+      s+="<span><span style=\"display:inline-block;width:8px;height:8px;border-radius:2px;background:#0F9D6E;margin-right:4px\"></span>已打卡</span>";
+      lg.innerHTML=s;
+    }
+    renderCal();
+    try{ renderHeat(); }catch(e){}
+    try{ renderStatRecords(); }catch(e){}
+  }catch(e){}
+}
+/* 打卡明细：直接读取「打卡」页产生的 RECORDS，统计页只读展示，不提供打卡/补卡 */
+let _recLimit=20;
+function renderStatRecords(){
+  const box=document.getElementById("statRecords"), sm=document.getElementById("statRecSummary");
+  if(!box) return;
+  const rows=[];
+  ITEMS.forEach(function(it){
+    const rec=RECORDS[it]||{};
+    Object.keys(rec).forEach(function(ds){
+      if(!rec[ds]) return;
+      if(PLAN_START && ds<PLAN_START) return;
+      rows.push({it:it, ds:ds, e:(SMAP[it]&&SMAP[it][ds])?SMAP[it][ds]:null});
+    });
+  });
+  rows.sort(function(a,b){ if(a.ds!==b.ds) return a.ds<b.ds?1:-1; return a.it<b.it?-1:1; });
+  const dayMap={}, n=rows.length;
+  rows.forEach(function(r){ dayMap[r.ds]=1; });
+  const dayCount=Object.keys(dayMap).length;
+  if(sm) sm.innerHTML = n
+    ? "共 <b style=\"color:var(--fg)\">"+n+"</b> 条打卡记录，覆盖 <b style=\"color:#0F9D6E\">"+dayCount+"</b> 天 · 数据来自「打卡」页，此处仅供查看，不能修改"
+    : "还没有打卡记录。去「打卡」页完成第一项吧。";
+  if(!n){ box.innerHTML=""; return; }
+  let html="";
+  rows.slice(0,_recLimit).forEach(function(r){
+    const title=r.e?summaryOf(r.it,r.e):"（该日期无对应计划）";
+    const sub=r.e?subOf(r.it,r.e):"";
+    html+='<div style="display:flex;gap:8px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line)">'
+      +'<span class="badge sm" style="background:'+META[r.it].color+'">'+META[r.it].short+'</span>'
+      +'<div style="flex:1;min-width:0"><div style="font-size:13.5px;font-weight:600">'+escapeHtml(title)+'</div>'
+      +'<div style="color:var(--muted);font-size:12px;margin-top:2px">'+r.ds+' '+weekdayOf(r.ds)+(sub?" · "+escapeHtml(sub):"")+'</div></div></div>';
+  });
+  if(n>_recLimit) html+='<div style="margin-top:10px"><button class="linkbtn" data-act="rec-more">展开全部（共 '+n+' 条）</button></div>';
+  else if(_recLimit>100) html+='<div style="margin-top:10px"><button class="linkbtn" data-act="rec-less">收起（只看最近 20 条）</button></div>';
+  box.innerHTML=html;
+}
+/* 月历：控件 + 7×6 网格 */
+function renderCal(){
+  const ctrls=document.getElementById("calCtrls"); const grid=document.getElementById("calGrid"); if(!ctrls||!grid) return;
+  // 控件
+  const yNow=calYear, mNow=calMonth;
+  const years=[]; for(let y=2025;y<=2027;y++) years.push(y);
+  const cats=[{k:"all",l:"全部"},{k:"holiday",l:"假期"},{k:"work",l:"工作日"},{k:"weekend",l:"周末"},{k:"makeup",l:"调休"},{k:"done",l:"已打卡"},{k:"pending",l:"待补"}];
+  ctrls.innerHTML =
+    '<select class="cal-ctrl" id="selCalCat">'+cats.map(function(c){return '<option value="'+c.k+'"'+(calCat===c.k?' selected':'')+'>'+c.l+'</option>'}).join("")+'</select>'
+   +'<select class="cal-ctrl" id="selCalYear">'+years.map(function(y){return '<option value="'+y+'"'+(y===yNow?' selected':'')+'>'+y+'年</option>'}).join("")+'</select>'
+   +'<button class="cal-ctrl" id="btnCalPrev">‹</button>'
+   +'<select class="cal-ctrl" id="selCalMonth">'+[1,2,3,4,5,6,7,8,9,10,11,12].map(function(mm){return '<option value="'+mm+'"'+(mm===mNow?' selected':'')+'>'+mm+'月</option>'}).join("")+'</select>'
+   +'<button class="cal-ctrl" id="btnCalNext">›</button>'
+   +'<button class="cal-ctrl" id="btnCalToday" style="margin-left:auto;color:#3b82f6;font-weight:700">今天</button>';
+  // 周表头
+  let html="";
+  ["一","二","三","四","五","六","日"].forEach(function(w,i){
+    html += '<div class="whd'+(i===6?' we':'')+'">'+w+'</div>';
+  });
+  // 当月第一天 + 当月共几天
+  const first=new Date(yNow, mNow-1, 1);
+  const firstWeekday=(first.getDay()+6)%7; // 周一=0
+  const daysInMonth=new Date(yNow, mNow, 0).getDate();
+  const prevDays=new Date(yNow, mNow-1, 0).getDate();
+  // 6 行 × 7 列 = 42
+  const cells=[];
+  for(let i=0;i<firstWeekday;i++){ // 上月补位
+    const d=prevDays-firstWeekday+1+i;
+    cells.push({y:yNow,m:mNow-1,d:d,inMonth:false});
+  }
+  for(let d=1;d<=daysInMonth;d++) cells.push({y:yNow,m:mNow,d:d,inMonth:true});
+  let nmDay=1;
+  while(cells.length<42){
+    cells.push({y:yNow, m:mNow+1, d:nmDay, inMonth:false});
+    nmDay++;
+  }
+  const td=today();
+  cells.forEach(function(c){
+    const dt=new Date(c.y, c.m-1, c.d);
+    const ds=fmt(dt);
+    const inMonth=c.inMonth!==false;
+    const cnt=(function(){let n=0; ITEMS.forEach(function(it){ if(isChecked(it,ds)) n++; }); return n;})();
+    const typ=dayType(ds);
+    const lunar=lunarOf(ds);
+    const term=termOf(ds);
+    const fest=festOf(ds);
+    const holidayName=HOLIDAY_2026.name[ds]||"";
+    const sub=term||fest||(holidayName?holidayName:(lunar||""));
+    const isToday=ds===td;
+    let total=0; ITEMS.forEach(function(it){ if(SMAP[it]&&SMAP[it][ds]) total++; });
+    const diffDays=Math.round((parse(td)-parse(ds))/86400000);
+    const inWindow = diffDays>=0 && diffDays<=3;
+    const isPending = inWindow && total>0 && cnt===0;
+    const isWE=dt.getDay()===0||dt.getDay()===6;
+    // 筛选
+    let show=true;
+    if(calCat==="holiday") show=(typ==="holiday");
+    else if(calCat==="work") show=(typ==="work"||typ==="makeup");
+    else if(calCat==="weekend") show=(typ==="weekend");
+    else if(calCat==="makeup") show=(typ==="makeup");
+    else if(calCat==="done") show=(cnt>0);
+    else if(calCat==="pending") show=isPending;
+    const cls=[];
+    if(!inMonth) cls.push("out");
+    if(isPending) cls.push("pending");
+    if(typ==="holiday") cls.push("hol");
+    else if(typ==="makeup") cls.push("makeup");
+    if(cnt>0) cls.push("done");
+    if(isToday) cls.push("today");
+    if(isWE) cls.push("we");
+    let badge="";
+    if(isToday) badge='<span class="badge jin">今</span>';
+    else if(typ==="holiday"&&HOLIDAY_2026.makeup.indexOf(ds)<0) badge='<span class="badge xiu">休</span>';
+    else if(typ==="makeup"||HOLIDAY_2026.makeup.indexOf(ds)>=0) badge='<span class="badge ban">班</span>';
+    let pendBadge = isPending ? '<span class="badge pend">待补</span>' : "";
+    html += '<div class="cal-cell '+cls.join(" ")+'" style="opacity:'+((inMonth?1:0.35)*(show?1:0.25))+'">'   // 统计页只读：不绑补卡事件
+      +pendBadge+badge
+      +'<div class="num">'+c.d+'</div>'
+      +'<div class="sub">'+escapeHtml(sub)+'</div>'
+    +'</div>';
+  });
+  grid.innerHTML=html;
+}
+function calToggle(ds){
+  const diff=Math.round((parse(today())-parse(ds))/86400000);
+  if(Math.abs(diff)>3){ alert(diff>0?"补打卡仅支持近 3 天（含今天）的日期。":"提前打卡仅支持未来 3 天内的日期。"); return; }
+  let found=0;
+  ITEMS.forEach(function(it){
+    if(!(SMAP[it]&&SMAP[it][ds])) return;
+    found++;
+    if(!RECORDS[it]) RECORDS[it]={};
+    if(RECORDS[it][ds]) delete RECORDS[it][ds];
+    else RECORDS[it][ds]={ts:Date.now(), updated_at:new Date().toISOString(), sync_status:"pending", makeup:true};
+  });
+  if(!found){ alert("该日期没有安排任务，无需补打卡。"); return; }
+  render(); cloudSave();
+}
+
+/* ---------- 写作工作台 ---------- */
+let curDoc=null, docTimer=null, editTarget=null; // editTarget: {kind:'doc',id} | {kind:'chapter',bookId,chapId}
+let curBook=null, curChap=null, wtabNow="work", inspFilter="all";
+function docsAll(){ if(!RECORDS.docs) RECORDS.docs={}; return RECORDS.docs; }
+function plainDocs(){ const d=docsAll(); const out={}; Object.keys(d).forEach(function(k){ if(k[0]!=="_") out[k]=d[k]; }); return out; }
+function booksAll(){ const d=docsAll(); if(!d._books) d._books={}; return d._books; }
+function inspAll(){ const d=docsAll(); if(!d._inspirations) d._inspirations=[]; return d._inspirations; }
+// 作业池：被删除（视为未做）的作业，放在这里等待重新发布
+function poolAll(){ const d=docsAll(); if(!d._pool) d._pool=[]; return d._pool; }
+
+/* 今日作业卡（联动写作练习打卡） */
+function renderHwCard(){
+  const el=document.getElementById("hwCard"); if(!el) return;
+  const e=activeEntry("写作练习");
+  if(!e){ el.innerHTML='<div class="sec-title">今日作业 <span class="tag">写作练习</span></div><div style="font-size:13px;color:var(--muted)">写作练习计划已全部完成 🎉</div>'; return; }
+  const done=isChecked("写作练习", e.date);
+  const hwId="hw-"+e.date;
+  const hasDoc=!!plainDocs()[hwId];
+  el.innerHTML='<div class="sec-title">今日作业 <span class="tag">写作练习 · '+e.date.slice(5)+'</span></div>'
+    +'<div class="hwcard"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span class="badge" style="background:'+META["写作练习"].color+'">写</span>'
+    +'<b style="font-size:15px">'+escapeHtml(summaryOf("写作练习",e))+'</b>'+(done?'<span class="chapst done" style="margin-left:auto">已打卡</span>':'<span class="chapst todo" style="margin-left:auto">未完成</span>')+'</div>'
+    +'<div style="font-size:12px;color:var(--muted);margin-bottom:10px">'+escapeHtml(subOf("写作练习",e))+'</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
+    +'<button class="btn primary" data-act="hw-open" data-id="'+hwId+'" data-ds="'+e.date+'">'+(hasDoc?'继续写作业':'开始写作业')+'</button>'
+    +(done?'':'<button class="btn" data-act="hw-check" data-ds="'+e.date+'">完成打卡</button>')
+    +'</div></div>';
+}
+
+/* 左侧目录导航树（作业 / 书库折叠树 / 灵感入口） */
+let expandedBooks={};
+function wLen(html){ return (html||"").replace(/<[^>]*>/g,"").replace(/&[a-z]+;/g," ").trim().length; }
+function toHtmlIfPlain(s){
+  s=s||"";
+  if(/<[a-z][\s\S]*>/i.test(s)) return s;              // 已是富文本
+  return escapeHtml(s).replace(/\n/g,"<br>");          // 旧纯文本一次性迁移
+}
+function renderWNav(){
+  const nd=document.getElementById("navDocs");
+  if(nd){
+    const d=plainDocs();
+    const ids=Object.keys(d).sort(function(a,b){ return String(d[b].updated_at||"")<String(d[a].updated_at||"")?-1:1; });
+    nd.innerHTML = ids.length ? ids.map(function(id){
+      const o=d[id]; const cur=editTarget&&editTarget.kind==="doc"&&editTarget.id===id;
+      return '<div class="wnav-item'+(cur?' cur':'')+'" data-act="docsel" data-id="'+id+'"><span class="nv-t">📄 '+escapeHtml(o.title||"未命名")+'</span><span class="nv-m">'+wLen(o.content)+'字</span></div>';
+    }).join("") : '<div style="font-size:12px;color:var(--muted);padding:4px 8px">点「＋」新建文档</div>';
+  }
+  const np=document.getElementById("navPool");
+  if(np){
+    const arr=poolAll();
+    np.innerHTML = arr.length ? arr.map(function(x){
+      const e=seqOf("写作练习").filter(function(t){ return t.date===x.ds; })[0];
+      return '<div class="wnav-item" data-act="pool-publish" data-ds="'+String(x.ds)+'" title="点击重新发布并开始写作业">'
+        +'<span class="nv-t">↩ '+escapeHtml(e?summaryOf("写作练习",e):(x.title||"作业"))+'</span>'
+        +'<span class="nv-m">'+String(x.ds).slice(5)+'</span>'
+        +'<span class="wnav-add" data-act="pool-del" data-ds="'+String(x.ds)+'" title="从作业池移除">×</span></div>';
+    }).join("") : '<div style="font-size:12px;color:var(--muted);padding:4px 8px">删除的作业会回到这里，可重新发布</div>';
+  }
+  const nb=document.getElementById("navBooks");
+  if(nb){
+    const bs=booksAll();
+    const ids=Object.keys(bs).sort(function(a,b){ return String(bs[b].updated_at||"")<String(bs[a].updated_at||"")?-1:1; });
+    nb.innerHTML = ids.length ? ids.map(function(id){
+      const b=bs[id];
+      const chIds=b.order||Object.keys(b.chapters||{});
+      const open=expandedBooks[id]!==false;
+      const bookCur=editTarget&&editTarget.kind==="book"&&editTarget.bookId===id;
+      let h='<div class="wnav-item wnav-book'+(bookCur?' cur':'')+'" data-act="booksel" data-id="'+id+'"><span style="flex:none;font-size:11px;color:var(--muted)">'+(open?'▾':'▸')+'</span><span class="nv-t">📖 '+escapeHtml(b.title||"未命名")+'</span><span class="nv-m">'+chIds.length+'章</span><span class="wnav-add" data-act="chap-new" data-book="'+id+'" title="新增章节">＋</span></div>';
+      if(open){
+        h+='<div class="wnav-chaps">';
+        chIds.forEach(function(cid,idx){
+          const c=(b.chapters||{})[cid]; if(!c) return;
+          const cur=editTarget&&editTarget.kind==="chapter"&&editTarget.chapId===cid;
+          const st=c.status||"todo";
+          const stTxt=st==="done"?'<span style="color:#0F9D6E">✓</span> ':(st==="writing"?'<span style="color:#1d4ed8">…</span> ':'');
+          h+='<div class="wnav-item'+(cur?' cur':'')+'" data-act="chapsel" data-book="'+id+'" data-id="'+cid+'"><span class="nv-t">'+stTxt+escapeHtml(c.title||("第"+(idx+1)+"章"))+'</span><span class="nv-m">'+wLen(c.content)+'字</span></div>';
+        });
+        if(!chIds.length) h+='<div style="font-size:11px;color:var(--muted);padding:3px 8px">点书名旁「＋」加第一章</div>';
+        h+='</div>';
+      }
+      return h;
+    }).join("") : '<div style="font-size:12px;color:var(--muted);padding:4px 8px">点「＋」创建新书</div>';
+  }
+  const ni=document.getElementById("navInsp");
+  if(ni){
+    const n=inspAll().length;
+    ni.innerHTML='<div class="wnav-item" data-act="insp-open"><span class="nv-t">💡 灵感速记</span><span class="nv-m">'+n+'条</span></div>';
+  }
+}
+
+/* 书概览（选中书名时右侧显示：脉络 + 整书操作） */
+function renderBookOverview(){
+  const bo=document.getElementById("bookOverview"); if(!bo) return;
+  if(!editTarget||editTarget.kind!=="book"){ bo.style.display="none"; bo.innerHTML=""; return; }
+  const b=booksAll()[editTarget.bookId]; if(!b){ bo.style.display="none"; bo.innerHTML=""; return; }
+  bo.style.display="";
+  const chIds=b.order||Object.keys(b.chapters||{});
+  let words=0; chIds.forEach(function(cid){ const c=(b.chapters||{})[cid]; if(c) words+=wLen(c.content); });
+  bo.innerHTML='<div class="bk-overview">'
+    +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><b style="font-size:16px">📖 '+escapeHtml(b.title||"未命名")+'</b>'
+    +'<span style="margin-left:auto;font-size:12px;color:var(--muted)">'+chIds.length+' 章 · '+words+' 字</span></div>'
+    +'<div style="font-size:12px;color:var(--muted);margin-bottom:4px">故事脉络 / 简介</div>'
+    +'<textarea id="bookPremise" style="width:100%;min-height:80px;font-size:13px" placeholder="一句话说清这本书讲什么：主角、冲突、主线走向…">'+escapeHtml(b.premise||"")+'</textarea>'
+    +'<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">'
+    +'<button class="btn mini primary" data-act="chap-new" data-book="'+editTarget.bookId+'">＋ 新增章节</button>'
+    +'<button class="btn mini" data-act="book-rename">重命名</button>'
+    +'<button class="btn mini" data-act="book-export">导出全书</button>'
+    +'<button class="btn mini" data-act="book-del" style="color:#ef4444">删除本书</button>'
+    +'</div></div>';
+}
+
+/* 右侧主面板显示控制 */
+let showInsp=false;
+function showMain(){
+  const isEd=editTarget&&(editTarget.kind==="doc"||editTarget.kind==="chapter");
+  const isBook=editTarget&&editTarget.kind==="book";
+  const eb=document.getElementById("editorBox"); if(eb) eb.style.display=isEd?"":"none";
+  const bo=document.getElementById("bookOverview"); if(bo) bo.style.display=isBook?"":"none";
+  const ip=document.getElementById("inspPanel"); if(ip) ip.style.display=showInsp?"":"none";
+  const em=document.getElementById("editorEmpty"); if(em) em.style.display=(!isEd&&!isBook&&!showInsp)?"":"none";
+}
+
+/* 灵感速记 */
+const INSP_CATS=["剧情","观点","金句","素材","选题","随笔"];
+function renderInsp(){
+  const list=inspAll();
+  const el=document.getElementById("inspList"); if(!el) return;
+  let h='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">';
+  h+='<button class="btn mini'+(inspFilter==="all"?" primary":"")+'" data-act="insp-filter" data-cat="all">全部</button>';
+  INSP_CATS.forEach(function(c){ h+='<button class="btn mini'+(inspFilter===c?" primary":"")+'" data-act="insp-filter" data-cat="'+c+'">'+c+'</button>'; });
+  h+='</div>';
+  const arr=list.filter(function(x){ return inspFilter==="all"||x.cat===inspFilter; }).sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
+  h+= arr.length ? arr.map(function(x){
+    let tm=""; try{ tm=new Date(x.ts).toLocaleString("zh-CN",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}); }catch(e){}
+    return '<div class="inspitem"><span class="inspcat">'+escapeHtml(x.cat||"随笔")+'</span>'
+      +'<div style="flex:1;min-width:0"><div style="font-size:13px;line-height:1.6">'+escapeHtml(x.text||"")+'</div>'
+      +'<div style="font-size:10.5px;color:var(--muted);margin-top:2px">'+tm+'</div></div>'
+      +'<button class="btn mini" data-act="insp-del" data-id="'+x.id+'" style="flex:none">删</button></div>';
+  }).join("") : '<div style="font-size:13px;color:var(--muted)">还没有灵感。写卡壳时，先把脑子里的碎片倒在这里，写正文时再来翻。</div>';
+  el.innerHTML=h;
+}
+
+/* 统一编辑器（文档 / 章节共用） */
+function editGet(){
+  if(!editTarget) return null;
+  if(editTarget.kind==="doc"){ const d=plainDocs(); return d[editTarget.id]||null; }
+  const b=booksAll()[editTarget.bookId];
+  return (b&&b.chapters) ? (b.chapters[editTarget.chapId]||null) : null;
+}
+function editSet(html){
+  const o=editGet(); if(!o) return;
+  o.content=html; o.updated_at=new Date().toISOString();
+  const bs=booksAll();
+  if(editTarget.kind==="chapter" && bs[editTarget.bookId]) bs[editTarget.bookId].updated_at=o.updated_at;
+  if(docTimer) clearTimeout(docTimer);
+  docTimer=setTimeout(function(){ saveLocal(); cloudSave(); },800);
+  const wc=document.getElementById("wordCount"); if(wc) wc.textContent=wLen(html)+" 字";
+  const tr=document.getElementById("typoReport"); if(tr){ tr.innerHTML=""; delete tr.dataset.keep; }
+}
+function editKey(){ return editTarget ? (editTarget.kind+":"+(editTarget.id||editTarget.chapId||editTarget.bookId)) : ""; }
+function renderEditor(){
+  showMain();
+  if(!editTarget||!(editTarget.kind==="doc"||editTarget.kind==="chapter")) return;
+  const o=editGet(); if(!o) return;
+  const ed=document.getElementById("richEditor");
+  const t=document.getElementById("editorTitle");
+  const isChap=editTarget.kind==="chapter";
+  if(t) t.textContent=isChap?("章节 · "+(o.title||"未命名")):("文档 · "+(o.title||"未命名"));
+  const cob=document.getElementById("chapOutlineBox"); if(cob) cob.style.display=isChap?"":"none";
+  const csb=document.getElementById("chapStatusBar");
+  if(isChap){
+    const co=document.getElementById("chapOutline");
+    if(co && document.activeElement!==co) co.value=o.outline||"";
+    const st=o.status||"todo";
+    if(csb){ csb.style.display=""; csb.innerHTML='<span style="font-size:12px;color:var(--muted)">状态：</span>'
+      +["todo","writing","done"].map(function(s){ return '<button class="btn mini'+(st===s?" primary":"")+'" data-act="chap-status" data-s="'+s+'">'+(s==="done"?"已完成":s==="writing"?"写作中":"未写")+'</button>'; }).join(" "); }
+  } else if(csb){ csb.style.display="none"; }
+  // 仅当切换了编辑目标时才重载内容（避免打字时光标被重置）
+  if(ed && ed.dataset.loadedFor!==editKey()){
+    ed.innerHTML=toHtmlIfPlain(o.content||"");
+    ed.dataset.loadedFor=editKey();
+  }
+  const wc=document.getElementById("wordCount"); if(wc) wc.textContent=wLen(o.content||"")+" 字";
+}
+
+/* 富文本格式命令 */
+function fmtExec(cmd){
+  const ed=document.getElementById("richEditor"); if(!ed) return;
+  ed.focus();
+  try{
+    if(cmd==="h1"||cmd==="h2"||cmd==="h3"||cmd==="p") document.execCommand("formatBlock",false,cmd);
+    else if(cmd==="quote") document.execCommand("formatBlock",false,"blockquote");
+    else document.execCommand(cmd,false,null);
+  }catch(e){}
+  editSet(ed.innerHTML);
+}
+
+/* 插入图片（选择 → canvas 压缩 → base64 插入光标处） */
+function compressImage(file,cb){
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const img=new Image();
+    img.onload=function(){
+      const max=900; let w=img.width,h=img.height;
+      if(w>max){ h=Math.round(h*max/w); w=max; }
+      const c=document.createElement("canvas"); c.width=w; c.height=h;
+      c.getContext("2d").drawImage(img,0,0,w,h);
+      cb(c.toDataURL("image/jpeg",0.72));
+    };
+    img.onerror=function(){ alert("图片读取失败，请换一张试试。"); };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function insertImageDataUrl(url){
+  const ed=document.getElementById("richEditor"); if(!ed) return;
+  ed.focus();
+  const img=document.createElement("img"); img.src=url;
+  const sel=window.getSelection();
+  if(sel&&sel.rangeCount&&ed.contains(sel.getRangeAt(0).commonAncestorContainer)){
+    const r=sel.getRangeAt(0); r.deleteContents(); r.insertNode(img);
+    r.setStartAfter(img); r.collapse(true); sel.removeAllRanges(); sel.addRange(r);
+  } else ed.appendChild(img);
+  editSet(ed.innerHTML);
+}
+
+/* 语音 / 文本插入光标处 */
+function insertTextAtCaret(text){
+  const ed=document.getElementById("richEditor"); if(!ed) return;
+  ed.focus();
+  const sel=window.getSelection();
+  if(sel&&sel.rangeCount&&ed.contains(sel.getRangeAt(0).commonAncestorContainer)){
+    const r=sel.getRangeAt(0); r.deleteContents();
+    const node=document.createTextNode(text);
+    r.insertNode(node); r.setStartAfter(node); r.collapse(true);
+    sel.removeAllRanges(); sel.addRange(r);
+  } else ed.innerHTML+=escapeHtml(text);
+  editSet(ed.innerHTML);
+}
+
+/* 错别字 / 语病检查（前端规则，不改动原文，只给建议） */
+const TYPO_MAP={"按装":"安装","做为":"作为","帐号":"账号","好象":"好像","再接再励":"再接再厉","一如继往":"一如既往","谈笑风声":"谈笑风生","走头无路":"走投无路","迫不急待":"迫不及待","直接了当":"直截了当","重倒覆辙":"重蹈覆辙","悬梁刺骨":"悬梁刺股","默守成规":"墨守成规","明火执杖":"明火执仗","磬竹难书":"罄竹难书","相形见拙":"相形见绌","按步就班":"按部就班","不醒人事":"不省人事","再接再历":"再接再厉","哀声叹气":"唉声叹气","融汇贯通":"融会贯通","见议":"建议","凑和":"凑合","侯车":"候车","松驰":"松弛","家俱":"家具","九宵":"九霄","坐阵":"坐镇","脉膊":"脉搏","苍海":"沧海"};
+const DE_VERBS="跑跳唱笑哭走看说写做打玩学想听读讲画吃喊叫飞游站坐";
+function typoCheck(t){
+  const issues=[];
+  if(!t) return issues;
+  Object.keys(TYPO_MAP).forEach(function(w){ let i=0; while((i=t.indexOf(w,i))>=0){ issues.push({type:"错别字",frag:w,sug:"→ "+TYPO_MAP[w],pos:i}); i+=w.length; } });
+  let m;
+  const reRep=/([\u4e00-\u9fa5])\1{2,}/g; while((m=reRep.exec(t))) issues.push({type:"重复字",frag:m[0],sug:"疑似多打了字",pos:m.index});
+  const rePun=/[，。！？；：、]{2,}/g; while((m=rePun.exec(t))) issues.push({type:"标点重复",frag:m[0],sug:"保留一个即可",pos:m.index});
+  const reEn=/[\u4e00-\u9fa5](,|;|\?|!)(?=[\u4e00-\u9fa5])/g; while((m=reEn.exec(t))) issues.push({type:"英文标点",frag:m[0],sug:"中文语境建议全角标点",pos:m.index});
+  const reDe=new RegExp("["+DE_VERBS+"]的(?=[\\u4e00-\\u9fa5])","g");
+  while((m=reDe.exec(t))) issues.push({type:"的地得",frag:m[0],sug:"动词后接补语用「得」，修饰动词用「地」",pos:m.index});
+  issues.sort(function(a,b){ return a.pos-b.pos; });
+  return issues;
+}
+/* 错别字定位：在 contenteditable 里按纯文本偏移选中 */
+function jumpToTextPos(pos,len){
+  const ed=document.getElementById("richEditor"); if(!ed) return;
+  const walker=document.createTreeWalker(ed,4,null);
+  let count=0,node;
+  while((node=walker.nextNode())){
+    const l=node.textContent.length;
+    if(count+l>pos){
+      try{
+        const range=document.createRange();
+        range.setStart(node,Math.min(pos-count,l));
+        range.setEnd(node,Math.min(pos-count+len,l));
+        const sel=window.getSelection();
+        sel.removeAllRanges(); sel.addRange(range);
+        (node.parentElement||ed).scrollIntoView({block:"center"});
+      }catch(e){}
+      return;
+    }
+    count+=l;
+  }
+}
+function renderTypoReport(){
+  const ed=document.getElementById("richEditor"); const tr=document.getElementById("typoReport");
+  if(!ed||!tr) return;
+  const iss=typoCheck(ed.innerText||ed.textContent||"");
+  if(!iss.length){ tr.innerHTML='<div style="margin-top:8px;font-size:12.5px;color:#047857">✓ 未发现明显错别字 / 标点问题</div>'; tr.dataset.keep="1"; return; }
+  tr.innerHTML='<div style="margin-top:8px;font-size:12px;color:var(--muted)">发现 '+iss.length+' 处建议修正（点击定位）：</div>'
+    +iss.slice(0,60).map(function(x){ return '<div class="typo-item" data-act="typo-jump" data-pos="'+x.pos+'" data-len="'+x.frag.length+'">'
+      +'<span class="tp-type">'+x.type+'</span><span style="font-family:monospace">「'+escapeHtml(x.frag)+'」</span><span class="tp-sug">'+escapeHtml(x.sug)+'</span></div>'; }).join("")
+    +(iss.length>60?'<div style="font-size:11px;color:var(--muted);margin-top:4px">…其余 '+(iss.length-60)+' 处从略</div>':'');
+  tr.dataset.keep="1";
+}
+
+/* 语音输入（Web Speech API，中文） */
+let recog=null, recOn=false;
+function toggleVoice(){
+  const btn=document.getElementById("btnVoice");
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ alert("当前浏览器不支持语音输入，建议用 Chrome / Edge 打开本页。"); return; }
+  if(recOn){ try{ recog.stop(); }catch(e){} return; }
+  recog=new SR(); recog.lang="zh-CN"; recog.continuous=true; recog.interimResults=false;
+  recog.onresult=function(ev){
+    let txt="";
+    for(let i=ev.resultIndex;i<ev.results.length;i++){ if(ev.results[i].isFinal) txt+=ev.results[i][0].transcript; }
+    if(txt) insertTextAtCaret(txt);
+  };
+  const off=function(){ recOn=false; if(btn){ btn.classList.remove("rec"); btn.innerHTML="🎤 语音"; } };
+  recog.onend=off;
+  recog.onerror=function(ev){ off(); if(ev&&ev.error==="not-allowed") alert("麦克风权限被拒绝，请在浏览器地址栏允许麦克风。"); };
+  try{ recog.start(); recOn=true; if(btn){ btn.classList.add("rec"); btn.innerHTML="⏹ 停止"; } }catch(e){}
+}
+
+function renderDocs(){
+  try{ renderHwCard(); }catch(e){}
+  try{ renderWNav(); }catch(e){}
+  try{ renderInsp(); }catch(e){}
+  try{ renderBookOverview(); }catch(e){}
+  try{ renderEditor(); }catch(e){}
+}
+
+/* ---------- 管理 ---------- */
+function renderManage(){
+  try{
+    const el=document.getElementById("dtList"); if(!el) return;
+    const o=RECORDS.dayTypes||{}; const ks=Object.keys(o).sort();
+    el.innerHTML = ks.length ? ("已覆盖：" + ks.map(function(k){ return k+" → "+DAY_LABEL[o[k]]; }).join("、")) : "暂无手动覆盖，按法定节假日与星期自动判定。";
+  }catch(e){}
+}
+
+document.addEventListener("click",function(e){
+  const el=e.target.closest("[data-act]"); if(!el) return;
+  const act=el.dataset.act;
+  if(act==="homecheck"){
+    const hd=el.dataset.ds;
+    const diff=Math.round((parse(today())-parse(hd))/86400000);
+    if(Math.abs(diff)>3){ alert(diff>0?"补打卡仅支持近 3 天（含今天）的日期。":"提前打卡仅支持未来 3 天内的日期。"); return; }
+    toggle(el.dataset.it, hd);
+  }
+  else if(act==="calday"){ calToggle(el.dataset.ds); }
+  else if(act==="ttcheck"){
+    const it=el.dataset.it, ds=el.dataset.ds;
+    const diff=Math.round((parse(today())-parse(ds))/86400000);
+    if(Math.abs(diff)>3){ alert(diff>0?"补打卡仅支持近 3 天（含今天）的日期。":"提前打卡仅支持未来 3 天内的日期。"); return; }
+    if(!(SMAP[it]&&SMAP[it][ds])){ alert("该事项当天没有安排任务，无需补打卡。"); return; }
+    toggle(it, ds);
+  }
+  else if(act==="docsel"){ editTarget={kind:"doc",id:el.dataset.id}; curDoc=el.dataset.id; showInsp=false; renderDocs(); }
+  else if(act==="doc-new-quick"){
+    const d=docsAll(); const t=prompt("新文档标题：","未命名文档"); if(t===null) return;
+    const id="d"+Date.now();
+    d[id]={title:t||"未命名文档", content:"", created_at:new Date().toISOString(), updated_at:new Date().toISOString()};
+    curDoc=id; editTarget={kind:"doc",id:id}; showInsp=false;
+    saveLocal(); cloudSave(); renderDocs();
+  }
+  else if(act==="hw-open"){
+    const hwId=el.dataset.id, ds=el.dataset.ds;
+    const d=docsAll();
+    // 标题前缀日期 = 实际完成作业的日期：已打卡用打卡时间，未打卡用今天（实际开始写的日子）
+    const rec=(RECORDS["写作练习"]||{})[ds];
+    const actual=(rec&&rec.ts)?fmt(new Date(rec.ts)):today();
+    if(!d[hwId]){
+      const e=seqOf("写作练习").filter(function(x){ return x.date===ds; })[0];
+      d[hwId]={title:actual.slice(5)+" 作业："+(e?summaryOf("写作练习",e):"写作练习"), content:"", created_at:new Date().toISOString(), updated_at:new Date().toISOString()};
+    } else {
+      // 已存在：把标题前缀同步为实际完成日期（顺序推进下计划日期≠完成日期）
+      const base=(d[hwId].title||"作业").replace(/^\d{2}-\d{2}\s*作业：/,"");
+      d[hwId].title=actual.slice(5)+" 作业："+base;
+    }
+    editTarget={kind:"doc",id:hwId}; curDoc=hwId; showInsp=false;
+    saveLocal(); cloudSave(); renderDocs();
+    const eb=document.getElementById("editorBox"); if(eb) eb.scrollIntoView({behavior:"smooth",block:"start"});
+  }
+  else if(act==="hw-check"){
+    const ds=el.dataset.ds;
+    const diff=Math.round((parse(today())-parse(ds))/86400000);
+    if(Math.abs(diff)>3){ alert(diff>0?"补打卡仅支持近 3 天（含今天）的日期。":"提前打卡仅支持未来 3 天内的日期。"); return; }
+    toggle("写作练习", ds);
+    // 打卡完成后，把对应作业文档标题前缀更新为实际完成日期
+    const d=docsAll(); const hwId="hw-"+ds; const rec=(RECORDS["写作练习"]||{})[ds];
+    if(d[hwId]&&rec&&rec.ts){
+      const actual=fmt(new Date(rec.ts));
+      const base=(d[hwId].title||"作业").replace(/^\d{2}-\d{2}\s*作业：/,"");
+      d[hwId].title=actual.slice(5)+" 作业："+base;
+      saveLocal(); cloudSave(); renderDocs();
+    }
+  }
+  else if(act==="booksel"){
+    const id=el.dataset.id;
+    expandedBooks[id]=expandedBooks[id]===false?true:false;
+    curBook=id; editTarget={kind:"book",bookId:id}; showInsp=false;
+    renderDocs();
+  }
+  else if(act==="book-new-quick"){
+    const t=prompt("书名：","未命名新书"); if(t===null) return;
+    const p=prompt("故事脉络 / 一句话简介（可先留空）：","");
+    const id="b"+Date.now();
+    booksAll()[id]={title:t||"未命名新书", premise:p||"", chapters:{}, order:[], created_at:new Date().toISOString(), updated_at:new Date().toISOString()};
+    curBook=id; expandedBooks[id]=true; editTarget={kind:"book",bookId:id}; showInsp=false;
+    saveLocal(); cloudSave(); renderDocs();
+  }
+  else if(act==="book-rename"){
+    const b=booksAll()[editTarget&&editTarget.bookId]; if(!b) return;
+    const t=prompt("书名：", b.title||""); if(t===null) return;
+    b.title=t||b.title; b.updated_at=new Date().toISOString();
+    saveLocal(); cloudSave(); renderDocs();
+  }
+  else if(act==="book-export"){
+    const b=booksAll()[editTarget&&editTarget.bookId]; if(!b) return;
+    const chIds=b.order||Object.keys(b.chapters||{});
+    let txt="《"+(b.title||"未命名")+"》\n\n"+(b.premise?("【简介】"+b.premise+"\n\n"):"");
+    chIds.forEach(function(cid,idx){ const c=(b.chapters||{})[cid]; if(!c) return;
+      txt+="== 第"+(idx+1)+"章 "+(c.title||"")+" ==\n\n"+(c.content||"").replace(/<br\s*\/?>/g,"\n").replace(/<\/p>/g,"\n\n").replace(/<[^>]*>/g,"")+"\n\n"; });
+    const blob=new Blob([txt],{type:"text/plain;charset=utf-8"});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=(b.title||"书")+".txt"; a.click();
+  }
+  else if(act==="book-del"){
+    const bid=editTarget&&editTarget.bookId;
+    const b=booksAll()[bid]; if(!b) return;
+    if(!confirm("确定删除《"+(b.title||"未命名")+"》？全部章节内容一并删除，不可撤销。")) return;
+    delete booksAll()[bid]; editTarget=null; curBook=null;
+    saveLocal(); cloudSave(); renderDocs();
+  }
+  else if(act==="chap-new"){
+    const bid=el.dataset.book||curBook;
+    const b=booksAll()[bid]; if(!b) return;
+    if(!b.chapters) b.chapters={}; if(!b.order) b.order=[];
+    const t=prompt("章节标题：","第"+(b.order.length+1)+"章"); if(t===null) return;
+    const cid="c"+Date.now();
+    b.chapters[cid]={title:t||("第"+(b.order.length+1)+"章"), outline:"", content:"", status:"todo", created_at:new Date().toISOString(), updated_at:new Date().toISOString()};
+    b.order.push(cid); b.updated_at=new Date().toISOString();
+    expandedBooks[bid]=true; curBook=bid; editTarget={kind:"chapter",bookId:bid,chapId:cid}; showInsp=false;
+    saveLocal(); cloudSave(); renderDocs();
+  }
+  else if(act==="chapsel"){
+    const bid=el.dataset.book||curBook; if(!bid) return;
+    curBook=bid; editTarget={kind:"chapter",bookId:bid,chapId:el.dataset.id}; showInsp=false;
+    renderDocs();
+    const eb=document.getElementById("editorBox"); if(eb) eb.scrollIntoView({behavior:"smooth",block:"start"});
+  }
+  else if(act==="chap-status"){
+    const o=editGet(); if(!o||editTarget.kind!=="chapter") return;
+    o.status=el.dataset.s; o.updated_at=new Date().toISOString();
+    saveLocal(); cloudSave(); renderDocs();
+  }
+  else if(act==="ed-rename"){
+    const o=editGet(); if(!o) return;
+    const t=prompt(editTarget.kind==="chapter"?"章节标题：":"文档标题：", o.title||""); if(t===null) return;
+    o.title=t||o.title; o.updated_at=new Date().toISOString();
+    saveLocal(); cloudSave(); renderDocs();
+  }
+  else if(act==="ed-export"){
+    const o=editGet(); if(!o) return;
+    const txt=(o.content||"").replace(/<br\s*\/?>/g,"\n").replace(/<\/p>/g,"\n\n").replace(/<[^>]*>/g,"");
+    const blob=new Blob([txt],{type:"text/plain;charset=utf-8"});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=(o.title||"文档")+".txt"; a.click();
+  }
+  else if(act==="ed-del"){
+    if(!editTarget) return;
+    const o=editGet(); if(!o) return;
+    if(editTarget.kind==="doc"){
+      const id=editTarget.id;
+      const isHw=(id.indexOf("hw-")===0);
+      if(isHw){
+        if(!confirm("删除这份作业？\n将视为「未做该作业」：撤销当天写作练习打卡，作业放回「作业池」，之后可随时重新发布再写。")) return;
+      } else {
+        if(!confirm("确定删除《"+(o.title||"未命名")+"》？此操作不可撤销。")) return;
+      }
+      if(isHw){
+        const ds=id.slice(3);
+        const e=seqOf("写作练习").filter(function(x){ return x.date===ds; })[0];
+        // 撤销打卡 = 任务回到未做
+        if(RECORDS["写作练习"] && RECORDS["写作练习"][ds]) delete RECORDS["写作练习"][ds];
+        // 放回作业池，等待后续发布
+        poolAll().push({ds:ds, title:(e?summaryOf("写作练习",e):(o.title||"作业")), ts:Date.now()});
+      }
+      delete docsAll()[id]; editTarget=null; curDoc=null;
+      saveLocal(); cloudSave(); render();
+      return;
+    } else if(editTarget.kind==="chapter"){
+      const b=booksAll()[editTarget.bookId]; if(!b) return;
+      if(!confirm("确定删除章节《"+(o.title||"未命名")+"》？正文一并删除，不可撤销。")) return;
+      delete b.chapters[editTarget.chapId];
+      b.order=(b.order||[]).filter(function(x){ return x!==editTarget.chapId; });
+      editTarget=null;
+      saveLocal(); cloudSave(); renderDocs();
+      return;
+    }
+  }
+  else if(act==="pool-publish"){
+    const ds=String(el.dataset.ds);
+    const arr=poolAll();
+    const i=arr.findIndex(function(x){ return String(x.ds)===ds; });
+    if(i<0) return;
+    const it=arr[i];
+    const e=seqOf("写作练习").filter(function(x){ return x.date===ds; })[0];
+    const hwId="hw-"+ds;
+    const d=docsAll();
+    if(!d[hwId]) d[hwId]={title:today().slice(5)+" 作业："+(e?summaryOf("写作练习",e):(it.title||"作业")), content:"", created_at:new Date().toISOString(), updated_at:new Date().toISOString()};
+    arr.splice(i,1);
+    editTarget={kind:"doc",id:hwId}; curDoc=hwId; showInsp=false;
+    saveLocal(); cloudSave(); render();
+  }
+  else if(act==="pool-del"){
+    const ds=String(el.dataset.ds);
+    if(!confirm("把该作业从作业池移除？\n移除后它回到正常顺序计划里，按推进顺序再遇到时重新出现。")) return;
+    const arr=poolAll();
+    const i=arr.findIndex(function(x){ return String(x.ds)===ds; });
+    if(i>=0) arr.splice(i,1);
+    saveLocal(); cloudSave(); renderDocs();
+  }
+  else if(act==="insp-open"){ showInsp=true; editTarget=null; renderDocs(); }
+  else if(act==="insp-filter"){ inspFilter=el.dataset.cat; renderInsp(); }
+  else if(act==="insp-del"){
+    const arr=inspAll();
+    const idx=arr.findIndex(function(x){ return String(x.id)===String(el.dataset.id); });
+    if(idx>=0){ arr.splice(idx,1); saveLocal(); cloudSave(); renderInsp(); }
+  }
+  else if(act==="typo-jump"){
+    jumpToTextPos(+el.dataset.pos, +el.dataset.len);
+  }
+});
+
+/* ---------- 新模块按钮绑定 ---------- */
+(function(){
+  const on=function(id,fn){ const el=document.getElementById(id); if(el) el.addEventListener("click",fn); };
+  on("btnCalPrev",function(){ calMonth--; if(calMonth<1){calMonth=12;calYear--;} renderCal(); });
+  on("btnCalNext",function(){ calMonth++; if(calMonth>12){calMonth=1;calYear++;} renderCal(); });
+  on("btnCalToday",function(){ const t=new Date(); calYear=t.getFullYear(); calMonth=t.getMonth()+1; renderCal(); });
+  // 控件 change 委托（动态生成）
+  document.addEventListener("change",function(e){
+    if(e.target&&e.target.id==="selCalYear"){ calYear=+e.target.value; renderCal(); }
+    else if(e.target&&e.target.id==="selCalMonth"){ calMonth=+e.target.value; renderCal(); }
+    else if(e.target&&e.target.id==="selCalCat"){ calCat=e.target.value; renderCal(); }
+  });
+  on("btnVoice",function(){ toggleVoice(); });
+  on("btnTypo",function(){ renderTypoReport(); });
+  on("btnImg",function(){ const fi=document.getElementById("imgInput"); if(fi) fi.click(); });
+  on("btnNavToggle",function(){ const n=document.getElementById("wNav"); if(n) n.classList.toggle("open"); });
+  const fi=document.getElementById("imgInput");
+  if(fi) fi.addEventListener("change",function(){
+    const f=this.files&&this.files[0]; if(!f) return;
+    compressImage(f,function(url){ insertImageDataUrl(url); });
+    this.value="";
+  });
+  // 格式工具栏（委托）
+  const fmtBar=document.getElementById("fmtBar");
+  if(fmtBar) fmtBar.addEventListener("click",function(e){
+    const b=e.target.closest("[data-fmt]"); if(!b) return;
+    e.preventDefault(); fmtExec(b.dataset.fmt);
+  });
+  // 富文本输入 → 保存（input 委托，contenteditable 不触发 change）
+  document.addEventListener("input",function(e){
+    if(e.target&&e.target.id==="richEditor"){
+      if(!editTarget) return;
+      editSet(e.target.innerHTML);
+    }
+  });
+  on("btnInspAdd",function(){
+    const inp=document.getElementById("inspText"); if(!inp) return;
+    const txt=(inp.value||"").trim(); if(!txt){ alert("先写点内容再记。"); return; }
+    const cat=(document.getElementById("inspCat")||{}).value||"随笔";
+    inspAll().push({id:"i"+Date.now(), text:txt, cat:cat, ts:Date.now()});
+    inp.value="";
+    saveLocal(); cloudSave(); renderInsp();
+  });
+  // 书简介 / 章节大纲 输入保存（委托，动态生成）
+  document.addEventListener("input",function(e){
+    if(e.target&&e.target.id==="bookPremise"){
+      const b=booksAll()[editTarget&&editTarget.bookId]; if(!b) return;
+      b.premise=e.target.value; b.updated_at=new Date().toISOString();
+      if(docTimer) clearTimeout(docTimer);
+      docTimer=setTimeout(function(){ saveLocal(); cloudSave(); },700);
+    } else if(e.target&&e.target.id==="chapOutline"){
+      const o=editGet(); if(!o||editTarget.kind!=="chapter") return;
+      o.outline=e.target.value; o.updated_at=new Date().toISOString();
+      if(docTimer) clearTimeout(docTimer);
+      docTimer=setTimeout(function(){ saveLocal(); cloudSave(); },700);
+    }
+  });
+  on("btnResetAll",function(){
+    if(!confirm("确定重置所有任务吗？\n将清空锻炼 / 写作练习的全部打卡记录（文档内容保留）。\n此操作不可撤销，建议先「导出备份」。")) return;
+    ITEMS.forEach(function(it){ RECORDS[it]={}; });
+    if(!RECORDS._meta) RECORDS._meta={};
+    RECORDS._meta.version=(RECORDS._meta.version||0)+1;
+    RECORDS._meta.updated_at=new Date().toISOString();
+    saveLocal(); cloudSave({immediate:true}); render();
+    alert("已重置所有打卡任务，文档内容已保留。");
+  });
+  on("btnMngHabit",function(){ const b=document.getElementById("btnManageHabit"); if(b) b.click(); });
+  document.querySelectorAll("[data-dt]").forEach(function(b){
+    b.addEventListener("click",function(){
+      const v=document.getElementById("dtDate").value;
+      if(!v){ alert("请先选择日期。"); return; }
+      setDayType(v, b.dataset.dt||null);
+      saveLocal(); cloudSave(); renderManage(); renderStats(); renderHome();
+    });
+  });
+  on("btnResetCal",function(){
+    if(!confirm("确定清除全部手动设定的日期类型覆盖吗？\n日历与统计将恢复按「国务院办公厅2026年放假安排（国办发明电〔2025〕7号）」自动判定。")) return;
+    RECORDS.dayTypes={};
+    if(!RECORDS._meta) RECORDS._meta={};
+    RECORDS._meta.version=(RECORDS._meta.version||0)+1;
+    RECORDS._meta.updated_at=new Date().toISOString();
+    saveLocal(); cloudSave({immediate:true}); renderManage(); renderStats(); renderHome(); if(typeof renderCal==="function") renderCal();
+    alert("已清除全部日历覆盖，恢复法定节假日安排。");
+  });
+})();
+
+/* ---------- 底部导航栏 ---------- */
+function switchView(v){
+  document.querySelectorAll(".view").forEach(function(x){ x.classList.toggle("active", x.id==="view-"+v); });
+  document.querySelectorAll(".tabbar .tab").forEach(function(x){ x.classList.toggle("active", x.dataset.view===v); });
+  render();
+}
+// 事件委托绑定：.tabbar 的 nav 元素位于 script 结束标签之后，脚本执行时元素尚未解析，
+// 直接 querySelectorAll 拿到空列表导致绑定失效（底部导航全部点不开）。改为委托，点击时才查元素。
+// 注意：inline 脚本的注释/字符串里绝不能出现字面 script 结束标签，否则 HTML 会提前截断脚本！
+document.addEventListener("click",function(e){
+  const t=e.target && e.target.closest ? e.target.closest(".tabbar .tab") : null;
+  if(t && t.dataset && t.dataset.view) switchView(t.dataset.view);
+});
+/* ---------- 习惯管理 ---------- */
+function renderHabitEdit(){
+  const defs=habitDefs(); let html="";
+  defs.forEach(function(h){ const t=h.type==="avoid"?"戒除":"养成"; const tc=h.type==="avoid"?"avoid":"keep";
+    html+='<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-top:1px solid var(--line)">'
+      +'<div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13.5px">'+escapeHtml(h.name)+' <span class="habit-tag '+tc+'">'+t+'</span></div>'
+      +'<div style="font-size:12px;color:var(--muted)">'+escapeHtml(h.def||"")+'</div></div>'
+      +'<button class="btn mini" data-act="hd-del" data-id="'+h.id+'">删除</button></div>';
+  });
+  const box=document.getElementById("habitListEdit"); if(box) box.innerHTML=html||'<div class="c-sub">暂无习惯</div>';
+}
+document.getElementById("btnManageHabit").addEventListener("click",function(){
+  renderHabitEdit(); document.getElementById("habitModal").classList.add("show");
+});
+document.getElementById("habitCancel").addEventListener("click",function(){
+  document.getElementById("habitModal").classList.remove("show");
+});
+document.getElementById("habitAdd").addEventListener("click",function(){
+  const name=document.getElementById("habitName").value.trim();
+  const type=document.getElementById("habitType").value;
+  const def=document.getElementById("habitDef").value.trim();
+  if(!name){ alert("请填写习惯名称"); return; }
+  if(!RECORDS.habitDefs) RECORDS.habitDefs=[];
+  RECORDS.habitDefs.push({id:"h"+Date.now(), name:name, type:type, def:def});
+  document.getElementById("habitName").value=""; document.getElementById("habitDef").value="";
+  renderHabitEdit(); renderHabit(); renderHabitWeek(); renderHabitHeat();
+  if(SYNC!=="nocfg") cloudSave();
+});
+document.getElementById("habitListEdit").addEventListener("click",function(e){
+  const el=e.target.closest("[data-act='hd-del']"); if(!el) return;
+  const id=el.dataset.id;
+  if(!confirm("删除该习惯？其历史打卡记录也会一并清除。")) return;
+  RECORDS.habitDefs=RECORDS.habitDefs.filter(function(h){return h.id!==id;});
+  if(RECORDS.habits && RECORDS.habits[id]) delete RECORDS.habits[id];
+  renderHabitEdit(); renderHabit(); renderHabitWeek(); renderHabitHeat();
+  if(SYNC!=="nocfg") cloudSave();
+});
+/* ================= 展示模式：手机版 / PC版 =================
+   同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
+   链接示例：.../?mode=pc  .../?mode=mobile                                  */
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-09i";
+function detectMode(){
+  try{
+    const q=new URLSearchParams(location.search);
+    const qm=(q.get("mode")||q.get("m")||"").toLowerCase();
+    if(qm==="pc"||qm==="web"||qm==="desktop"||qm==="p") return "pc";
+    if(qm==="mobile"||qm==="phone"||qm==="m") return "mobile";
+    const s=localStorage.getItem(MODE_KEY); if(s==="pc"||s==="mobile") return s;
+    const ua=(navigator.userAgent||"");
+    if(/Android|iPhone|iPad|iPod|Windows Phone|Mobile|HarmonyOS/i.test(ua)) return "mobile";
+    if(window.matchMedia && window.matchMedia("(max-width:820px)").matches) return "mobile";
+  }catch(e){}
+  return "pc";
+}
+let MODE=detectMode();
+function applyMode(m){
+  MODE=(m==="pc")?"pc":"mobile";
+  const label=(MODE==="pc")?"PC版":"手机版";
+  try{
+    document.body.classList.remove("mode-mobile","mode-pc");
+    document.body.classList.add("mode-"+MODE);
+  }catch(e){}
+  document.title="每日签到工作台（"+label+"） · "+BUILD_TAG;
+  const h1=document.querySelector(".brand h1"); if(h1) h1.textContent="每日签到工作台（"+label+"）";
+  const bm=document.getElementById("btnMode"); if(bm) bm.textContent=(MODE==="pc")?"切换手机版":"切换PC版";
+  try{ localStorage.setItem(MODE_KEY, MODE); }catch(e){}
+  try{
+    const u=new URL(location.href); u.searchParams.set("mode",MODE);
+    history.replaceState(null,"",u.pathname+u.search+u.hash);
+  }catch(e){}
+}
+(function(){
+  applyMode(MODE);   // 进入页面即套用模式（URL 参数优先）
+  // 全局错误可见化：任何脚本错误在页面顶部红条显示，便于远程定位
+  window.addEventListener("error", function(e){
+    try{
+      var msg=(e.message||"脚本错误")+" @ "+String(e.filename||"").split("/").pop()+":"+(e.lineno||"");
+      var b=document.getElementById("errBanner");
+      if(!b){ b=document.createElement("div"); b.id="errBanner"; b.style.cssText="position:fixed;left:0;right:0;top:0;z-index:99999;background:#ef4444;color:#fff;padding:8px 12px;font-size:12px;font-family:monospace;line-height:1.4"; (document.body||document.documentElement).appendChild(b); }
+      b.textContent="页面脚本错误："+msg;
+    }catch(_){}
+  });
+  const d=new Date(); const wd=["周日","周一","周二","周三","周四","周五","周六"][d.getDay()];
+  const tdEl=document.getElementById("topDate"); if(tdEl) tdEl.textContent = fmt(d)+" "+wd;
+  cloudLoad();   // 先本地秒开，再异步云端同步
+  const bm=document.getElementById("btnMode");
+  if(bm) bm.addEventListener("click",function(){ applyMode(MODE==="pc"?"mobile":"pc"); });
+  window.addEventListener("online", function(){ if(SYNC!=="synced") retryNow(); });
+  document.addEventListener("visibilitychange", function(){ if(!document.hidden && SYNC==="pending") retryNow(); });
+})();
+</script>
+<nav class="tabbar" id="tabbar">
+  <button class="tab active" data-view="home">
+    <svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+    <span>打卡</span>
+  </button>
+  <button class="tab" data-view="stats">
+    <svg viewBox="0 0 24 24"><path d="M4 20V11M10 20V4M16 20v-8M21 20H3"/></svg>
+    <span>统计</span>
+  </button>
+  <button class="tab" data-view="habit">
+    <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+    <span>习惯</span>
+  </button>
+  <button class="tab" data-view="docs">
+    <svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h6M9 16h6"/></svg>
+    <span>写作</span>
+  </button>
+  <button class="tab" data-view="manage">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.5 4.5l2 2M17.5 17.5l2 2M19.5 4.5l-2 2M6.5 17.5l-2 2"/></svg>
+    <span>管理</span>
+  </button>
+</nav>
+</body>
+</html>
