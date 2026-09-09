@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日签到工作台（手机版） · 构建2026-09-09</title>
+<title>每日打卡 · 构建2026-09-09i</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -294,21 +294,19 @@ body.mode-pc .sleep-field input{min-height:38px}
 <div class="topbar">
   <div class="topbar-in">
     <div class="brand">
-      <h1>每日签到工作台</h1>
+      <h1>每日打卡</h1>
       <span class="date" id="topDate"></span>
       <span class="sync" id="syncBadge"><span class="sync-dot" id="syncDot"></span><span id="syncText">连接中…</span></span>
     </div>
     <div class="tools">
       <button class="btn" id="btnMode">切换手机版</button>
       <button class="btn" id="btnRetry" style="display:none">同步重试</button>
-      <button class="btn" id="btnResetCheckin">重置打卡记录</button>
-      <button class="btn primary" id="btnCfg">设置云端</button>
     </div>
   </div>
 </div>
 
 <div class="wrap">
-  <div id="nocfg" class="banner nocfg">未配置云端存储：请点右上角「设置云端」填写 Supabase 的 Project URL 和 anon public key，才能跨设备同步。<b>未配置期间打卡会保存在本机浏览器，不会丢失</b>，配好云端后会自动上传。</div>
+  <div id="nocfg" class="banner nocfg">未配置云端存储：请到「管理」页点击「设置云端」填写 Supabase 的 Project URL 和 anon public key，才能跨设备同步。<b>未配置期间打卡会保存在本机浏览器，不会丢失</b>，配好云端后会自动上传。</div>
   <div id="errBanner" class="banner error"></div>
   <div id="offBanner" class="banner offline">当前离线（云端连接异常），打卡已暂存本地，恢复网络后会自动同步到云端。</div>
   <pre id="diagOut" style="display:none;white-space:pre-wrap;word-break:break-all;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;font-size:12px;line-height:1.6;margin-top:10px"></pre>
@@ -519,6 +517,8 @@ body.mode-pc .sleep-field input{min-height:38px}
       <div class="sec-title">数据 <span class="tag">备份 / 恢复 / 云端工具</span></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn" id="btnMngHabit">管理习惯</button>
+        <button class="btn" id="btnResetCheckin">重置打卡记录</button>
+        <button class="btn primary" id="btnCfg">设置云端</button>
         <button class="btn" id="btnExport">导出备份</button>
         <button class="btn" id="btnExportCsv">导出CSV</button>
         <button class="btn" id="btnImport">导入恢复</button>
@@ -531,7 +531,7 @@ body.mode-pc .sleep-field input{min-height:38px}
   </section>
 
   <div id="bkHint"></div>
-  <div class="bottom">每日签到工作台（云端版）· 单文件离线可用 · 数据存 Supabase 云端</div>
+  <div class="bottom">每日打卡 · 单文件离线可用 · 数据存 Supabase 云端</div>
 </div>
 
 
@@ -589,6 +589,87 @@ const SCHEDULE_WRAPPER = {"meta":{"generated":"2026-08-14","start":"2026-09-11",
 const SCHEDULE = SCHEDULE_WRAPPER.data || {};
 const SCHEDULE_META = SCHEDULE_WRAPPER.meta || {};
 const PLAN_START = (SCHEDULE_META && SCHEDULE_META.start) || today();
+
+/* ================= 健身排班（数据源：锻炼_去重版.xlsx，已内嵌，Excel 缺失也不影响） =================
+   机制：① 每周 3-4 天（4天=一/三/五/日，3天=二/四/六，逐周交替）
+        ② 法定节假日每天都安排训练
+        ③ 训练主题按 Excel 顺序一轮一轮轮巡
+        ④ 自由安排1 / 自由安排2 在每轮中随机插位，但互相不能相邻（含跨轮边界）
+        ⑤ 规则 + 内容 + 排班结果都写进云端数据库（RECORDS.fitness），跨设备一致
+   ============================================================================================ */
+const EXERCISE_LIB = [{"theme":"肩颈舒缓","purpose":"改善肩颈僵硬,激活核心肌群","effect":"直角肩成型,核心力量爆发","detail":"【模块一：肩颈舒缓】15分钟\n① 抱头拉伸颈后侧 20s\n② 抱头侧向拉伸 20s/侧\n③ 单臂肩部下压 20s/侧\n④ 双臂画圈 60s\n⑤ 手肘手腕环绕 60s\n⑥ 胸部拉伸 20s\n⑦ 合十反向拉扯 20s\n\n【模块二：核心训练】15分钟\n⑧ 死虫式 2组×10次（休30s）\n⑨ 鸟狗式 2组×10次/侧（休30s）\n⑩ 平板支撑 2组×20s（休30s）\n⑪ 仰卧卷腹 2组×10次（休30s）\n⑫ 俄罗斯转体 2组×12次/侧（休30s）【强化期/突破期】\n⑬ 平板支撑转体 3组×10次/侧（休30s）【突破期】\n\n【模块三：整理】5分钟\n⑭ 全身拉伸 3min\n⑮ 深呼吸 2min","video":"视频1：欧阳春晓15min直角肩\nhttps://www.bilibili.com/video/BV1ag4y1B7Z9\n\n视频2：帕梅拉10min腹肌杀手\n搜索：帕梅拉 腹肌杀手","free":false},{"theme":"侧臀训练","purpose":"改善臀部凹陷,增强腿部肌肉","effect":"蜜桃臀成型,臀腿线条流畅","detail":"【模块一：侧臀训练】12分钟\n① 髋部中立位 30s\n② 直腿侧举（右）45s\n③ 直腿侧举脉冲（右）45s\n④ 举腿前+后对角（右）45s\n⑤ 后对角脉冲（右）45s\n⑥ 直腿侧举保持（右）45s\n⑦ 慢速后对角举腿（右）45s\n⑧ 半侧平板撑（右）45s\n⑨ 消防栓式（右）45s\n⑩ 5x脉冲+5x保持（右）45s\n⑪ 左侧重复右侧全部动作\n\n【模块二：翘臀训练】15分钟\n⑫ 开胯（右/左）各45s\n⑬ 侧开腿后抬腿（右/左）各45s\n⑭ 臀桥 4组×20次（休15s）\n⑮ 蚌式开合 4组×20次/侧（休15s）\n⑯ 单腿臀桥 4组×12次/侧（休15s）【强化期/突破期】\n⑰ 保加利亚分腿蹲 3组×10次/侧（休15s）【突破期】\n\n【模块三：整理】8分钟\n⑱ 臀部拉伸（鸽子式）2min/侧\n⑲ 大腿前侧拉伸 2min/侧\n⑳ 小腿拉伸 2min","video":"视频1：帕梅拉12分钟侧臀训练\nhttps://www.bilibili.com/video/BV1X5411d71V\n\n视频2：周六野10分钟翘臀不粗腿\nhttps://www.bilibili.com/video/BV1Tt411g7Aw","free":false},{"theme":"灵活肩背","purpose":"修复颈椎问题,改善脊柱灵活性","effect":"颈椎完全康复,体态挺拔","detail":"【模块一：灵活肩背】17分钟\n① 猫牛式脊柱伸展 4组×15次（休15s）\n② 胸椎灵活性训练 4组×15次/侧（休15s）\n③ 眼镜蛇式伸展 4组×45s（休15s）\n④ 婴儿式放松 4组×45s（休15s）\n⑤ 颈部侧屈拉伸 4组×45s/侧（休15s）\n\n【模块二：脊柱保养】17分钟\n⑥ 肩胛收缩YTWL 4组×15次（休15s）\n⑦ 麦肯基颈椎疗法 4组×15次（休15s）\n⑧ 站姿侧腰拉伸 4组×45s/侧（休15s）\n⑨ 骨盆环绕 4组×15次（休15s）\n⑩ 三角形前屈拉伸 4组×45s（休15s）\n⑪ 仰卧脊柱扭转 4组×45s/侧（休15s）\n⑫ 站姿后弯 3组×15s（休15s）【突破期】\n\n【模块三：自主放松】6分钟\n⑬ 泡沫轴滚背 3min\n⑭ 仰卧抱膝摇摆 0min\n⑮ 深呼吸冥想 3min","video":"视频1：帕梅拉6分钟灵活肩背\n搜索：帕梅拉 灵活肩背 脊柱\n\n视频2：体态大师脊柱保养\n搜索：体态大师 脊柱保养","free":false},{"theme":"直角肩少女背","purpose":"强化背部肌群,改善圆肩","effect":"直角肩完美,背部线条雕刻","detail":"【模块一：直角肩少女背】18分钟\n① 泡沫轴筋膜放松 3min\n② 俯卧W字伸展 4组×15次（休15s）\n③ 俯卧T字伸展 4组×15次（休15s）\n④ 俯卧Y字伸展 4组×15次（休15s）\n⑤ 俯卧L字伸展 4组×15次（休15s）\n⑥ 墙壁天使 4组×15次（休15s）\n⑦ 肩背动态拉伸 3min\n\n【模块二：上肢训练】15分钟\n⑧ 弹力带划船 4组×20次（休15s）\n⑨ 俯卧撑 4组×15次（休15s）\n⑩ 哑铃侧平举 4组×15次（休15s）\n⑪ 哑铃推举 3组×10次（休15s）【突破期】\n\n【模块三：整理】5分钟\n⑫ 肩背拉伸（十字）2min/侧\n⑬ 三头肌拉伸 1min/侧\n⑭ 深呼吸放松 1min","video":"视频1：欧阳春晓15min直角肩\nhttps://www.bilibili.com/video/BV1ag4y1B7Z9\n\n视频2：帕梅拉10min上肢训练\n搜索：帕梅拉 上肢训练","free":false},{"theme":"HIIT燃脂","purpose":"提升代谢,燃烧脂肪","effect":"顽固脂肪歼灭,腹肌轮廓显现","detail":"【模块一：HIIT燃脂】15分钟\n① 开合跳 40s（休10s）×4轮\n② 高抬腿 40s（休10s）×4轮\n③ 深蹲侧步跳 40s（休10s）×4轮\n④ 登山跑 40s（休10s）×4轮\n⑤ 高位平板撑 40s（休10s）×4轮\n⑥ 平板开合 40s（休10s）×4轮\n⑦ 波比跳 40s（休10s）×4轮\n⑧ 海星式开合跳 40s（休10s）×4轮\n\n【模块二：站立腹部】15分钟\n⑨ 腹部侧拉 40s（休10s）×4轮\n⑩ 开合跳+扩胸 40s（休10s）×4轮\n⑪ 高抬腿 40s（休10s）×4轮\n⑫ 深蹲+侧卷腹 40s（休10s）×4轮\n⑬ 海星式开合跳 40s（休10s）×4轮\n⑭ 半波比跳 40s（休10s）×4轮\n⑮ 深蹲保持 40s（休10s）×4轮\n⑯ 平板支撑转体 3组×10次/侧（休15s）【突破期】\n\n【模块三：整理】5分钟\n⑰ 全身拉伸 3min\n⑱ 慢走调心率 1min\n⑲ 深呼吸放松 1min","video":"视频1：帕梅拉10分钟HIIT燃脂\nhttps://www.bilibili.com/video/BV1Np4y1i7rG\n\n视频2：帕梅拉10分钟HIIT+站立腹部\nhttps://www.bilibili.com/video/BV1LF411n7jw","free":false},{"theme":"动态热身","purpose":"综合强化全身肌群","effect":"全身肌肉均衡,力量爆发","detail":"【模块一：动态热身】5分钟\n① 开合跳 60s\n② 高抬腿 60s\n③ 手臂画圈 2min\n④ 原地慢跑 60s\n⑤ 动态拉伸 1min\n\n【模块二：全身HIIT】37分钟\n⑥ 深蹲跳 4组×12次（休15s）\n⑦ 俯卧撑 4组×15次（休15s）\n⑧ 弓步蹲 3组×10次/侧（休15s）\n⑨ 平板支撑 4组×60s（休15s）\n⑩ 登山跑 3组×30次（休15s）\n⑪ 波比跳 3组×8次（休15s）【强化期/突破期】\n⑫ 臀桥 4组×25次（休15s）\n⑬ 蚌式开合 4组×25次/侧（休15s）\n\n【模块三：腹部核心】14分钟\n⑭ 卷腹 4组×20次（休15s）\n⑮ 俄罗斯转体 4组×20次（休15s）【强化期/突破期】\n⑯ 反向卷腹 4组×15次（休15s）\n⑰ 鸟狗式 4组×10次/侧（休15s）【强化期】\n⑱ 平板支撑转体 3组×10次/侧（休15s）【突破期】\n\n【模块四：整理放松】10分钟\n⑲ 泡沫轴全身放松 5min\n⑳ 全身静态拉伸 3min\n㉑ 深呼吸冥想 3min","video":"视频：Chloe Ting 21天挑战Day1\nhttps://www.bilibili.com/opus/775544108885213193","free":false},{"theme":"肩颈腰背拉伸","purpose":"促进肌肉恢复,提升柔韧性","effect":"恢复加速,柔韧巅峰","detail":"【模块一：肩颈腰背拉伸】12分钟\n① 颈部拉伸（低头/抬头/侧向）各45s\n② 肩部舒展（下压/画圈）各60s\n③ 臂胸舒展（前推/后推/握拳）各45s\n④ 腰背扭转（侧腰/合十/骨盆环绕）各45s\n⑤ 坐姿脊柱前屈 60s\n⑥ 仰卧抱膝摇摆 60s\n⑦ 全身放松 2min\n\n【模块二：每日拉伸】17分钟\n⑧ 瑜伽拜日式 4轮（每轮2min）\n⑨ 鸽子式臀肌拉伸 4组×60s/侧（休10s）\n⑩ 坐姿前屈 4组×45s（休10s）\n⑪ 仰卧脊柱扭转 4组×45s/侧（休10s）\n\n【模块三：自主放松】15分钟\n⑫ 泡沫轴全身放松 5min\n⑬ 仰卧蝴蝶式 3min\n⑭ 仰卧倒箭式 3min\n⑮ 冥想呼吸 4min","video":"视频1：周六野10分钟拉伸瑜伽\nhttps://www.bilibili.com/video/BV1Q5411x7fw\n\n视频2：帕梅拉8分钟每日拉伸\n搜索：帕梅拉 每日拉伸","free":false},{"theme":"自由安排1","purpose":"自由安排：任选一个主题训练，或做轻度活动","effect":"保持训练节奏，灵活调整","detail":"自由安排日：从下列主题中任选其一训练，也可做轻度活动或主动休息。\n可选主题：肩颈舒缓 / 侧臀训练 / 灵活肩背 / 直角肩少女背 / HIIT燃脂 / 动态热身 / 肩颈腰背拉伸","video":"（自由安排，可沿用任一主题的跟练视频）","free":true},{"theme":"自由安排2","purpose":"自由安排：任选一个主题训练，或做轻度活动","effect":"保持训练节奏，灵活调整","detail":"自由安排日：从下列主题中任选其一训练，也可做轻度活动或主动休息。\n可选主题：肩颈舒缓 / 侧臀训练 / 灵活肩背 / 直角肩少女背 / HIIT燃脂 / 动态热身 / 肩颈腰背拉伸","video":"（自由安排，可沿用任一主题的跟练视频）","free":true}];
+const FITNESS_RULES = {
+  v: 1,
+  source: "锻炼_去重版.xlsx",
+  weeks: 26,
+  weekDays: [[1,3,5,0],[2,4,6]],          // 逐周交替：4 天 / 3 天
+  holidayAll: true,                        // 法定节假日每天安排
+  timeWorkday: "晚上：20:30-21:10（40分钟）",
+  timeOff: "早晨 6:30-7:10（40分钟）",
+  freeThemes: ["自由安排1","自由安排2"],
+  seed: 20260911                           // 固定随机种子：所有设备算出同一份排班
+};
+function _mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function isHolidayDate(ds){ return !!(HOLIDAY_2026 && HOLIDAY_2026.name && HOLIDAY_2026.name[ds]); }
+function buildFitnessSeq(start, rules){
+  const rnd=_mulberry32(rules.seed||1);
+  const fixed=EXERCISE_LIB.filter(function(x){return !x.free;}).map(function(x){return x.theme;});
+  const s0=mondayOf(new Date(start+"T00:00:00"));
+  const seq=[]; let fi=0, prevLast=-1, slots=null, freeOrder=null, queue=[];
+  function newBlock(){
+    const cands=[];
+    for(let i=0;i<=8;i++) for(let j=i+2;j<=8;j++){ if(prevLast===8 && i===0) continue; cands.push([i,j]); }
+    slots=cands[Math.floor(rnd()*cands.length)]; prevLast=slots[1];
+    const f=(rules.freeThemes||[]).slice();
+    if(rnd()<0.5){ const t=f[0]; f[0]=f[1]; f[1]=t; }
+    freeOrder=f; queue=[];
+    for(let p=0;p<=8;p++){ queue.push(p===slots[0]?{free:0}:(p===slots[1]?{free:1}:{fixed:true})); }
+  }
+  for(let k=0;k<rules.weeks*7;k++){
+    const d=new Date(s0); d.setDate(d.getDate()+k);
+    const ds=fmt(d); if(ds<start) continue;
+    const dow=d.getDay(), weekIdx=Math.floor(k/7);
+    const want=rules.weekDays[weekIdx%rules.weekDays.length];
+    const hol=isHolidayDate(ds);
+    if(!hol && want.indexOf(dow)<0) continue;
+    if(!queue.length) newBlock();
+    const slot=queue.shift();
+    let theme;
+    if(slot.free!==undefined) theme=freeOrder[slot.free]||EXERCISE_LIB[0].theme;
+    else { theme=fixed[fi%fixed.length]; fi++; }
+    const off=hol||dow===0||dow===6;
+    seq.push({date:ds, theme:theme, time:off?rules.timeOff:rules.timeWorkday, week:"第"+(weekIdx+1)+"周"});
+  }
+  return seq;
+}
+const FITNESS_FALLBACK = buildFitnessSeq(PLAN_START, FITNESS_RULES);   // Excel 缺失时的兜底排班
+function applyFitnessPlan(fit){
+  const lib=(fit&&fit.lib)||EXERCISE_LIB;
+  const seq=(fit&&fit.seq)||FITNESS_FALLBACK;
+  const map={}; lib.forEach(function(x){ map[x.theme]=x; });
+  const arr=seq.map(function(e,i){
+    const m=map[e.theme]||{};
+    const d=new Date(e.date+"T00:00:00");
+    return {date:e.date, theme:e.theme, time:e.time, week:e.week, day:"第"+(i+1)+"天", stage:"1-4",
+      星期:["日","一","二","三","四","五","六"][d.getDay()],
+      purpose:m.purpose||"", effect:m.effect||"", detail:m.detail||"", video:m.video||""};
+  });
+  SCHEDULE["锻炼"]=arr;
+  SMAP["锻炼"]={}; arr.forEach(function(e){ SMAP["锻炼"][e.date]=e; });
+}
+function syncFitness(allowSave){
+  let need=false;
+  if(!RECORDS.fitness || !RECORDS.fitness.seq || !RECORDS.fitness.lib || !RECORDS.fitness.rules){
+    RECORDS.fitness={ v:FITNESS_RULES.v, generated:today(), source:FITNESS_RULES.source,
+      rules:FITNESS_RULES, lib:EXERCISE_LIB, seq:FITNESS_FALLBACK };
+    need=true;
+  }
+  applyFitnessPlan(RECORDS.fitness);
+  if(need && allowSave!==false && SYNC!=="nocfg") cloudSave();
+  return need;
+}
+applyFitnessPlan({lib:EXERCISE_LIB, seq:FITNESS_FALLBACK});   // 首屏：先用内嵌库排好，云端数据到了再覆盖
+
 const ITEMS = ["锻炼","写作练习"];
 const META = {
   "锻炼":{short:"锻",color:"#10b981"},
@@ -613,7 +694,8 @@ const HOLIDAY_2026 = {
     "2026-05-01":"劳动节","2026-05-02":"劳动节","2026-05-03":"劳动节","2026-05-04":"劳动节","2026-05-05":"劳动节",
     "2026-06-19":"端午","2026-06-20":"端午","2026-06-21":"端午",
     "2026-09-25":"中秋","2026-09-26":"中秋","2026-09-27":"中秋",
-    "2026-10-01":"国庆","2026-10-02":"国庆","2026-10-03":"国庆","2026-10-04":"国庆","2026-10-05":"国庆","2026-10-06":"国庆","2026-10-07":"国庆"
+    "2026-10-01":"国庆","2026-10-02":"国庆","2026-10-03":"国庆","2026-10-04":"国庆","2026-10-05":"国庆","2026-10-06":"国庆","2026-10-07":"国庆",
+    "2027-01-01":"元旦","2027-01-02":"元旦","2027-01-03":"元旦"
   },
   makeup:["2026-01-04","2026-02-14","2026-02-28","2026-05-09","2026-09-20","2026-10-10"]
 }
@@ -794,7 +876,7 @@ function hasPending(){ return _saveFails>0 || SYNC==="pending"; }
 async function cloudLoad(){
   if(!cfg.url || !cfg.anon){ SYNC="nocfg"; renderStatus(); render(); return; }
   const local=loadLocal();
-  if(local){ RECORDS=local; render(); }            // 本地秒开
+  if(local){ RECORDS=local; syncFitness(false); render(); }            // 本地秒开
   SYNC="syncing"; renderStatus();
   try{
     const r=await fetch(tableUrl()+"?id=eq.default&select=data", { headers: headers() });
@@ -807,19 +889,21 @@ async function cloudLoad(){
       const lv=(RECORDS._meta&&RECORDS._meta.version)||0;
       if(_cloudVersion>lv && hasPending()){
         if(confirm("检测到云端有更新的记录（其他设备同步过）。\n点「确定」用云端版本覆盖本机未同步的改动；点「取消」保留本机并上传覆盖云端。")){
-          RECORDS=remote.data;
+          RECORDS=remote.data; syncFitness(false);
         }
       } else if(_cloudVersion>lv){
-        RECORDS=remote.data;                        // 云端更新且本机无未同步改动，直接采用
+        RECORDS=remote.data; syncFitness(false);       // 云端更新且本机无未同步改动，直接采用
       } else if(lv>_cloudVersion){
         cloudSave({immediate:true});                // 本机比云端新（离线期间的打卡）：立即上传，否则数据会一直卡在本地
       }
       const __pruned=pruneOldRecords();
+      syncFitness();
       saveLocal();
       SYNC="synced"; localStorage.removeItem(OFF_KEY); _saveFails=0;
       renderStatus(); render();
       if(__pruned) cloudSave();
     } else {
+      syncFitness();
       SYNC="synced"; renderStatus(); render();
       cloudSave();                                  // 云端无记录，上传本地
     }
@@ -2271,8 +2355,8 @@ function applyMode(m){
     document.body.classList.remove("mode-mobile","mode-pc");
     document.body.classList.add("mode-"+MODE);
   }catch(e){}
-  document.title="每日签到工作台（"+label+"） · "+BUILD_TAG;
-  const h1=document.querySelector(".brand h1"); if(h1) h1.textContent="每日签到工作台（"+label+"）";
+  document.title="每日打卡 · "+BUILD_TAG;
+  const h1=document.querySelector(".brand h1"); if(h1) h1.textContent="每日打卡";
   const bm=document.getElementById("btnMode"); if(bm) bm.textContent=(MODE==="pc")?"切换手机版":"切换PC版";
   try{ localStorage.setItem(MODE_KEY, MODE); }catch(e){}
   try{
@@ -2305,10 +2389,6 @@ function applyMode(m){
     <svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
     <span>打卡</span>
   </button>
-  <button class="tab" data-view="stats">
-    <svg viewBox="0 0 24 24"><path d="M4 20V11M10 20V4M16 20v-8M21 20H3"/></svg>
-    <span>统计</span>
-  </button>
   <button class="tab" data-view="habit">
     <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
     <span>习惯</span>
@@ -2316,6 +2396,10 @@ function applyMode(m){
   <button class="tab" data-view="docs">
     <svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h6M9 16h6"/></svg>
     <span>写作</span>
+  </button>
+  <button class="tab" data-view="stats">
+    <svg viewBox="0 0 24 24"><path d="M4 20V11M10 20V4M16 20v-8M21 20H3"/></svg>
+    <span>统计</span>
   </button>
   <button class="tab" data-view="manage">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.5 4.5l2 2M17.5 17.5l2 2M19.5 4.5l-2 2M6.5 17.5l-2 2"/></svg>
