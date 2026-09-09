@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-09-09j</title>
+<title>每日打卡 · 构建2026-09-09k</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -686,6 +686,62 @@ function syncFitness(allowSave){
 }
 // 首屏排班已推迟到 SMAP 定义之后执行（见下方）
 
+
+/* ================= 写作排班（数据源：写作练习.xlsx，已内嵌，Excel 缺失也不影响） =================
+   机制：① 每周 5-6 天（6天=一~六，5天=一~五，逐周交替）
+        ② 法定节假日每天都安排作业
+        ③ 任务按 Excel 顺序一轮一轮轮巡（写完一轮再从头）
+        ④ 完成制顺延：只有前一项完成（打卡）才安排下一项；未完成则第二天打开仍是同一项
+        ⑤ 规则 + 任务库 + 排班结果都写进云端数据库（RECORDS.writing），跨设备一致
+   ============================================================================================ */
+const WRITING_LIB = [{"stage":"第一阶段：基础入门","name":"了解网文行业现状","content":"阅读网文平台榜单规则，了解各平台特点（番茄/起点/晋江等）","day":"第1天","duration":"30分钟","type":"理论学习"},{"stage":"第一阶段：基础入门","name":"确定创作方向","content":"选择感兴趣的题材（玄幻/都市/言情/悬疑等），确定目标平台","day":"第2天","duration":"30分钟","type":"理论学习"},{"stage":"第一阶段：基础入门","name":"阅读经典开篇","content":"精读3本目标题材热门作品的前3章，标记吸引点","day":"第3天","duration":"40分钟","type":"阅读拆文"},{"stage":"第一阶段：基础入门","name":"拆文分析-结构","content":"拆解1本热门作品：分析开篇结构、节奏、钩子设置","day":"第4天","duration":"40分钟","type":"阅读拆文"},{"stage":"第一阶段：基础入门","name":"拆文分析-人物","content":"拆解人物设定：主角性格、金手指、反派塑造方法","day":"第5天","duration":"40分钟","type":"阅读拆文"},{"stage":"第一阶段：基础入门","name":"拆文分析-爽点","content":"拆解爽点设计：打脸、升级、反转、期待感营造","day":"第6天","duration":"40分钟","type":"阅读拆文"},{"stage":"第一阶段：基础入门","name":"学习基础理论","content":"学习网文基础：黄金三章、节奏控制、悬念设置","day":"第7天","duration":"30分钟","type":"理论学习"},{"stage":"第一阶段：基础入门","name":"学习人物塑造","content":"学习主角塑造：人设标签、成长弧线、读者代入感","day":"第8天","duration":"30分钟","type":"理论学习"},{"stage":"第一阶段：基础入门","name":"学习世界观构建","content":"学习世界观搭建：力量体系、地图、势力分布","day":"第9天","duration":"30分钟","type":"理论学习"},{"stage":"第一阶段：基础入门","name":"整理素材库","content":"建立个人素材库：收集有趣的人设、情节、台词、场景","day":"第10天","duration":"30分钟","type":"素材积累"},{"stage":"第一阶段：基础入门","name":"构思作品大纲","content":"确定新书核心：书名、简介、主角、主线、结局方向","day":"第11天","duration":"40分钟","type":"创作准备"},{"stage":"第一阶段：基础入门","name":"完善故事大纲","content":"细化大纲：分卷规划、关键节点、高潮设计","day":"第12天","duration":"40分钟","type":"创作准备"},{"stage":"第二阶段：仿写训练","name":"仿写开篇-节奏","content":"仿写1篇热门作品开篇（500字）：模仿其节奏和钩子","day":"第13天","duration":"40分钟","type":"仿写练习"},{"stage":"第二阶段：仿写训练","name":"仿写开篇-冲突","content":"仿写1篇作品开篇（500字）：模仿冲突引入方式","day":"第14天","duration":"40分钟","type":"仿写练习"},{"stage":"第二阶段：仿写训练","name":"仿写人物出场","content":"仿写主角出场片段（300字）：练习人物塑造","day":"第15天","duration":"40分钟","type":"仿写练习"},{"stage":"第二阶段：仿写训练","name":"仿写对话","content":"仿写对话片段（300字）：练习自然对话与信息传递","day":"第16天","duration":"40分钟","type":"仿写练习"},{"stage":"第二阶段：仿写训练","name":"仿写打斗场景","content":"仿写打斗/冲突场景（400字）：练习动作描写与节奏","day":"第17天","duration":"40分钟","type":"仿写练习"},{"stage":"第二阶段：仿写训练","name":"仿写情感戏","content":"仿写情感互动片段（300字）：练习情绪渲染","day":"第18天","duration":"40分钟","type":"仿写练习"},{"stage":"第二阶段：仿写训练","name":"仿写爽点段落","content":"仿写打脸/升级爽点片段（400字）：练习爽感营造","day":"第19天","duration":"40分钟","type":"仿写练习"},{"stage":"第二阶段：仿写训练","name":"仿写悬念设置","content":"仿写悬念钩子片段（300字）：练习留钩子技巧","day":"第20天","duration":"40分钟","type":"仿写练习"},{"stage":"第二阶段：仿写训练","name":"仿写环境描写","content":"仿写世界观展示片段（300字）：练习背景融入叙事","day":"第21天","duration":"40分钟","type":"仿写练习"},{"stage":"第二阶段：仿写训练","name":"仿写转场","content":"仿写章节转场（200字）：练习节奏过渡","day":"第22天","duration":"30分钟","type":"仿写练习"},{"stage":"第二阶段：仿写训练","name":"仿写反派塑造","content":"仿写反派出场片段（300字）：练习反派魅力","day":"第23天","duration":"40分钟","type":"仿写练习"},{"stage":"第二阶段：仿写训练","name":"仿写群像","content":"仿写群像互动片段（400字）：练习多人物场景","day":"第24天","duration":"40分钟","type":"仿写练习"},{"stage":"第二阶段：仿写训练","name":"独立开篇练习1","content":"独立创作作品第1章（1500字）：开篇+主角出场","day":"第25天","duration":"50分钟","type":"独立创作"},{"stage":"第二阶段：仿写训练","name":"独立开篇练习2","content":"独立创作作品第2章（1500字）：冲突引入+金手指","day":"第26天","duration":"50分钟","type":"独立创作"},{"stage":"第二阶段：仿写训练","name":"独立开篇练习3","content":"独立创作作品第3章（1500字）：第一个小高潮","day":"第27天","duration":"50分钟","type":"独立创作"},{"stage":"第二阶段：仿写训练","name":"修改开篇1-3章","content":"修改完善前3章：打磨节奏、删减冗余、强化钩子","day":"第28天","duration":"50分钟","type":"修改打磨"},{"stage":"第二阶段：仿写训练","name":"仿写情节推进","content":"仿写情节推进片段（500字）：练习主线推进","day":"第29天","duration":"40分钟","type":"仿写练习"},{"stage":"第二阶段：仿写训练","name":"仿写支线设计","content":"仿写支线任务片段（400字）：练习支线与主线交织","day":"第30天","duration":"40分钟","type":"仿写练习"},{"stage":"第二阶段：仿写训练","name":"仿写升级体系","content":"仿写升级/突破片段（400字）：练习力量体系展示","day":"第31天","duration":"40分钟","type":"仿写练习"},{"stage":"第二阶段：仿写训练","name":"仿写情感高潮","content":"仿写情感高潮片段（400字）：练习情绪爆发","day":"第32天","duration":"40分钟","type":"仿写练习"},{"stage":"第二阶段：仿写训练","name":"仿写伏笔回收","content":"仿写伏笔回收片段（300字）：练习前后呼应","day":"第33天","duration":"40分钟","type":"仿写练习"},{"stage":"第二阶段：仿写训练","name":"仿写 cliffhanger","content":"仿写章节结尾钩子（200字）：练习断章技巧","day":"第34天","duration":"30分钟","type":"仿写练习"},{"stage":"第二阶段：仿写训练","name":"仿写多线叙事","content":"仿写多线并进片段（500字）：练习视角切换","day":"第35天","duration":"40分钟","type":"仿写练习"},{"stage":"第二阶段：仿写训练","name":"仿写日常过渡","content":"仿写日常/过渡片段（300字）：练习张弛有度","day":"第36天","duration":"30分钟","type":"仿写练习"},{"stage":"第三阶段：独立创作","name":"创作第4-5章","content":"创作第4-5章（3000字）：推进主线，引入第一个反派","day":"第37天","duration":"50分钟","type":"独立创作"},{"stage":"第三阶段：独立创作","name":"创作第6-7章","content":"创作第6-7章（3000字）：小高潮+收获","day":"第38天","duration":"50分钟","type":"独立创作"},{"stage":"第三阶段：独立创作","name":"创作第8-9章","content":"创作第8-9章（3000字）：转折+新地图/新人物","day":"第39天","duration":"50分钟","type":"独立创作"},{"stage":"第三阶段：独立创作","name":"创作第10章","content":"创作第10章（1500字）：第一卷收尾+大钩子","day":"第40天","duration":"50分钟","type":"独立创作"},{"stage":"第三阶段：独立创作","name":"修改1-10章","content":"通读修改前10章：检查节奏、逻辑、人设一致性","day":"第41天","duration":"50分钟","type":"修改打磨"},{"stage":"第三阶段：独立创作","name":"创作第11-12章","content":"创作第11-12章（3000字）：第二卷开篇+新冲突","day":"第42天","duration":"50分钟","type":"独立创作"},{"stage":"第三阶段：独立创作","name":"创作第13-14章","content":"创作第13-14章（3000字）：升级+打脸","day":"第43天","duration":"50分钟","type":"独立创作"},{"stage":"第三阶段：独立创作","name":"创作第15-16章","content":"创作第15-16章（3000字）：情感线推进","day":"第44天","duration":"50分钟","type":"独立创作"},{"stage":"第三阶段：独立创作","name":"创作第17-18章","content":"创作第17-18章（3000字）：中期高潮铺垫","day":"第45天","duration":"50分钟","type":"独立创作"},{"stage":"第三阶段：独立创作","name":"创作第19-20章","content":"创作第19-20章（3000字）：中期小高潮","day":"第46天","duration":"50分钟","type":"独立创作"},{"stage":"第三阶段：独立创作","name":"修改11-20章","content":"通读修改第11-20章：优化节奏，删减水字数","day":"第47天","duration":"50分钟","type":"修改打磨"},{"stage":"第三阶段：独立创作","name":"创作第21-22章","content":"创作第21-22章（3000字）：支线展开","day":"第48天","duration":"50分钟","type":"独立创作"},{"stage":"第三阶段：独立创作","name":"创作第23-24章","content":"创作第23-24章（3000字）：反派升级+危机","day":"第49天","duration":"50分钟","type":"独立创作"},{"stage":"第三阶段：独立创作","name":"创作第25-26章","content":"创作第25-26章（3000字）：破局+反击","day":"第50天","duration":"50分钟","type":"独立创作"},{"stage":"第三阶段：独立创作","name":"创作第27-28章","content":"创作第27-28章（3000字）：收获+新目标","day":"第51天","duration":"50分钟","type":"独立创作"},{"stage":"第三阶段：独立创作","name":"创作第29-30章","content":"创作第29-30章（3000字）：第二卷收尾","day":"第52天","duration":"50分钟","type":"独立创作"},{"stage":"第三阶段：独立创作","name":"修改21-30章","content":"通读修改第21-30章：确保30章内故事完整有吸引力","day":"第53天","duration":"50分钟","type":"修改打磨"},{"stage":"第三阶段：独立创作","name":"创作第31-32章","content":"创作第31-32章（3000字）：第三卷开篇","day":"第54天","duration":"50分钟","type":"独立创作"},{"stage":"第三阶段：独立创作","name":"创作第33-34章","content":"创作第33-34章（3000字）：新地图探索","day":"第55天","duration":"50分钟","type":"独立创作"},{"stage":"第三阶段：独立创作","name":"创作第35-36章","content":"创作第35-36章（3000字）：中期大高潮","day":"第56天","duration":"50分钟","type":"独立创作"},{"stage":"第三阶段：独立创作","name":"创作第37-38章","content":"创作第37-38章（3000字）：转折+代价","day":"第57天","duration":"50分钟","type":"独立创作"},{"stage":"第三阶段：独立创作","name":"创作第39-40章","content":"创作第39-40章（3000字）：阶段性胜利+新悬念","day":"第58天","duration":"50分钟","type":"独立创作"},{"stage":"第三阶段：独立创作","name":"修改31-40章","content":"通读修改第31-40章：打磨至可发布水准","day":"第59天","duration":"50分钟","type":"修改打磨"},{"stage":"第三阶段：独立创作","name":"整理前40章","content":"整理前40章文档：统一格式、检查错别字、制作目录","day":"第60天","duration":"40分钟","type":"修改打磨"},{"stage":"第四阶段：提升投稿","name":"学习投稿规则","content":"研究目标平台投稿规则：字数要求、签约标准、推荐机制","day":"第61天","duration":"30分钟","type":"投稿准备"},{"stage":"第四阶段：提升投稿","name":"制作投稿材料","content":"准备投稿材料：大纲、人设表、前3章精修版","day":"第62天","duration":"40分钟","type":"投稿准备"},{"stage":"第四阶段：提升投稿","name":"精修前3章","content":"精修前3章至投稿水准：黄金三章打磨","day":"第63天","duration":"50分钟","type":"修改打磨"},{"stage":"第四阶段：提升投稿","name":"撰写作品简介","content":"撰写吸引人的作品简介+书名优化","day":"第64天","duration":"30分钟","type":"投稿准备"},{"stage":"第四阶段：提升投稿","name":"创作第41-42章","content":"创作第41-42章（3000字）：保持更新节奏","day":"第65天","duration":"50分钟","type":"独立创作"},{"stage":"第四阶段：提升投稿","name":"创作第43-44章","content":"创作第43-44章（3000字）：推进至后期","day":"第66天","duration":"50分钟","type":"独立创作"},{"stage":"第四阶段：提升投稿","name":"创作第45-46章","content":"创作第45-46章（3000字）：后期高潮铺垫","day":"第67天","duration":"50分钟","type":"独立创作"},{"stage":"第四阶段：提升投稿","name":"创作第47-48章","content":"创作第47-48章（3000字）：后期大高潮","day":"第68天","duration":"50分钟","type":"独立创作"},{"stage":"第四阶段：提升投稿","name":"创作第49-50章","content":"创作第49-50章（3000字）：收尾+结局铺垫","day":"第69天","duration":"50分钟","type":"独立创作"},{"stage":"第四阶段：提升投稿","name":"创作结局章","content":"创作最终章（1500字）：圆满或开放式结局","day":"第70天","duration":"50分钟","type":"独立创作"},{"stage":"第四阶段：提升投稿","name":"全书通读修改","content":"通读全篇修改：检查bug、统一设定、优化文笔","day":"第71天","duration":"60分钟","type":"修改打磨"},{"stage":"第四阶段：提升投稿","name":"投稿/发布","content":"选择平台投稿或发布，制定后续更新计划","day":"第72天","duration":"30分钟","type":"投稿准备"}];
+const WRITING_RULES = {
+  v: 1,
+  source: "写作练习.xlsx",
+  weeks: 26,
+  weekDays: [[1,2,3,4,5,6],[1,2,3,4,5]],   // 逐周交替：6 天 / 5 天（每周 5-6 天）
+  holidayAll: true,                          // 法定节假日每天安排作业
+  seed: 20260911
+};
+function buildWritingSeq(start, rules){
+  const L=WRITING_LIB;
+  const s0=mondayOf(new Date(start+"T00:00:00"));
+  const seq=[]; let i=0;
+  for(let k=0;k<rules.weeks*7;k++){
+    const d=new Date(s0); d.setDate(d.getDate()+k);
+    const ds=fmt(d); if(ds<start) continue;
+    const dow=d.getDay(), weekIdx=Math.floor(k/7);
+    const want=rules.weekDays[weekIdx%rules.weekDays.length];
+    const hol=isHolidayDate(ds);
+    if(!hol && want.indexOf(dow)<0) continue;
+    seq.push({date:ds, week:"第"+(weekIdx+1)+"周", idx:i%L.length}); i++;
+  }
+  return seq;
+}
+const WRITING_FALLBACK = buildWritingSeq(PLAN_START, WRITING_RULES);   // Excel 缺失时的兜底排班
+function applyWritingPlan(wr){
+  const lib=(wr&&wr.lib)||WRITING_LIB;
+  const seq=(wr&&wr.seq)||WRITING_FALLBACK;
+  const arr=seq.map(function(e,i){
+    const t=lib[e.idx]||lib[0]||{};
+    const d=new Date(e.date+"T00:00:00");
+    return {date:e.date, name:t.name||"写作任务", content:t.content||"", duration:t.duration||"", type:t.type||"", stage:t.stage||"",
+            week:e.week, day:"第"+(i+1)+"天", 星期:["日","一","二","三","四","五","六"][d.getDay()]};
+  });
+  SCHEDULE["写作练习"]=arr;
+  SMAP["写作练习"]={}; arr.forEach(function(e){ SMAP["写作练习"][e.date]=e; });
+}
+function syncWriting(allowSave){
+  let need=false;
+  if(!RECORDS.writing || !RECORDS.writing.seq || !RECORDS.writing.lib || !RECORDS.writing.rules){
+    RECORDS.writing={ v:WRITING_RULES.v, generated:today(), source:WRITING_RULES.source,
+      rules:WRITING_RULES, lib:WRITING_LIB, seq:WRITING_FALLBACK };
+    need=true;
+  }
+  applyWritingPlan(RECORDS.writing);
+  if(need && allowSave!==false && SYNC!=="nocfg") cloudSave();
+  return need;
+}
 const ITEMS = ["锻炼","写作练习"];
 const META = {
   "锻炼":{short:"锻",color:"#10b981"},
@@ -776,7 +832,8 @@ const CFG_KEY="wb_sb_cfg", OFF_KEY="wb_offline_cache";
 
 const SMAP = {};
 ITEMS.forEach(it=>{ SMAP[it]={}; (SCHEDULE[it]||[]).forEach(e=>{ SMAP[it][e.date]=e; }); });
-applyFitnessPlan({lib:EXERCISE_LIB, seq:FITNESS_FALLBACK});   // 首屏：先用内嵌库排好，云端数据到了再覆盖
+applyFitnessPlan({lib:EXERCISE_LIB, seq:FITNESS_FALLBACK});
+applyWritingPlan({lib:WRITING_LIB, seq:WRITING_FALLBACK});   // 写作：首屏先用内嵌库排好，云端数据到了再覆盖;   // 首屏：先用内嵌库排好，云端数据到了再覆盖
 
 let RECORDS = {};          // 打卡数据（云端为权威）
 let SYNC = "init";         // init|syncing|synced|offline|nocfg|error
@@ -878,7 +935,7 @@ function hasPending(){ return _saveFails>0 || SYNC==="pending"; }
 async function cloudLoad(){
   if(!cfg.url || !cfg.anon){ SYNC="nocfg"; renderStatus(); render(); return; }
   const local=loadLocal();
-  if(local){ RECORDS=local; syncFitness(false); render(); }            // 本地秒开
+  if(local){ RECORDS=local; syncFitness(false); syncWriting(false); render(); }            // 本地秒开
   SYNC="syncing"; renderStatus();
   try{
     const r=await fetch(tableUrl()+"?id=eq.default&select=data", { headers: headers() });
@@ -891,21 +948,21 @@ async function cloudLoad(){
       const lv=(RECORDS._meta&&RECORDS._meta.version)||0;
       if(_cloudVersion>lv && hasPending()){
         if(confirm("检测到云端有更新的记录（其他设备同步过）。\n点「确定」用云端版本覆盖本机未同步的改动；点「取消」保留本机并上传覆盖云端。")){
-          RECORDS=remote.data; syncFitness(false);
+          RECORDS=remote.data; syncFitness(false); syncWriting(false);
         }
       } else if(_cloudVersion>lv){
-        RECORDS=remote.data; syncFitness(false);       // 云端更新且本机无未同步改动，直接采用
+        RECORDS=remote.data; syncFitness(false); syncWriting(false);       // 云端更新且本机无未同步改动，直接采用
       } else if(lv>_cloudVersion){
         cloudSave({immediate:true});                // 本机比云端新（离线期间的打卡）：立即上传，否则数据会一直卡在本地
       }
       const __pruned=pruneOldRecords();
-      syncFitness();
+      syncFitness(); syncWriting();
       saveLocal();
       SYNC="synced"; localStorage.removeItem(OFF_KEY); _saveFails=0;
       renderStatus(); render();
       if(__pruned) cloudSave();
     } else {
-      syncFitness();
+      syncFitness(); syncWriting();
       SYNC="synced"; renderStatus(); render();
       cloudSave();                                  // 云端无记录，上传本地
     }
@@ -1443,9 +1500,8 @@ function renderHome(){
     let html="", a=0, b=0, todayDone=0;
     ITEMS.forEach(function(it){
       a+=doneCount(it); b+=seqOf(it).length;
-      let e=seqOf(it).find(function(x){ return x.date===t; });   // 今日打卡：优先今天，保证与「本周待完成」联动
-      const isToday=!!e;
-      if(!e) e=activeEntry(it);                                   // 今天无安排则回退到下一个待办（补卡）
+      let e=activeEntry(it);                                     // 顺序推进：始终显示第一项未完成；未完成则第二天仍是它，完成后才顺延下一项
+      const isToday = e && e.date===t;
       const ok = e ? isChecked(it,e.date) : false;
       const future = e && !isToday && e.date>t;
       if(isToday && ok) todayDone++;
@@ -2335,7 +2391,7 @@ document.getElementById("habitListEdit").addEventListener("click",function(e){
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-09j";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-09k";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
