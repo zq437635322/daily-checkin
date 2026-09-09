@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-09-09n</title>
+<title>每日打卡 · 构建2026-09-09o</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -297,6 +297,66 @@ body.mode-pc #view-stats>.section:first-child{grid-column:1/-1}
 body.mode-pc .habit-heat-label{width:120px}
 body.mode-pc .sleep-field input{min-height:38px}
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style id="mogengCss">
+#view-docs.mogeng{
+  --bg:#ece4d9; --card:#fffbf5; --text:#4f483e; --muted:#8a7d6b;
+  --primary:#f54001; --primary-d:#d83800; --accent:#f54001;
+  --line:#ddd2c2; --soft:#f4f0ea; --orange:#f54001; --radius:14px;
+  background-color:#ece4d9;
+  background-image:radial-gradient(rgba(79,72,62,.05) 1px,transparent 1px);
+  background-size:22px 22px;
+  font-family:'Noto Serif SC','Songti SC','STSong','SimSun',serif;
+  min-height:60vh; padding:14px 2px 8px;
+}
+#view-docs.mogeng .fmt-wc{font-family:'JetBrains Mono',ui-monospace,monospace}
+#view-docs.mogeng .hwcard{background:var(--card);border-color:var(--line);box-shadow:0 1px 2px rgba(79,72,62,.06)}
+#view-docs.mogeng .inspcat{background:#fde6d6;color:#c2410c}
+#view-docs.mogeng .btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+#view-docs.mogeng .btn.primary:hover{background:var(--primary-d)}
+#view-docs.mogeng .sec-title{color:#38332b}
+#view-docs.mogeng .tcard{background:var(--card);border-color:var(--line)}
+#view-docs.mogeng .wnav{background:var(--card);border-color:var(--line)}
+#view-docs.mogeng .wnav-item.cur{background:#fde6d6}
+#view-docs.mogeng .chapst.done{background:#d1fae5;color:#047857}
+#view-docs.mogeng .chapst.writing{background:#fde6d6;color:#c2410c}
+#view-docs.mogeng .bookcard.cur{border-color:#f54001;box-shadow:0 0 0 1px #f54001}
+#view-docs.mogeng .chaprow.cur{border-color:#f54001;box-shadow:0 0 0 1px #f54001}
+.mogeng-head{display:flex;align-items:baseline;gap:10px;padding:2px 6px 8px}
+.mg-brand{display:flex;align-items:baseline;gap:8px}
+.mg-zh{font-family:'Noto Serif SC','Songti SC',serif;font-size:26px;font-weight:900;color:#38332b;line-height:1}
+.mg-en{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;color:#8a7d6b}
+.mg-sub{font-size:11px;color:#8a7d6b}
+.wtabbar{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 12px;scrollbar-width:none}
+.wtabbar::-webkit-scrollbar{display:none}
+.wtabbtn{flex:none;padding:8px 16px;border:1px solid #ddd2c2;background:#fffbf5;color:#4f483e;border-radius:999px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s;white-space:nowrap}
+.wtabbtn:hover{border-color:#f54001}
+.wtabbtn.active{background:#f54001;color:#fff;border-color:#f54001;box-shadow:0 2px 8px rgba(245,64,1,.25)}
+.wpanel{margin-top:6px}
+.wtask{background:#fffbf5;border:1px solid #ddd2c2;border-radius:14px;padding:13px 14px;margin-bottom:10px;box-shadow:0 1px 2px rgba(79,72,62,.05)}
+.wtask.today{border-color:#f54001;box-shadow:0 0 0 1px #f54001}
+.wtask-h{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.wtask-date{font-family:'JetBrains Mono',monospace;font-size:11px;color:#8a7d6b}
+.wtask-title{font-weight:800;font-size:15px;color:#38332b;flex:1;min-width:0}
+.wtask-sub{font-size:12px;color:#8a7d6b;margin-bottom:8px}
+.wtask-content{font-size:13px;line-height:1.7;color:#4f483e;background:#f4f0ea;border-radius:10px;padding:9px 11px;margin-bottom:10px;white-space:pre-wrap}
+.wtask-done{font-size:12px;font-weight:700;color:#047857}
+.wbook{background:#fffbf5;border:1px solid #ddd2c2;border-radius:14px;padding:13px 14px;margin-bottom:10px;cursor:pointer;box-shadow:0 1px 2px rgba(79,72,62,.05)}
+.wbook:hover{border-color:#f54001}
+.wbook-title{font-weight:800;font-size:15px;color:#38332b}
+.wbook-meta{font-size:12px;color:#8a7d6b;margin-top:4px}
+.wstat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.wstat{background:#fffbf5;border:1px solid #ddd2c2;border-radius:14px;padding:14px;text-align:center}
+.wstat-n{font-size:26px;font-weight:900;color:#f54001;font-family:'JetBrains Mono',monospace}
+.wstat-l{font-size:12px;color:#8a7d6b;margin-top:4px}
+.wheat{display:flex;gap:4px;flex-wrap:wrap;margin-top:10px}
+.wheat .wc{width:18px;height:18px;border-radius:5px;background:#e6ddd0}
+.wheat .wc.on{background:#f54001}
+.wheat .wc.today{border:2px solid #38332b;box-sizing:border-box}
+</style>
 </head>
 <body>
 <div class="topbar">
@@ -409,12 +469,24 @@ body.mode-pc .sleep-field input{min-height:38px}
   </section>
 
   <!-- ============ 写作工作台 ============ -->
-  <section class="view" id="view-docs">
-    <div style="font-size:11px;color:var(--muted);text-align:right;padding:0 4px 2px">写作工作台 v3 · 09-09 更新</div>
+  <section class="view mogeng" id="view-docs">
+    <div class="mogeng-head">
+      <div class="mg-brand"><span class="mg-zh">墨耕</span><span class="mg-en">MOGENG</span></div>
+      <div class="mg-sub">写作练习与创作工坊</div>
+    </div>
+    <nav class="wtabbar" id="wTabBar">
+      <button class="wtabbtn active" data-act="wtab" data-tab="dash">今日</button>
+      <button class="wtabbtn" data-act="wtab" data-tab="tasks">写作任务</button>
+      <button class="wtabbtn" data-act="wtab" data-tab="studio">创作</button>
+      <button class="wtabbtn" data-act="wtab" data-tab="works">我的作品</button>
+      <button class="wtabbtn" data-act="wtab" data-tab="stats">数据统计</button>
+      <button class="wtabbtn" data-act="wtab" data-tab="insp">素材库</button>
+    </nav>
     <!-- 今日作业 -->
     <div class="section" id="hwCard"></div>
+    <div id="wDashExtra"></div>
     <!-- 写作主区：左侧目录导航 + 右侧编辑区 -->
-    <div class="wlayout">
+    <div class="wlayout" id="wStudio" style="display:none">
       <button class="wnav-toggle" id="btnNavToggle">☰ 目录</button>
       <aside class="wnav" id="wNav">
         <div class="wnav-sec">
@@ -500,6 +572,10 @@ body.mode-pc .sleep-field input{min-height:38px}
       </div>
     </div>
     <input type="file" id="imgInput" accept="image/*" hidden>
+    <div class="wpanel" id="wTasks" style="display:none"></div>
+    <div class="wpanel" id="wWorks" style="display:none"></div>
+    <div class="wpanel" id="wStats" style="display:none"></div>
+    <div class="wpanel" id="wInsp" style="display:none"></div>
   </section>
 
   <!-- ============ 管理 ============ -->
@@ -2088,6 +2164,93 @@ function renderDocs(){
   try{ renderInsp(); }catch(e){}
   try{ renderBookOverview(); }catch(e){}
   try{ renderEditor(); }catch(e){}
+  try{ renderWritingDash(); }catch(e){}
+  if(writingTab==="tasks"){ try{ renderWritingTasks(); }catch(e){} }
+  else if(writingTab==="works"){ try{ renderWritingWorks(); }catch(e){} }
+  else if(writingTab==="stats"){ try{ renderWritingStats(); }catch(e){} }
+  else if(writingTab==="insp"){ try{ renderWritingInsp(); }catch(e){} }
+  try{ applyWritingTabVisibility(); }catch(e){}
+}
+
+
+/* ================= 写作工坊 · 墨耕式分区 ================= */
+let writingTab="dash";
+function dsAdd(ds,off){ const d=parse(ds); d.setDate(d.getDate()+off); return fmt(d); }
+function switchWritingTab(t){ if(t) writingTab=t; render(); }
+function applyWritingTabVisibility(){
+  const map={dash:["hwCard","wDashExtra"],studio:["wStudio"],tasks:["wTasks"],works:["wWorks"],stats:["wStats"],insp:["wInsp"]};
+  ["hwCard","wDashExtra","wStudio","wTasks","wWorks","wStats","wInsp"].forEach(function(id){const el=document.getElementById(id); if(el) el.style.display="none";});
+  (map[writingTab]||[]).forEach(function(id){const el=document.getElementById(id); if(el) el.style.display=(id==="wStudio"?"":"block");});
+  const bs=document.querySelectorAll("#wTabBar .wtabbtn");
+  for(let i=0;i<bs.length;i++){ bs[i].classList.toggle("active", bs[i].getAttribute("data-tab")===writingTab); }
+}
+function writingStreak(){
+  let n=0; const d=new Date();
+  for(let i=0;i<400;i++){ const ds=fmt(new Date(d.getTime()-i*86400000)); if(RECORDS["写作练习"]&&RECORDS["写作练习"][ds]) n++; else if(i>0) break; }
+  return n;
+}
+function totalWords(){
+  let w=0; const d=docsAll();
+  Object.keys(d).forEach(function(k){ if(k.indexOf("_")===0) return; const o=d[k]; if(o&&o.content) w+=wLen(o.content); });
+  const bs=booksAll(); Object.keys(bs).forEach(function(bid){ const b=bs[bid]; (b.order||[]).forEach(function(cid){ const c=b.chapters&&b.chapters[cid]; if(c&&c.content) w+=wLen(c.content); }); });
+  return w;
+}
+function renderWritingDash(){
+  const el=document.getElementById("wDashExtra"); if(!el) return;
+  const seq=seqOf("写作练习")||[]; let done=0; seq.forEach(function(e){ if(isChecked("写作练习",e.date)) done++; });
+  const cards=[["累计字数", totalWords()],["连续写作", writingStreak()+" 天"],["已完成作业", done+" / "+seq.length],["我的作品", Object.keys(booksAll()).length+" 本"]];
+  el.innerHTML='<div class="wstat-grid">'+cards.map(function(c){return '<div class="wstat"><div class="wstat-n">'+escapeHtml(String(c[1]))+'</div><div class="wstat-l">'+escapeHtml(c[0])+'</div></div>';}).join("")+'</div>';
+}
+function renderWritingTasks(){
+  const el=document.getElementById("wTasks"); if(!el) return;
+  const seq=(seqOf("写作练习")||[]).slice().sort(function(a,b){return a.date<b.date?-1:1;});
+  const t=today(); const from=dsAdd(t,-14), to=dsAdd(t,30);
+  const list=seq.filter(function(e){ return e.date>=from && e.date<=to; });
+  if(!list.length){ el.innerHTML='<div class="todo-empty">近期暂无写作任务</div>'; return; }
+  el.innerHTML=list.map(function(e){
+    const done=isChecked("写作练习",e.date); const isT=(e.date===t);
+    return '<div class="wtask'+(isT?' today':'')+'">'
+      +'<div class="wtask-h"><span class="wtask-date">'+e.date.slice(5)+(isT?' · 今日':'')+'</span>'
+      +'<span class="wtask-title">'+escapeHtml(summaryOf("写作练习",e))+'</span>'
+      +(done?'<span class="wtask-done">已打卡 ✓</span>':'')+'</div>'
+      +'<div class="wtask-sub">'+(escapeHtml(subOf("写作练习",e))||'')+'</div>'
+      +(e.content?'<div class="wtask-content">'+escapeHtml(e.content)+'</div>':'')
+      +(done?'':'<button class="btn primary" data-act="whwcheck" data-ds="'+e.date+'">完成打卡</button>')
+      +'</div>';
+  }).join("");
+}
+function renderWritingWorks(){
+  const el=document.getElementById("wWorks"); if(!el) return;
+  const bs=booksAll(); const ids=Object.keys(bs).sort(function(a,b){return String(bs[b].updated_at||"")<String(bs[a].updated_at||"")?-1:1;});
+  let h='<div style="display:flex;gap:8px;margin-bottom:12px"><button class="btn primary" data-act="book-new-quick">＋ 新建作品</button></div>';
+  if(!ids.length) h+='<div class="todo-empty">还没有作品。点「新建作品」开始你的第一本书。</div>';
+  else h+=ids.map(function(id){ const b=bs[id]; const chIds=b.order||[]; let w=0; chIds.forEach(function(cid){const c=b.chapters&&b.chapters[cid]; if(c) w+=wLen(c.content);});
+    return '<div class="wbook" data-act="wbook" data-id="'+id+'"><div class="wbook-title">📖 '+escapeHtml(b.title||"未命名")+'</div><div class="wbook-meta">'+chIds.length+' 章 · '+w+' 字'+(b.premise?' · '+escapeHtml(String(b.premise).slice(0,20)):'')+'</div></div>';
+  }).join("");
+  el.innerHTML=h;
+}
+function renderWritingStats(){
+  const el=document.getElementById("wStats"); if(!el) return;
+  const seq=(seqOf("写作练习")||[]).slice().sort(function(a,b){return a.date<b.date?-1:1;});
+  let done=0; seq.forEach(function(e){ if(isChecked("写作练习",e.date)) done++; });
+  const t=today();
+  let heat=''; for(let i=13;i>=0;i--){ const ds=dsAdd(t,-i); const on=isChecked("写作练习",ds); heat+='<span class="wc'+(on?' on':'')+(ds===t?' today':'')+'" title="'+ds+'"></span>'; }
+  const cards=[["累计字数",totalWords()],["文档数",Object.keys(docsAll()).filter(function(k){return k.indexOf("_")!==0;}).length],["作品数",Object.keys(booksAll()).length],["连续写作",writingStreak()+" 天"],["已完成作业",done+" / "+seq.length]];
+  el.innerHTML='<div class="wstat-grid">'+cards.map(function(c){return '<div class="wstat"><div class="wstat-n">'+escapeHtml(String(c[1]))+'</div><div class="wstat-l">'+escapeHtml(c[0])+'</div></div>';}).join("")+'</div>'
+    +'<div class="sec-title" style="margin-top:18px">近 14 天写作打卡</div><div class="wheat">'+heat+'</div>';
+}
+function renderWritingInsp(){
+  const el=document.getElementById("wInsp"); if(!el) return;
+  let h='<div class="sec-title">素材库 · 灵感速记 <span class="tag">碎片想法随手记</span></div>';
+  h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">'
+    +'<input id="inspText2" placeholder="脑洞 / 金句 / 素材 / 选题…" style="flex:1;min-width:150px">'
+    +'<select id="inspCat2"><option value="剧情">剧情</option><option value="观点">观点</option><option value="金句">金句</option><option value="素材">素材</option><option value="选题">选题</option><option value="随笔">随笔</option></select>'
+    +'<button class="btn primary" data-act="insp-add2">记一笔</button></div>';
+  const list=inspAll().slice().sort(function(a,b){return (b.ts||0)-(a.ts||0);});
+  h+= list.length ? list.map(function(x){ let tm=""; try{tm=new Date(x.ts).toLocaleString("zh-CN",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"});}catch(e){}
+    return '<div class="inspitem"><span class="inspcat">'+escapeHtml(x.cat||"随笔")+'</span><div style="flex:1;min-width:0"><div style="font-size:13px;line-height:1.6">'+escapeHtml(x.text||"")+'</div><div style="font-size:10.5px;color:var(--muted);margin-top:2px">'+tm+'</div></div><button class="btn mini" data-act="insp-del2" data-id="'+x.id+'" style="flex:none">删</button></div>';
+  }).join("") : '<div class="todo-empty">还没有灵感。写卡壳时，先把脑子里的碎片倒在这里。</div>';
+  el.innerHTML=h;
 }
 
 /* ---------- 管理 ---------- */
@@ -2108,6 +2271,11 @@ document.addEventListener("click",function(e){
     if(Math.abs(diff)>3){ alert(diff>0?"补打卡仅支持近 3 天（含今天）的日期。":"提前打卡仅支持未来 3 天内的日期。"); return; }
     toggle(el.dataset.it, hd);
   }
+  else if(act==="wtab"){ switchWritingTab(el.dataset.tab); }
+  else if(act==="whwcheck"){ const ds=el.dataset.ds; toggle("写作练习", ds); saveLocal(); cloudSave(); switchWritingTab("tasks"); }
+  else if(act==="wbook"){ const id=el.dataset.id; curBook=id; expandedBooks[id]=true; editTarget={kind:"book",bookId:id}; showInsp=false; switchWritingTab("studio"); }
+  else if(act==="insp-add2"){ const tx=document.getElementById("inspText2"); const ca=document.getElementById("inspCat2"); const v=tx?tx.value.trim():""; if(!v) return; inspAll().push({id:"i"+Date.now(), text:v, cat:ca?ca.value:"随笔", ts:Date.now()}); saveLocal(); cloudSave(); renderWritingInsp(); if(tx) tx.value=""; }
+  else if(act==="insp-del2"){ const id=el.dataset.id; const arr=inspAll(); const i=arr.findIndex(function(x){return x.id===id;}); if(i>=0){ arr.splice(i,1); saveLocal(); cloudSave(); renderWritingInsp(); } }
   else if(act==="calday"){ calToggle(el.dataset.ds); }
   else if(act==="ttcheck"){
     const it=el.dataset.it, ds=el.dataset.ds;
@@ -2431,7 +2599,7 @@ document.getElementById("habitListEdit").addEventListener("click",function(e){
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-09n";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-09o";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
