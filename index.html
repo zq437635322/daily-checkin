@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-09-09k</title>
+<title>每日打卡 · 构建2026-09-09l</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -347,14 +347,14 @@ body.mode-pc .sleep-field input{min-height:38px}
     <div id="sleepHist"></div>
   </section>
 
-  <!-- ============ 习惯养成 ============ -->
+  <!-- ============ 待办 ============ -->
   <section class="view" id="view-habit">
     <div class="habit-monitor-note">
       <b>关于「监控」的实话：</b>网页（即使添加到 iPhone 主屏幕）无法自动感知你是否躺着、刷短剧或看小说——iOS 不向网页开放屏幕内容 / 应用使用情况。本模块是<b>自我记录式追踪</b>：你每天点选「达标 / 未达标」，系统记录连续天数与本周达标率。<br>
-      想硬性限制刷短剧，可用 iPhone 自带 <b>设置 → 屏幕使用时间 → App 限额</b>，对抖音 / 快手等设限额。其余打卡、睡眠、习惯记录均真实可用并云端同步。
+      想硬性限制刷短剧，可用 iPhone 自带 <b>设置 → 屏幕使用时间 → App 限额</b>，对抖音 / 快手等设限额。其余打卡、睡眠、待办记录均真实可用并云端同步。
     </div>
     <div class="section">
-      <div class="sec-title">今日习惯 <span class="tag">点选 达标 / 未达标</span></div>
+      <div class="sec-title">今日待办 <span class="tag">点选 达标 / 未达标</span></div>
       <div id="habitToday"></div>
     </div>
     <div class="section">
@@ -362,10 +362,10 @@ body.mode-pc .sleep-field input{min-height:38px}
       <div id="habitWeekList"></div>
     </div>
     <div class="section">
-      <div class="sec-title">习惯打卡热力图 <span class="tag">近 14 天 · 点格补记</span></div>
+      <div class="sec-title">待办打卡热力图 <span class="tag">近 14 天 · 点格补记</span></div>
       <div id="habitHeatList"></div>
     </div>
-    <div style="margin-top:14px;padding:0 2px"><button class="btn" id="btnManageHabit">管理习惯</button></div>
+    <div style="margin-top:14px;padding:0 2px"><button class="btn" id="btnManageHabit">管理待办</button></div>
   </section>
 
   <!-- ============ 统计 ============ -->
@@ -516,7 +516,7 @@ body.mode-pc .sleep-field input{min-height:38px}
     <div class="section">
       <div class="sec-title">数据 <span class="tag">备份 / 恢复 / 云端工具</span></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn" id="btnMngHabit">管理习惯</button>
+        <button class="btn" id="btnMngHabit">管理待办</button>
         <button class="btn" id="btnResetCheckin">重置打卡记录</button>
         <button class="btn primary" id="btnCfg">设置云端</button>
         <button class="btn" id="btnExport">导出备份</button>
@@ -564,10 +564,10 @@ create policy "anon_all" on public.checkin_state
 
 <div class="modal" id="habitModal">
   <div class="modal-box" style="max-width:480px">
-    <div class="modal-title">管理习惯</div>
+    <div class="modal-title">管理待办</div>
     <div id="habitListEdit"></div>
-    <label>新增习惯</label>
-    <input class="inp" id="habitName" placeholder="习惯名称，如：睡前不看手机">
+    <label>新增待办</label>
+    <input class="inp" id="habitName" placeholder="待办名称，如：睡前不看手机">
     <div style="display:flex;gap:8px;margin-top:8px">
       <select class="inp" id="habitType" style="flex:1">
         <option value="keep">养成（坚持做）</option>
@@ -579,7 +579,7 @@ create policy "anon_all" on public.checkin_state
       <button class="btn" id="habitCancel">关闭</button>
       <button class="btn primary" id="habitAdd">添加</button>
     </div>
-    <div class="modal-note">习惯为自我记录式追踪：每天点选「达标 / 未达标」。网页无法自动感知你的行为（iOS 也不开放此能力）；如需硬性限制刷短剧，请用 iPhone 自带「屏幕使用时间 → App 限额」。</div>
+    <div class="modal-note">待办为自我记录式追踪：每天点选「达标 / 未达标」。网页无法自动感知你的行为（iOS 也不开放此能力）；如需硬性限制刷短剧，请用 iPhone 自带「屏幕使用时间 → App 限额」。</div>
   </div>
 </div>
 
@@ -1273,7 +1273,7 @@ function renderHabit(){
       +'<button class="seg-btn '+(v===false?'on-n':'')+'" data-act="habit" data-id="'+h.id+'" data-val="0">未达标</button>'
       +'</div></div>';
   });
-  if(!defs.length) html='<div class="c-sum muted">还没有习惯，点下方「管理习惯」添加。</div>';
+  if(!defs.length) html='<div class="c-sum muted">还没有待办，点下方「管理待办」添加。</div>';
   const box=document.getElementById("habitToday"); if(box) box.innerHTML=html;
 }
 function renderHabitWeek(){
@@ -1378,7 +1378,7 @@ document.getElementById("btnImport").addEventListener("click",function(){ docume
 document.getElementById("btnExportCsv").addEventListener("click",function(){
   const rows=[["模块","计划日","状态","完成时间"]];
   ITEMS.forEach(function(it){ const o=RECORDS[it]||{}; Object.keys(o).forEach(function(ds){ const v=o[ds]; rows.push([it,ds,"已打卡",(v&&v.ts)?new Date(v.ts).toLocaleString("zh-CN"):""]); }); });
-  if(RECORDS.habits) Object.keys(RECORDS.habits).forEach(function(id){ const o=RECORDS.habits[id]||{}; Object.keys(o).forEach(function(ds){ const v=o[ds]; rows.push(["习惯:"+id,ds,(v===true?"已完成":(v===false?"未完成":"—")),""]); }); });
+  if(RECORDS.habits) Object.keys(RECORDS.habits).forEach(function(id){ const o=RECORDS.habits[id]||{}; Object.keys(o).forEach(function(ds){ const v=o[ds]; rows.push(["待办:"+id,ds,(v===true?"已完成":(v===false?"未完成":"—")),""]); }); });
   const csv="﻿"+rows.map(function(r){return r.map(function(c){return '"'+String(c==null?"":c).replace(/"/g,'""')+'"';}).join(",");}).join("\r\n");
   const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
   const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="签到记录_"+today()+".csv"; a.click(); URL.revokeObjectURL(a.href);
@@ -1409,7 +1409,7 @@ document.getElementById("btnClearAll").addEventListener("click",function(){
   }
 });
 document.getElementById("btnResetCheckin").addEventListener("click",function(){
-  if(confirm("重置打卡记录？将清除「锻炼 / 写作练习」的全部打卡记录（保留习惯养成与睡眠记录），记录从今天重新开始。此操作不可恢复，建议先点「导出备份」。")){
+  if(confirm("重置打卡记录？将清除「锻炼 / 写作练习」的全部打卡记录（保留待办与睡眠记录），记录从今天重新开始。此操作不可恢复，建议先点「导出备份」。")){
     ITEMS.forEach(function(it){ delete RECORDS[it]; });
     render();
     if(SYNC==="nocfg"){ alert("本机预览已重置（未配置云端，未上传）。"); }
@@ -2351,7 +2351,7 @@ document.addEventListener("click",function(e){
   const t=e.target && e.target.closest ? e.target.closest(".tabbar .tab") : null;
   if(t && t.dataset && t.dataset.view) switchView(t.dataset.view);
 });
-/* ---------- 习惯管理 ---------- */
+/* ---------- 待办管理 ---------- */
 function renderHabitEdit(){
   const defs=habitDefs(); let html="";
   defs.forEach(function(h){ const t=h.type==="avoid"?"戒除":"养成"; const tc=h.type==="avoid"?"avoid":"keep";
@@ -2360,7 +2360,7 @@ function renderHabitEdit(){
       +'<div style="font-size:12px;color:var(--muted)">'+escapeHtml(h.def||"")+'</div></div>'
       +'<button class="btn mini" data-act="hd-del" data-id="'+h.id+'">删除</button></div>';
   });
-  const box=document.getElementById("habitListEdit"); if(box) box.innerHTML=html||'<div class="c-sub">暂无习惯</div>';
+  const box=document.getElementById("habitListEdit"); if(box) box.innerHTML=html||'<div class="c-sub">暂无待办</div>';
 }
 document.getElementById("btnManageHabit").addEventListener("click",function(){
   renderHabitEdit(); document.getElementById("habitModal").classList.add("show");
@@ -2372,7 +2372,7 @@ document.getElementById("habitAdd").addEventListener("click",function(){
   const name=document.getElementById("habitName").value.trim();
   const type=document.getElementById("habitType").value;
   const def=document.getElementById("habitDef").value.trim();
-  if(!name){ alert("请填写习惯名称"); return; }
+  if(!name){ alert("请填写待办名称"); return; }
   if(!RECORDS.habitDefs) RECORDS.habitDefs=[];
   RECORDS.habitDefs.push({id:"h"+Date.now(), name:name, type:type, def:def});
   document.getElementById("habitName").value=""; document.getElementById("habitDef").value="";
@@ -2382,7 +2382,7 @@ document.getElementById("habitAdd").addEventListener("click",function(){
 document.getElementById("habitListEdit").addEventListener("click",function(e){
   const el=e.target.closest("[data-act='hd-del']"); if(!el) return;
   const id=el.dataset.id;
-  if(!confirm("删除该习惯？其历史打卡记录也会一并清除。")) return;
+  if(!confirm("删除该待办？其历史打卡记录也会一并清除。")) return;
   RECORDS.habitDefs=RECORDS.habitDefs.filter(function(h){return h.id!==id;});
   if(RECORDS.habits && RECORDS.habits[id]) delete RECORDS.habits[id];
   renderHabitEdit(); renderHabit(); renderHabitWeek(); renderHabitHeat();
@@ -2391,7 +2391,7 @@ document.getElementById("habitListEdit").addEventListener("click",function(e){
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-09k";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-09l";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
@@ -2449,7 +2449,7 @@ function applyMode(m){
   </button>
   <button class="tab" data-view="habit">
     <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
-    <span>习惯</span>
+    <span>待办</span>
   </button>
   <button class="tab" data-view="docs">
     <svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h6M9 16h6"/></svg>
