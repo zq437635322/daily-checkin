@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-09-09m</title>
+<title>每日打卡 · 构建2026-09-09n</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -1566,18 +1566,20 @@ function renderHome(){
   }catch(e){}
 }
 function renderHomeTodos(){
-  const defs=habitDefs(); const t=today(); let html="", done=0;
+  const defs=habitDefs(); const t=today(); let html="", done=0, remaining=0;
   defs.forEach(function(h){
     const v=habitMap(h.id)[t]===true;
-    if(v) done++;
-    html+='<label class="todo-item'+(v?' done':'')+'">'
-      +'<input type="checkbox" data-act="todo-check" data-id="'+h.id+'"'+(v?' checked':'')+'>'
+    if(v){ done++; return; }          // 已完成：首页不再显示，仅在计数里体现
+    remaining++;
+    html+='<label class="todo-item">'
+      +'<input type="checkbox" data-act="todo-check" data-id="'+h.id+'">'
       +'<div style="flex:1;min-width:0">'
       +'<div class="todo-text">'+escapeHtml(h.name)+'</div>'
       +(h.def?'<div class="todo-meta">'+escapeHtml(h.def)+'</div>':'')
       +'</div></label>';
   });
   if(!defs.length) html='<div class="todo-empty">还没有待办，到「待办」页点击「管理待办」添加。</div>';
+  else if(!remaining) html='<div class="todo-empty done-all">今天待办已全部完成 ✓</div>';
   const box=document.getElementById("homeTodos"); if(box) box.innerHTML=html;
   const c=document.getElementById("homeTodoCount"); if(c) c.textContent=done+" / "+defs.length;
 }
@@ -2429,7 +2431,7 @@ document.getElementById("habitListEdit").addEventListener("click",function(e){
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-09m";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-09n";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
