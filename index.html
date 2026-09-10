@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-09-10i</title>
+<title>每日打卡 · 构建2026-09-10j</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -553,6 +553,36 @@ body.mode-mobile #view-habit .tf-nav .tf-chip:not([data-tfpage="todos"]){display
 .mg-input:focus,.mg-textarea:focus,.mg-select:focus{outline:none;border-color:#f54001}
 .mg-textarea{resize:vertical;min-height:80px;line-height:1.6}
 .mg-modal-ops{display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
+/* ===== PC 写作：左侧边栏布局（参看墨耕源码 Shell） ===== */
+body.mode-pc #view-docs .wg-side{display:none}
+body.mode-pc #view-docs.active{display:flex;margin:0 -32px;padding:0;gap:0;align-items:stretch;min-height:calc(100vh - 56px)}
+body.mode-pc #view-docs.active .wg-side{display:flex;flex-direction:column;width:228px;flex-shrink:0;background:#f7f1e6;border-right:1px solid #e2d8c8;position:sticky;top:0;height:calc(100vh - 56px);overflow-y:auto}
+body.mode-pc #view-docs.active .mogeng-head{display:none}
+body.mode-pc #view-docs.active .wtabbar{display:none}
+body.mode-pc #view-docs .wg-main{flex:1;min-width:0;padding:0 30px 46px}
+.wg-brand{padding:26px 24px 20px;border-bottom:1px solid #e2d8c8}
+.wg-nav{flex:1;padding:14px 12px;display:flex;flex-direction:column;gap:4px}
+.wg-nav-item{display:flex;align-items:center;gap:11px;padding:10px 13px;border-radius:12px;border:none;background:none;cursor:pointer;font-family:inherit;font-size:13.5px;color:#4f483e;text-align:left;width:100%}
+.wg-nav-item:hover{background:#efe7d8}
+.wg-nav-item.active{background:#fffbf5;box-shadow:0 1px 3px rgba(79,72,62,.1);font-weight:700;color:#38332b}
+.wg-nav-item svg{width:18px;height:18px;stroke:#8a7d6b;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.wg-nav-item.active svg{stroke:#f54001}
+.wg-nav-item .wg-en{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.15em;color:#8a7d6b;opacity:.7}
+.wg-nav-item.active .wg-en{color:#f54001;opacity:1}
+.wg-foot{border-top:1px solid #e2d8c8;padding:16px 20px;display:flex;align-items:center;gap:11px}
+.wg-avatar{width:36px;height:36px;border-radius:50%;background:#f54001;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif SC',serif;font-weight:700;font-size:14px;flex:none}
+.wg-foot-name{font-size:13px;font-weight:600;color:#38332b}
+.wg-foot-streak{font-size:11px;color:#8a7d6b;font-family:'JetBrains Mono',monospace;margin-top:2px}
+.wg-topline{display:none}
+body.mode-pc #view-docs.active .wg-topline{display:flex;align-items:center;justify-content:space-between;padding:18px 4px 4px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.15em;color:#8a7d6b}
+@media(max-width:900px){
+  body.mode-pc #view-docs.active{display:block;margin:0;padding:14px 2px 8px}
+  body.mode-pc #view-docs.active .wg-side{display:none}
+  body.mode-pc #view-docs.active .wtabbar{display:flex}
+  body.mode-pc #view-docs.active .mogeng-head{display:flex}
+  body.mode-pc #view-docs.active .wg-topline{display:none}
+  body.mode-pc #view-docs .wg-main{padding:0}
+}
 </style>
 <style id="tfCss">
 /* ============================================================
@@ -1106,6 +1136,31 @@ body.mode-mobile #view-habit .tf-nav .tf-chip:not([data-tfpage="todos"]){display
 
   <!-- ============ 写作工作台 ============ -->
   <section class="view mogeng" id="view-docs">
+    <aside class="wg-side" id="wgSide">
+      <div class="wg-brand">
+        <div style="display:flex;align-items:baseline;gap:8px"><span style="font-family:'Noto Serif SC','Songti SC',serif;font-size:26px;font-weight:900;color:#38332b;line-height:1">墨耕</span><span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;color:#8a7d6b">MOGENG</span></div>
+        <p style="margin:8px 0 0;font-size:11px;color:#8a7d6b">写作练习与创作工坊</p>
+      </div>
+      <nav class="wg-nav">
+        <button class="wg-nav-item active" data-act="wtab" data-tab="dash"><svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5M6 10v9h12v-9"/></svg>今日<span class="wg-en">TODAY</span></button>
+        <button class="wg-nav-item" data-act="wtab" data-tab="tasks"><svg viewBox="0 0 24 24"><path d="M5 6.5 6.5 8 9 5m-4 6L6.5 13.5 9 11m-4 6 1.5 1.5L9 16m4-10.5h7M13 13.5h7M13 18.5h7"/></svg>写作任务<span class="wg-en">TASKS</span></button>
+        <button class="wg-nav-item" data-act="wtab" data-tab="studio"><svg viewBox="0 0 24 24"><path d="M4 20l4-1L20 7l-3-3L5 16l-1 4zM14 6l3 3"/></svg>创作<span class="wg-en">WRITE</span></button>
+        <button class="wg-nav-item" data-act="wtab" data-tab="works"><svg viewBox="0 0 24 24"><path d="M6 3.5h9.5L19 7v13.5H6zM9.5 8.5h6M9.5 12h6M9.5 15.5h4"/></svg>我的作品<span class="wg-en">WORKS</span></button>
+        <button class="wg-nav-item" data-act="wtab" data-tab="plot"><svg viewBox="0 0 24 24"><path d="M12 4v3m0 10v3M4 12h3m10 0h3M7 7l2 2m6 6 2 2m0-10-2 2m-6 6-2 2"/></svg>构思工具<span class="wg-en">STUDIO</span></button>
+        <button class="wg-nav-item" data-act="wtab" data-tab="learn"><svg viewBox="0 0 24 24"><path d="M4 6.5C6 5 9 5 12 6.5c3-1.5 6-1.5 8 0v11c-2-1.5-5-1.5-8 0-3-1.5-6-1.5-8 0zM12 6.5v11"/></svg>学习中心<span class="wg-en">LEARN</span></button>
+        <button class="wg-nav-item" data-act="wtab" data-tab="insp"><svg viewBox="0 0 24 24"><path d="M7 3.5h10v17l-3-2-2.5 2-2.5-2-2 2zM10 8h4M10 11.5h4"/></svg>素材库<span class="wg-en">NOTES</span></button>
+        <button class="wg-nav-item" data-act="wtab" data-tab="stats"><svg viewBox="0 0 24 24"><path d="M4 20h16M7 16v-5m5 5V8m5 8v-8"/></svg>数据统计<span class="wg-en">STATS</span></button>
+      </nav>
+      <div class="wg-foot">
+        <div class="wg-avatar">作</div>
+        <div style="min-width:0">
+          <div class="wg-foot-name">作者，笔耕不辍</div>
+          <div class="wg-foot-streak" id="wgStreak">连续写作 0 天</div>
+        </div>
+      </div>
+    </aside>
+    <div class="wg-main">
+    <div class="wg-topline"><span id="wgVol"></span><span id="wgDate"></span></div>
     <div class="mogeng-head">
       <div class="mg-brand"><span class="mg-zh">墨耕</span><span class="mg-en">MOGENG</span></div>
       <div class="mg-sub">写作练习与创作工坊</div>
@@ -1216,6 +1271,7 @@ body.mode-mobile #view-habit .tf-nav .tf-chip:not([data-tfpage="todos"]){display
     <div class="wpanel" id="wInsp" style="display:none"></div>
     <div class="wpanel" id="wPlot" style="display:none"></div>
     <div class="wpanel" id="wLearn" style="display:none"></div>
+    </div>
   </section>
 
   <!-- ============ 管理 ============ -->
@@ -2784,6 +2840,11 @@ function applyWritingTabVisibility(){
   (map[writingTab]||[]).forEach(function(id){const el=document.getElementById(id); if(el) el.style.display=(id==="wStudio"?"":"block");});
   const bs=document.querySelectorAll("#wTabBar .wtabbtn");
   for(let i=0;i<bs.length;i++){ bs[i].classList.toggle("active", bs[i].getAttribute("data-tab")===writingTab); }
+  const sb=document.querySelectorAll("#wgSide .wg-nav-item");
+  for(let i=0;i<sb.length;i++){ sb[i].classList.toggle("active", sb[i].getAttribute("data-tab")===writingTab); }
+  try{ const st=document.getElementById("wgStreak"); if(st) st.textContent="连续写作 "+writingStreak()+" 天"; }catch(e){}
+  try{ const vol=document.getElementById("wgVol"); if(vol){ const d=new Date(); const no=Math.floor((d.getTime()-new Date(d.getFullYear(),0,0).getTime())/86400000); vol.textContent="VOL.01 — NO."+String(no).padStart(3,"0"); } }catch(e){}
+  try{ const dl=document.getElementById("wgDate"); if(dl){ const d=new Date(); dl.textContent=d.getFullYear()+" 年 "+(d.getMonth()+1)+" 月 "+d.getDate()+" 日 · 星期"+"日一二三四五六"[d.getDay()]; } }catch(e){}
 }
 function writingStreak(){
   let n=0; const d=new Date();
@@ -4341,7 +4402,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-10i";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-10j";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
