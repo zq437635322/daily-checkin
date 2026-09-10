@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-09-10j</title>
+<title>每日打卡 · 构建2026-09-10k</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -554,7 +554,8 @@ body.mode-mobile #view-habit .tf-nav .tf-chip:not([data-tfpage="todos"]){display
 .mg-textarea{resize:vertical;min-height:80px;line-height:1.6}
 .mg-modal-ops{display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
 /* ===== PC 写作：左侧边栏布局（参看墨耕源码 Shell） ===== */
-body.mode-pc #view-docs .wg-side{display:none}
+/* 侧边栏默认全局隐藏（手机版/非激活态都不显示），仅 PC 激活时展开 */
+#view-docs .wg-side{display:none}
 body.mode-pc #view-docs.active{display:flex;margin:0 -32px;padding:0;gap:0;align-items:stretch;min-height:calc(100vh - 56px)}
 body.mode-pc #view-docs.active .wg-side{display:flex;flex-direction:column;width:228px;flex-shrink:0;background:#f7f1e6;border-right:1px solid #e2d8c8;position:sticky;top:0;height:calc(100vh - 56px);overflow-y:auto}
 body.mode-pc #view-docs.active .mogeng-head{display:none}
@@ -4402,7 +4403,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-10j";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-10k";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
