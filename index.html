@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-09-10g</title>
+<title>每日打卡 · 构建2026-09-10h</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -285,7 +285,7 @@ body.mode-pc .topbar{order:0}
 body.mode-pc .tabbar{order:0;position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;
   background:rgba(255,255,255,.97);border-top:1px solid var(--line);border-bottom:none;
   justify-content:center;gap:2px;padding:6px 14px;box-shadow:0 -2px 12px rgba(0,0,0,.06)}
-body.mode-pc .wrap{order:0;width:100%;flex:1;padding:0 32px 74px}
+body.mode-pc .wrap{order:0;width:100%;max-width:none;flex:1;padding:0 32px 74px}
 body.mode-pc .topbar-in{max-width:none;padding:0 32px}
 body.mode-pc .tabbar .tab{flex:0 0 auto;flex-direction:row;align-items:center;gap:7px;
   font-size:14px;padding:11px 18px;min-width:0;border-bottom:none}
@@ -3841,7 +3841,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-10g";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-10h";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
