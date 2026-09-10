@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-09-10h</title>
+<title>每日打卡 · 构建2026-09-10i</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -444,6 +444,115 @@ body.mode-mobile #view-habit .tf-nav .tf-chip:not([data-tfpage="todos"]){display
 .wheat .wc{width:18px;height:18px;border-radius:5px;background:#e6ddd0}
 .wheat .wc.on{background:#f54001}
 .wheat .wc.today{border:2px solid #38332b;box-sizing:border-box}
+/* ===== 墨耕 · 构思工具 / 学习中心 ===== */
+.wsub{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 16px}
+.wsub button{flex:none;padding:7px 15px;border:1px solid #ddd2c2;background:#fffbf5;color:#4f483e;border-radius:999px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
+.wsub button:hover{border-color:#f54001}
+.wsub button.active{background:#f54001;color:#fff;border-color:#f54001}
+.wsec-title{font-family:'Noto Serif SC','Songti SC',serif;font-size:20px;font-weight:900;color:#38332b;margin:2px 0 6px}
+.wkick{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#f54001;margin-bottom:4px}
+.wdesc{font-size:13px;color:#8a7d6b;max-width:760px;line-height:1.7;margin-bottom:14px}
+/* 人物卡 */
+.wchr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.wchr{background:#fffbf5;border:1px solid #ddd2c2;border-radius:14px;padding:14px;box-shadow:0 1px 2px rgba(79,72,62,.05);position:relative}
+.wchr h3{font-family:'Noto Serif SC',serif;font-size:17px;font-weight:900;color:#38332b}
+.wchr .wchr-role{font-size:11px;color:#c2410c;margin-top:2px}
+.wchr dl{margin-top:10px;display:grid;gap:6px}
+.wchr dt{font-family:'JetBrains Mono',monospace;font-size:10px;color:#8a7d6b;letter-spacing:.1em}
+.wchr dd{font-size:12.5px;color:#4f483e;line-height:1.6}
+.wchr-add{min-height:150px;border:1px dashed #cbb9a1;border-radius:14px;color:#8a7d6b;font-size:14px;background:transparent;cursor:pointer;font-family:inherit}
+.wchr-add:hover{border-color:#f54001;color:#f54001}
+.wrow-ops{position:absolute;top:10px;right:12px;display:flex;gap:8px;opacity:0;transition:.15s}
+.wchr:hover .wrow-ops{opacity:1}
+.wrow-ops button{background:none;border:none;color:#8a7d6b;font-size:11px;cursor:pointer;font-family:inherit}
+.wrow-ops button:hover{color:#f54001}
+.wrow-ops button.del:hover{color:#dc2626}
+/* 三幕大纲 */
+.wacts{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.wact{background:#fffbf5;border:1px solid #ddd2c2;border-radius:14px;padding:15px;display:flex;flex-direction:column}
+.wact .wact-name{font-family:'Noto Serif SC',serif;font-size:16px;font-weight:900;color:#38332b}
+.wact .wact-hint{font-size:11px;color:#8a7d6b;line-height:1.6;margin:6px 0 10px}
+.wpt{background:#f4f0ea;border:1px solid #ece2d3;border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.wpt .wpt-t{font-size:13px;font-weight:700;color:#38332b;display:flex;justify-content:space-between;gap:8px}
+.wpt .wpt-d{font-size:12px;color:#8a7d6b;line-height:1.6;margin-top:4px}
+.wadd-dash{width:100%;padding:8px;border:1px dashed #cbb9a1;border-radius:10px;color:#8a7d6b;font-size:12px;background:transparent;cursor:pointer;font-family:inherit}
+.wadd-dash:hover{border-color:#f54001;color:#f54001}
+/* 时间线 */
+.wtl{position:relative;padding-left:24px}
+.wtl:before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:1px;background:#ddd2c2}
+.wtl-item{position:relative;margin-bottom:16px}
+.wtl-item:before{content:"";position:absolute;left:-21px;top:6px;width:15px;height:15px;border-radius:50%;border:3px solid #f54001;background:#fffbf5;box-sizing:border-box}
+.wtl-card{background:#fffbf5;border:1px solid #ddd2c2;border-radius:12px;padding:13px 15px}
+/* 灵感墙 */
+.widea-wall{column-count:3;column-gap:12px}
+@media(max-width:980px){.widea-wall{column-count:2}}
+@media(max-width:640px){.widea-wall{column-count:1}}
+.widea{break-inside:avoid;background:#fdeed3;border-radius:12px;padding:13px 14px;margin-bottom:12px;box-shadow:0 1px 2px rgba(79,72,62,.08);position:relative}
+.widea.c-mint{background:#e3efdd}.widea.c-sky{background:#e2ecf5}.widea.c-rose{background:#fbe3df}
+.widea .widea-text{font-size:13.5px;line-height:1.6;color:#3a332b}
+.widea .widea-foot{display:flex;align-items:center;justify-content:space-between;margin-top:9px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#8a7d6b}
+.widea .widea-ops{display:flex;gap:8px;opacity:0;transition:.15s}
+.widea:hover .widea-ops{opacity:1}
+.widea .widea-ops button{background:none;border:none;color:#8a7d6b;font-size:11px;cursor:pointer;font-family:inherit}
+.widea .widea-ops button:hover{color:#f54001}
+.widea .widea-star{font-size:11px;color:#f54001}
+/* 思维导图 */
+.mm-bar{background:#fffbf5;border:1px solid #ddd2c2;border-radius:14px;padding:10px 12px;margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mm-bar button{padding:6px 13px;border-radius:999px;font-size:12px;border:1px solid #ddd2c2;background:#fff;color:#4f483e;cursor:pointer;font-family:inherit}
+.mm-bar button:hover:not(:disabled){border-color:#f54001;color:#f54001}
+.mm-bar button:disabled{opacity:.4;cursor:default}
+.mm-bar .mm-swatch{width:20px;height:20px;border-radius:50%;border:2px solid #00000018;cursor:pointer}
+.mm-bar .mm-sep{width:1px;height:20px;background:#e2d8c8;margin:0 2px}
+.mm-bar .mm-zoom{font-family:'JetBrains Mono',monospace;font-size:11px;color:#8a7d6b;width:42px;text-align:center}
+.mm-canvas{background:#fffbf5;border:1px solid #ddd2c2;border-radius:14px;overflow:hidden;position:relative;height:560px;cursor:grab;touch-action:none;user-select:none}
+.mm-canvas:active{cursor:grabbing}
+.mm-grain{position:absolute;inset:0;background-image:radial-gradient(rgba(79,72,62,.06) 1px,transparent 1px);background-size:20px 20px;pointer-events:none}
+.mm-stage{position:absolute;left:50%;top:50%;transform-origin:0 0}
+.mm-node{position:absolute;display:flex;align-items:center;justify-content:center;border-radius:12px;box-shadow:0 1px 3px rgba(79,72,62,.15);cursor:pointer;padding:0 10px;text-align:center;font-size:13px;font-weight:600;border:2px solid transparent}
+.mm-node.nsel{box-shadow:0 4px 18px rgba(245,64,1,.28);border-color:#f54001}
+.mm-node .mm-in{background:transparent;border:none;outline:none;text-align:center;font-size:13px;font-weight:600;width:100%;font-family:inherit}
+.mm-hint{position:absolute;left:14px;bottom:10px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#8a7d6b;line-height:1.5;pointer-events:none}
+/* 学习中心 */
+.lrn-courses{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.lrn-c{background:#fffbf5;border:1px solid #ddd2c2;border-radius:14px;padding:16px;box-shadow:0 1px 2px rgba(79,72,62,.05)}
+.lrn-c.done{opacity:.8}
+.lrn-tags{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:7px}
+.lrn-tag{font-size:11px;font-weight:700;padding:2px 9px;border-radius:999px;background:#fde6d6;color:#c2410c}
+.lrn-tag.done{background:#d1fae5;color:#047857}
+.lrn-min{font-family:'JetBrains Mono',monospace;font-size:10px;color:#8a7d6b}
+.lrn-c h3{font-family:'Noto Serif SC',serif;font-size:16px;font-weight:900;color:#38332b}
+.lrn-c .lrn-sum{font-size:13px;color:#8a7d6b;line-height:1.6;margin-top:7px}
+.lrn-points{margin-top:12px;background:#f4f0ea;border-radius:10px;padding:12px 14px}
+.lrn-points li{font-size:13px;line-height:1.7;color:#4f483e;display:flex;gap:9px;margin-bottom:7px}
+.lrn-points li:before{content:attr(data-n);font-family:'JetBrains Mono',monospace;font-size:11px;color:#f54001;flex:none;padding-top:2px}
+.lrn-ops{display:flex;gap:8px;margin-top:12px}
+.lrn-ex{background:#fffbf5;border:1px solid #ddd2c2;border-radius:14px;padding:18px;margin-bottom:12px;display:flex;gap:16px;position:relative}
+.lrn-ex .lrn-ex-n{font-family:'Noto Serif SC',serif;font-size:28px;color:#f54001;opacity:.3}
+.lrn-ex p{font-family:'Noto Serif SC',serif;font-size:15.5px;color:#38332b;line-height:1.7}
+.lrn-ex .lrn-ex-why{font-size:12.5px;color:#8a7d6b;margin-top:9px;line-height:1.7}
+.lrn-ex .lrn-ex-why b{color:#f54001}
+.lrn-book{background:#fffbf5;border:1px solid #ddd2c2;border-radius:14px;padding:16px;position:relative}
+.lrn-book h3{font-family:'Noto Serif SC',serif;font-size:16px;font-weight:900;color:#38332b}
+.lrn-book .lrn-book-meta{font-size:12px;color:#8a7d6b;margin-top:5px}
+.lrn-book .lrn-book-note{font-size:13px;color:#4f483e;line-height:1.7;margin-top:10px;white-space:pre-wrap}
+.lrn-book .lrn-book-date{font-family:'JetBrains Mono',monospace;font-size:10px;color:#8a7d6b;margin-top:10px}
+.lrn-daily{background:#fffbf5;border:1px solid #ddd2c2;border-radius:14px;padding:22px;margin-bottom:18px;position:relative;overflow:hidden}
+.lrn-daily .lrn-q{font-family:'Noto Serif SC',serif;font-size:19px;color:#38332b;line-height:1.7;max-width:680px}
+.lrn-daily .lrn-qw{font-size:13px;color:#4f483e;line-height:1.7;margin-top:13px;background:#f4f0ea;border-radius:10px;padding:12px 14px;max-width:680px}
+.lrn-daily .lrn-qw b{color:#f54001}
+/* 通用弹窗（墨耕） */
+.mg-modal{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:16px}
+.mg-modal.show{display:flex}
+.mg-modal-bg{position:absolute;inset:0;background:rgba(56,51,43,.45);backdrop-filter:blur(2px)}
+.mg-modal-box{position:relative;background:#fffbf5;border:1px solid #e2d8c8;border-radius:16px;box-shadow:0 18px 50px rgba(56,51,43,.3);width:100%;max-width:540px;max-height:86vh;overflow:auto;padding:20px 22px}
+.mg-modal-box.wide{max-width:680px}
+.mg-modal-box h3{font-family:'Noto Serif SC',serif;font-size:19px;font-weight:900;color:#38332b;margin-bottom:14px}
+.mg-field{display:block;margin-bottom:12px}
+.mg-field>span{display:block;font-size:12px;font-weight:700;color:#8a7d6b;margin-bottom:6px}
+.mg-input,.mg-textarea,.mg-select{width:100%;border:1px solid #e2d8c8;border-radius:10px;padding:9px 11px;font-size:14px;font-family:inherit;background:#fff;color:#4f483e;box-sizing:border-box}
+.mg-input:focus,.mg-textarea:focus,.mg-select:focus{outline:none;border-color:#f54001}
+.mg-textarea{resize:vertical;min-height:80px;line-height:1.6}
+.mg-modal-ops{display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
 </style>
 <style id="tfCss">
 /* ============================================================
@@ -1006,6 +1115,8 @@ body.mode-mobile #view-habit .tf-nav .tf-chip:not([data-tfpage="todos"]){display
       <button class="wtabbtn" data-act="wtab" data-tab="tasks">写作任务</button>
       <button class="wtabbtn" data-act="wtab" data-tab="studio">创作</button>
       <button class="wtabbtn" data-act="wtab" data-tab="works">我的作品</button>
+      <button class="wtabbtn" data-act="wtab" data-tab="plot">构思工具</button>
+      <button class="wtabbtn" data-act="wtab" data-tab="learn">学习中心</button>
       <button class="wtabbtn" data-act="wtab" data-tab="stats">数据统计</button>
       <button class="wtabbtn" data-act="wtab" data-tab="insp">素材库</button>
     </nav>
@@ -1103,6 +1214,8 @@ body.mode-mobile #view-habit .tf-nav .tf-chip:not([data-tfpage="todos"]){display
     <div class="wpanel" id="wWorks" style="display:none"></div>
     <div class="wpanel" id="wStats" style="display:none"></div>
     <div class="wpanel" id="wInsp" style="display:none"></div>
+    <div class="wpanel" id="wPlot" style="display:none"></div>
+    <div class="wpanel" id="wLearn" style="display:none"></div>
   </section>
 
   <!-- ============ 管理 ============ -->
@@ -2290,6 +2403,60 @@ function docsAll(){ if(!RECORDS.docs) RECORDS.docs={}; return RECORDS.docs; }
 function plainDocs(){ const d=docsAll(); const out={}; Object.keys(d).forEach(function(k){ if(k[0]!=="_") out[k]=d[k]; }); return out; }
 function booksAll(){ const d=docsAll(); if(!d._books) d._books={}; return d._books; }
 function inspAll(){ const d=docsAll(); if(!d._inspirations) d._inspirations=[]; return d._inspirations; }
+// 墨耕工坊：构思工具 + 学习中心（人物/情节/思维导图/课程/读书笔记/灵感墙）
+function workshopAll(){ if(!RECORDS.workshop) RECORDS.workshop=seedWorkshop(); return RECORDS.workshop; }
+function seedWorkshop(){
+  const d=function(off){ const x=new Date(); x.setDate(x.getDate()+off); return fmt(x); };
+  const u=function(){ return "m"+Date.now().toString(36)+Math.random().toString(36).slice(2,6); };
+  return {
+    characters:[
+      {id:u(),name:"林晚秋",role:"主人公 · 挡车工",appearance:"五十岁，瘦高，右手指节粗大，常年带一副蓝布袖套",personality:"沉默执拗，认死理，对数字过目不忘",goal:"查清丈夫失踪的真相，守住最后的家",arc:"从「忍耐」到「追问」：学会把沉默换成提问"},
+      {id:u(),name:"周茉",role:"女儿 · 代课老师",appearance:"二十四岁，短发，总背一只洗得发白的帆布包",personality:"表面洒脱，内心敏感，习惯用玩笑回避冲突",goal:"离开南城，又放不下母亲",arc:"从「逃离」到「回望」：理解母亲的沉默"},
+      {id:u(),name:"老周",role:"配角 · 厂志办主任",appearance:"微胖，茶色眼镜，钥匙串永远挂在裤腰上",personality:"圆滑谨慎，念旧情，怕担责任",goal:"平安退休，守住档案室的秘密",arc:"从「守口如瓶」到「交出一把钥匙」"}
+    ],
+    plotPoints:[
+      {id:u(),act:1,title:"改制风声",desc:"纺织厂传出改制消息，人心浮动；林晚秋发现丈夫当年的工伤档案被人调走。"},
+      {id:u(),act:1,title:"激励事件",desc:"一封没有署名的信塞进林家门缝：你男人不是自己走的。"},
+      {id:u(),act:2,title:"追查受阻",desc:"林晚秋查档案被老周婉拒；周茉反对母亲「翻旧账」，母女爆发争吵。"},
+      {id:u(),act:2,title:"中点反转",desc:"周茉无意中在家中发现父亲的旧工作证，背面写着一串陌生的电话号码。"},
+      {id:u(),act:3,title:"真相浮出",desc:"电话接通，真相牵出厂里一桩被压下的事故；老周交出最后一把钥匙。"},
+      {id:u(),act:3,title:"结局",desc:"纺织厂拆除那天，林晚秋在车间门口站了很久。她终于可以开始新的生活。"}
+    ],
+    mindmap:[
+      {id:"root",parentId:null,text:"南城旧事",x:0,y:0,color:"root"},
+      {id:"m1",parentId:"root",text:"人物",x:-260,y:-130,color:"amber"},
+      {id:"m2",parentId:"root",text:"情节",x:260,y:-130,color:"mint"},
+      {id:"m3",parentId:"root",text:"场景",x:-260,y:130,color:"sky"},
+      {id:"m4",parentId:"root",text:"主题",x:260,y:130,color:"rose"},
+      {id:u(),parentId:"m1",text:"林晚秋 · 母亲",x:-470,y:-190,color:"amber"},
+      {id:u(),parentId:"m1",text:"周茉 · 女儿",x:-470,y:-90,color:"amber"},
+      {id:u(),parentId:"m2",text:"匿名信出现",x:470,y:-190,color:"mint"},
+      {id:u(),parentId:"m2",text:"档案室钥匙",x:470,y:-90,color:"mint"},
+      {id:u(),parentId:"m3",text:"纺织车间",x:-470,y:90,color:"sky"},
+      {id:u(),parentId:"m3",text:"家属院水房",x:-470,y:190,color:"sky"},
+      {id:u(),parentId:"m4",text:"沉默与追问",x:470,y:130,color:"rose"}
+    ],
+    courses:[
+      {id:u(),title:"如何把「她很难过」写成画面",category:"描写",minutes:12,summary:"情绪不写情绪，写身体、动作与环境。掌握「展示，而非讲述」的三个抓手。",points:["用身体反应代替情绪词：手抖、喉咙发紧、胃里泛酸","让人物「做事」：难过的人还在叠衣服，比哭更有力量","环境作镜子：用周围的冷与乱映照内心"],done:true},
+      {id:u(),title:"对话的三个隐藏任务",category:"对话",minutes:15,summary:"好对话同时完成三件事：推进情节、暴露性格、制造潜台词。",points:["每句台词问一次：这句话改变了什么？","人物永远「话里有话」：嘴上说 A，心里想 B","沉默与答非所问也是对话"],done:false},
+      {id:u(),title:"开头的钩子怎么下",category:"结构",minutes:10,summary:"悬念钩、冲突钩、反差钩：三种经过验证的开篇方式与常见误区。",points:["第一句就给一个「不对劲」","不要在开头解释背景，把解释拆开撒进后文","写完全书后，回来重写第一章"],done:false},
+      {id:u(),title:"人物弧光设计入门",category:"人物",minutes:18,summary:"人物不是设定表，而是一条「从谎言到真相」的变化曲线。",points:["给人物一个他坚信的「谎言」","让情节不断惩罚这个谎言","结局处人物做出第一章绝不会做的选择"],done:false},
+      {id:u(),title:"改稿：删减的勇气",category:"修改",minutes:14,summary:"初稿写给自己，改稿写给读者。一套可执行的五步改稿清单。",points:["第一轮只删：副词、套话、重复信息","第二轮只查：每场戏是否「非发生不可」","朗读一遍，凡拗口处必有问题"],done:false},
+      {id:u(),title:"日常素材的采集方法",category:"素材",minutes:8,summary:"作家训练：如何用「三栏笔记法」把日常生活变成素材库。",points:["左栏记事实，中栏记感受，右栏记联想","每天固定采集三条，贵在持续","每周回顾，把联想的条目扩写成片段"],done:false}
+    ],
+    bookNotes:[
+      {id:u(),book:"活着",author:"余华",note:"余华的克制值得反复学：最大的悲恸用最平的句子写。注意到全书几乎不用感叹号。",rating:5,createdAt:d(-12)},
+      {id:u(),book:"故事",author:"罗伯特·麦基",note:"重读「激励事件」一章：故事失衡的那一刻，观众才真正入座。对照检查《南城旧事》第一章，激励事件出现得太晚，需要提前。",rating:4,createdAt:d(-4)}
+    ],
+    ideas:[
+      {id:u(),text:"写一场戏：两个人在殡仪馆门口讨论晚上吃什么。",color:"amber",pinned:true,createdAt:d(-2)},
+      {id:u(),text:"「她的沉默像没拉严的窗帘，总会漏进一点光。」——可用于林晚秋。",color:"mint",pinned:false,createdAt:d(-4)},
+      {id:u(),text:"素材方向：90 年代国企家属院的公共空间（水房、车棚、锅炉房）。",color:"sky",pinned:false,createdAt:d(-7)},
+      {id:u(),text:"如果每个章节标题都用纺织工艺术语？（经线、纬线、断头、接头……）",color:"rose",pinned:false,createdAt:d(-1)}
+    ]
+  };
+}
+
 // 作业池：被删除（视为未做）的作业，放在这里等待重新发布
 function poolAll(){ const d=docsAll(); if(!d._pool) d._pool=[]; return d._pool; }
 
@@ -2599,6 +2766,8 @@ function renderDocs(){
   try{ renderWritingDash(); }catch(e){}
   if(writingTab==="tasks"){ try{ renderWritingTasks(); }catch(e){} }
   else if(writingTab==="works"){ try{ renderWritingWorks(); }catch(e){} }
+  else if(writingTab==="plot"){ try{ renderWritingPlot(); }catch(e){} }
+  else if(writingTab==="learn"){ try{ renderWritingLearn(); }catch(e){} }
   else if(writingTab==="stats"){ try{ renderWritingStats(); }catch(e){} }
   else if(writingTab==="insp"){ try{ renderWritingInsp(); }catch(e){} }
   try{ applyWritingTabVisibility(); }catch(e){}
@@ -2610,8 +2779,8 @@ let writingTab="dash";
 function dsAdd(ds,off){ const d=parse(ds); d.setDate(d.getDate()+off); return fmt(d); }
 function switchWritingTab(t){ if(t) writingTab=t; render(); }
 function applyWritingTabVisibility(){
-  const map={dash:["hwCard","wDashExtra"],studio:["wStudio"],tasks:["wTasks"],works:["wWorks"],stats:["wStats"],insp:["wInsp"]};
-  ["hwCard","wDashExtra","wStudio","wTasks","wWorks","wStats","wInsp"].forEach(function(id){const el=document.getElementById(id); if(el) el.style.display="none";});
+  const map={dash:["hwCard","wDashExtra"],studio:["wStudio"],tasks:["wTasks"],works:["wWorks"],plot:["wPlot"],learn:["wLearn"],stats:["wStats"],insp:["wInsp"]};
+  ["hwCard","wDashExtra","wStudio","wTasks","wWorks","wPlot","wLearn","wStats","wInsp"].forEach(function(id){const el=document.getElementById(id); if(el) el.style.display="none";});
   (map[writingTab]||[]).forEach(function(id){const el=document.getElementById(id); if(el) el.style.display=(id==="wStudio"?"":"block");});
   const bs=document.querySelectorAll("#wTabBar .wtabbtn");
   for(let i=0;i<bs.length;i++){ bs[i].classList.toggle("active", bs[i].getAttribute("data-tab")===writingTab); }
@@ -2685,6 +2854,312 @@ function renderWritingInsp(){
   el.innerHTML=h;
 }
 
+/* ================= 墨耕 · 构思工具 + 学习中心 ================= */
+var plotTab="mindmap", learnTab="courses", mgIdeaColor="amber", mgOpenCourse=null;
+var mgMM={sel:null,editing:null,editText:"",zoom:1,pan:{x:0,y:0},drag:null,_docBound:false};
+var MG_EXCERPTS=[
+  {t:"以笑的方式哭，在死亡的伴随下活着。",s:"余华《活着》",why:"悖论式表达：把两个相反的状态焊在一起，句子就有了张力。"},
+  {t:"围在城里的人想逃出来，城外的人想冲进去。",s:"钱钟书《围城》",why:"对称结构制造警句感，且一句话概括了全书主题。"},
+  {t:"月光如流水一般，静静地泻在这一片叶子和花上。",s:"朱自清《荷塘月色》",why:"「泻」字把视觉写成触觉，通感让景物活起来。"},
+  {t:"凡事都有偶然的凑巧，结果却又如宿命的必然。",s:"沈从文《边城》",why:"议论句要放在故事之后，才显得是领悟而不是说教。"}
+];
+function fmtShort(iso){ if(!iso) return ""; var p=String(iso).split("-"); return (p[1]?Number(p[1]):"?")+"月"+(p[2]?Number(p[2]):"?")+"日"; }
+function mgFindChar(id){ var w=workshopAll(); for(var i=0;i<w.characters.length;i++) if(w.characters[i].id===id) return w.characters[i]; return null; }
+function mgFindPlot(id){ var w=workshopAll(); for(var i=0;i<w.plotPoints.length;i++) if(w.plotPoints[i].id===id) return w.plotPoints[i]; return null; }
+function mgFindMM(id){ var w=workshopAll(); for(var i=0;i<w.mindmap.length;i++) if(w.mindmap[i].id===id) return w.mindmap[i]; return null; }
+
+/* ---- 通用弹窗 ---- */
+var mgModalEl=null;
+function mgOpenModal(title, bodyHtml, opts){
+  opts=opts||{};
+  if(!mgModalEl){ mgModalEl=document.createElement("div"); mgModalEl.className="mg-modal"; document.body.appendChild(mgModalEl);
+    mgModalEl.addEventListener("click",function(e){ if(e.target===mgModalEl||(e.target.classList&&e.target.classList.contains("mg-modal-bg"))) mgCloseModal(); });
+  }
+  mgModalEl.innerHTML='<div class="mg-modal-bg"></div><div class="mg-modal-box'+(opts.wide?" wide":"")+'"><h3>'+escapeHtml(title)+'</h3>'+bodyHtml+'</div>';
+  mgModalEl.classList.add("show");
+  var box=mgModalEl.querySelector(".mg-modal-box");
+  var sb=box.querySelector("[data-mg-save]");
+  if(sb&&opts.onSave){ sb.onclick=function(){ try{ opts.onSave(box); }catch(err){ alert(err.message||String(err)); } }; }
+  var cb=box.querySelector("[data-mg-cancel]"); if(cb) cb.onclick=mgCloseModal;
+  return box;
+}
+function mgCloseModal(){ if(mgModalEl) mgModalEl.classList.remove("show"); }
+
+/* ---- 构思工具 ---- */
+function renderWritingPlot(){
+  var el=document.getElementById("wPlot"); if(!el) return;
+  var subs=[["mindmap","思维导图"],["outline","三幕大纲"],["timeline","情节线"],["characters","人物卡"],["ideas","灵感墙"]];
+  var h='<div class="wkick">STORY STUDIO</div><div class="wsec-title">构思工具</div>'
+    +'<div class="wdesc">动笔之前先搭骨架：三幕大纲定结构，情节线排布节点，人物卡片追踪弧光，灵感墙收集碎片。</div>';
+  h+='<div class="wsub">'+subs.map(function(s){return '<button data-act="plot-sub" data-sub="'+s[0]+'"'+(plotTab===s[0]?' class="active"':'')+'>'+s[1]+'</button>';}).join("")+'</div>';
+  if(plotTab==="mindmap") h+=mgMindmapHtml();
+  else if(plotTab==="outline") h+=mgOutlineHtml();
+  else if(plotTab==="timeline") h+=mgTimelineHtml();
+  else if(plotTab==="characters") h+=mgCharactersHtml();
+  else if(plotTab==="ideas") h+=mgIdeasHtml();
+  el.innerHTML=h;
+  if(plotTab==="mindmap"){ mgMMInit(); mmRender(); }
+}
+function mgMindmapHtml(){
+  var PALETTE=[["amber","#fdeed3"],["mint","#e3efdd"],["sky","#e2ecf5"],["rose","#fbe3df"]];
+  var sw=PALETTE.map(function(p){return '<button class="mm-swatch" data-act="mm-color" data-mm-color="'+p[0]+'"'+(!mgMM.sel||mgMM.sel==="root"?' disabled':'')+' style="background:'+p[1]+'"></button>';}).join("");
+  return '<div class="mm-bar">'
+    +'<button data-act="mm-addchild"'+(!mgMM.sel?' disabled':'')+'>＋ 子节点</button>'
+    +'<button data-act="mm-addsib"'+(!mgMM.sel||mgMM.sel==="root"?' disabled':'')+'>＋ 同级</button>'
+    +'<button data-act="mm-rename"'+(!mgMM.sel?' disabled':'')+'>重命名</button>'
+    +'<button data-act="mm-del"'+(!mgMM.sel||mgMM.sel==="root"?' disabled':'')+'>删除</button>'
+    +'<span class="mm-sep"></span><span style="font-size:11px;color:#8a7d6b">配色</span>'+sw
+    +'<span class="mm-sep"></span>'
+    +'<button data-act="mm-zoom" data-d="-1">−</button><span class="mm-zoom">'+Math.round(mgMM.zoom*100)+'%</span><button data-act="mm-zoom" data-d="1">＋</button>'
+    +'<button data-act="mm-reset">复位视图</button></div>'
+    +'<div class="mm-canvas" id="mmMount"><div class="mm-grain"></div></div>';
+}
+function mgOutlineHtml(){
+  var w=workshopAll();
+  var ACTS=[{a:1,n:"第一幕 · 建置",h:"介绍人物与世界，打破平衡的激励事件发生（约前 25%）"},{a:2,n:"第二幕 · 对抗",h:"人物追求目标、遭遇越来越大的阻力，中点出现重大反转（约 25%–75%）"},{a:3,n:"第三幕 · 解决",h:"矛盾总爆发，人物做出第一章绝不会做的选择，抵达新平衡"}];
+  var RM=["Ⅰ","Ⅱ","Ⅲ"];
+  return '<div class="wacts">'+ACTS.map(function(ac){
+    var pts=w.plotPoints.filter(function(p){return p.act===ac.a;});
+    var cards=pts.length?pts.map(function(p){
+      return '<div class="wpt"><div class="wpt-t"><span>'+escapeHtml(p.title)+'</span><span style="display:flex;gap:6px"><button data-act="pp-edit" data-id="'+p.id+'">改</button><button data-act="pp-del" data-id="'+p.id+'">删</button></span></div><div class="wpt-d">'+escapeHtml(p.desc||"")+'</div></div>';
+    }).join("") : '<div style="font-size:12px;color:#8a7d6b;text-align:center;padding:10px 0">本幕还没有情节点</div>';
+    return '<div class="wact"><div style="font-family:JetBrains Mono,monospace;font-size:10px;letter-spacing:.2em;color:#f54001;margin-bottom:4px">ACT '+RM[ac.a-1]+'</div>'
+      +'<div class="wact-name">'+ac.n+'</div><div class="wact-hint">'+ac.h+'</div>'
+      +'<div style="margin:10px 0;flex:1;display:flex;flex-direction:column;gap:8px">'+cards+'</div>'
+      +'<button class="wadd-dash" data-act="pp-add" data-ppact="'+ac.a+'">＋ 添加情节点</button></div>';
+  }).join("")+'</div>';
+}
+function mgTimelineHtml(){
+  var w=workshopAll();
+  if(!w.plotPoints.length) return '<div class="todo-empty">先去「三幕大纲」添加情节点。</div>';
+  var RM=["Ⅰ","Ⅱ","Ⅲ"];
+  return '<div class="wtl">'+w.plotPoints.map(function(p){
+    return '<div class="wtl-item"><div class="wtl-card"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-family:JetBrains Mono,monospace;font-size:10px;letter-spacing:.15em;color:#f54001">ACT '+RM[p.act-1]+'</span><span style="font-weight:800;font-size:14px;color:#38332b">'+escapeHtml(p.title)+'</span><span style="margin-left:auto;display:flex;gap:8px;font-size:11px"><button data-act="pp-edit" data-id="'+p.id+'">编辑</button><button data-act="pp-del" data-id="'+p.id+'">删除</button></span></div><div style="font-size:13px;color:#8a7d6b;line-height:1.6;margin-top:6px">'+escapeHtml(p.desc||"")+'</div></div></div>';
+  }).join("")+'</div>';
+}
+function mgCharactersHtml(){
+  var w=workshopAll();
+  var card=function(c){
+    return '<div class="wchr"><div class="wrow-ops"><button data-act="ch-edit" data-id="'+c.id+'">编辑</button><button class="del" data-act="ch-del" data-id="'+c.id+'">删除</button></div>'
+      +'<h3>'+escapeHtml(c.name||"未命名")+'</h3><div class="wchr-role">'+escapeHtml(c.role||"")+'</div>'
+      +'<dl>'+[["外貌",c.appearance],["性格",c.personality],["目标",c.goal],["弧光",c.arc]].map(function(r){return '<div><dt>'+r[0]+'</dt><dd>'+escapeHtml(r[1]||"—")+'</dd></div>';}).join("")+'</dl></div>';
+  };
+  var grid=w.characters.map(card).join("")+'<button class="wchr-add" data-act="ch-add">＋ 新人物</button>';
+  return '<div class="wchr-grid">'+grid+'</div><p style="font-size:12px;color:#8a7d6b;margin-top:14px">提示：好的人物卡不写「完美设定」，而写「他坚信的谎言」与「他必须学会的事」——弧光栏就是为此准备的。</p>';
+}
+function mgIdeasHtml(){
+  var w=workshopAll();
+  var PALETTE=[["amber","#fdeed3"],["mint","#e3efdd"],["sky","#e2ecf5"],["rose","#fbe3df"]];
+  var sw=PALETTE.map(function(p){return '<button class="mm-swatch" data-act="id-color" data-color="'+p[0]+'" style="border-color:'+(mgIdeaColor===p[0]?'#f54001':'#00000018')+';background:'+p[1]+'"></button>';}).join("");
+  var sorted=w.ideas.slice().sort(function(a,b){return (b.pinned?1:0)-(a.pinned?1:0);});
+  var wall=sorted.length? sorted.map(function(i){
+    return '<div class="widea c-'+i.color+'"><div style="display:flex;align-items:flex-start;gap:8px">'+(i.pinned?'<span class="widea-star">★</span>':'')+'<div style="font-size:13.5px;line-height:1.6;color:#3a332b;flex:1">'+escapeHtml(i.text)+'</div></div>'
+      +'<div class="widea-foot"><span>'+fmtShort(i.createdAt)+'</span><span class="widea-ops"><button data-act="id-pin" data-id="'+i.id+'">'+(i.pinned?'取消置顶':'置顶')+'</button><button data-act="id-del" data-id="'+i.id+'">撕掉</button></span></div></div>';
+  }).join("") : '<div class="todo-empty">还没有灵感。把脑子里的碎片倒在这里。</div>';
+  return '<div style="background:#fffbf5;border:1px solid #ddd2c2;border-radius:14px;padding:16px;margin-bottom:16px"><div style="display:flex;gap:8px;flex-wrap:wrap">'
+    +'<input id="idText" placeholder="一句话灵感、一个画面、一个标题……" style="flex:1;min-width:220px;padding:8px 11px;border:1px solid #e2d8c8;border-radius:10px;font-family:inherit;font-size:14px">'+sw
+    +'<button class="btn primary" data-act="id-add">贴上墙</button></div></div>'
+    +'<div class="widea-wall">'+wall+'</div>';
+}
+/* 思维导图 */
+function mgMMInit(){
+  var el=document.getElementById("mmMount"); if(!el) return;
+  if(el._mmDown) return; el._mmDown=true;
+  el.addEventListener("pointerdown", function(e){ mmPointerDown(e); });
+  el.addEventListener("dblclick", function(e){ var n=e.target.closest("[data-mm-node]"); if(n){ mgMM.editing=n.getAttribute("data-mm-node"); mmRender(); } });
+  el.addEventListener("wheel", function(e){ e.preventDefault(); mgMM.zoom=Math.min(2,Math.max(0.35, mgMM.zoom - e.deltaY*0.0012)); mmRender(); });
+  if(!mgMM._docBound){ mgMM._docBound=true; document.addEventListener("pointermove", mmPointerMove); document.addEventListener("pointerup", mmPointerUp); document.addEventListener("keydown", mmKey); }
+}
+function mmPointerDown(e){
+  if(e.button!==0) return;
+  var el=document.getElementById("mmMount"); if(!el) return;
+  var nodeEl=e.target.closest("[data-mm-node]");
+  if(nodeEl){
+    var id=nodeEl.getAttribute("data-mm-node"); var n=mgFindMM(id);
+    if(n) mgMM.drag={kind:"node",id:id,startX:e.clientX,startY:e.clientY,origX:n.x,origY:n.y,moved:false,el:nodeEl};
+    e.stopPropagation();
+  } else {
+    mgMM.drag={kind:"pan",startX:e.clientX,startY:e.clientY,origX:mgMM.pan.x,origY:mgMM.pan.y,moved:false};
+    mgMM.sel=null; mgMM.editing=null;
+  }
+}
+function mmPointerMove(e){
+  var d=mgMM.drag; if(!d) return;
+  var dx=e.clientX-d.startX, dy=e.clientY-d.startY;
+  if(!d.moved && Math.hypot(dx,dy)>4) d.moved=true;
+  if(!d.moved) return;
+  if(d.kind==="pan"){
+    mgMM.pan={x:d.origX+dx,y:d.origY+dy};
+    var st=document.getElementById("mmStage"); if(st) st.style.transform="translate("+mgMM.pan.x+"px,"+mgMM.pan.y+"px)";
+  } else if(d.kind==="node" && d.el){
+    var nx=d.origX+dx/mgMM.zoom, ny=d.origY+dy/mgMM.zoom;
+    d.el.style.left=(nx-84)+"px"; d.el.style.top=(ny-23)+"px"; d.curX=nx; d.curY=ny;
+  }
+}
+function mmPointerUp(){
+  var d=mgMM.drag; if(!d) return; mgMM.drag=null;
+  if(d.kind==="pan"){ if(!d.moved){ mmRender(); } else { saveLocal(); cloudSave(); } return; }
+  if(d.kind==="node"){
+    if(!d.moved){ mgMM.sel=d.id; mgMM.editing=null; mmRender(); return; }
+    var nd=mgFindMM(d.id); if(nd){ nd.x=d.curX; nd.y=d.curY; saveLocal(); cloudSave(); } mmRender();
+  }
+}
+function mmKey(e){
+  if(plotTab!=="mindmap"||writingTab!=="plot") return;
+  if(mgMM.editing) return;
+  if(!mgMM.sel) return;
+  if(e.key==="Tab"){ e.preventDefault(); mmAddChild(mgMM.sel); }
+  else if(e.key==="Enter"){ e.preventDefault(); mmAddSibling(mgMM.sel); }
+  else if(e.key==="Delete"||e.key==="Backspace"){ e.preventDefault(); mmRemoveNode(mgMM.sel); }
+  else if(e.key==="F2"){ e.preventDefault(); if(mgFindMM(mgMM.sel)){ mgMM.editing=mgMM.sel; mmRender(); } }
+}
+function mmAddChild(pid){
+  var w=workshopAll(); var p=mgFindMM(pid); if(!p) return;
+  var kids=w.mindmap.filter(function(n){return n.parentId===pid;});
+  var x,y;
+  if(pid==="root"){
+    var left=kids.filter(function(k){return k.x<p.x;}).length, right=kids.filter(function(k){return k.x>=p.x;}).length;
+    var goLeft=left<=right; x=p.x+(goLeft?-260:260); y=p.y+((goLeft?left:right)-0.5)*110;
+  } else {
+    var grand=mgFindMM(p.parentId); var dir=grand?Math.sign(p.x-grand.x)||1:1;
+    x=p.x+230*dir; y=p.y+kids.length*72-(kids.length>0?0:36);
+  }
+  var color = p.color==="root" ? ["amber","mint","sky","rose"][kids.length%4] : p.color;
+  var cid="m"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  w.mindmap.push({id:cid,parentId:pid,text:"新节点",x:x,y:y,color:color});
+  mgMM.sel=cid; mgMM.editing=cid; saveLocal(); cloudSave(); mmRender();
+}
+function mmAddSibling(id){ var n=mgFindMM(id); if(!n||!n.parentId) return; mmAddChild(n.parentId); }
+function mmRemoveNode(id){
+  if(id==="root") return;
+  var w=workshopAll(); var kill={}; kill[id]=true; var changed=true;
+  while(changed){ changed=false; w.mindmap.forEach(function(n){ if(n.parentId&&kill[n.parentId]&&!kill[n.id]){ kill[n.id]=true; changed=true; } }); }
+  w.mindmap=w.mindmap.filter(function(n){return !kill[n.id];});
+  mgMM.sel=null; saveLocal(); cloudSave(); mmRender();
+}
+function mmIsDesc(ancestor,n,all){ var cur=n.parentId; while(cur){ if(cur===ancestor) return true; var f=null; for(var i=0;i<all.length;i++) if(all[i].id===cur){f=all[i];break;} cur=f?f.parentId:null; } return false; }
+function mmSetColor(id,color){
+  if(id==="root") return;
+  var w=workshopAll();
+  w.mindmap=w.mindmap.map(function(n){ if(n.id===id||mmIsDesc(id,n,w.mindmap)){ if(n.color!=="root") n.color=color; } return n; });
+  saveLocal(); cloudSave(); mmRender();
+}
+function mmCommitEdit(){
+  var inp=document.querySelector("#mmMount [data-mm-input]"); if(!inp) return;
+  var id=inp.getAttribute("data-mm-input"); var n=mgFindMM(id); if(n){ n.text=inp.value.trim()||n.text; }
+  mgMM.editing=null; saveLocal(); cloudSave(); mmRender();
+}
+function mmRender(){
+  var el=document.getElementById("mmMount"); if(!el) return;
+  var w=workshopAll(); var nodes=w.mindmap;
+  var NC={root:{bg:"#f54001",border:"#f54001",text:"#fffbf5"},amber:{bg:"#fdeed3",border:"#e8c98f",text:"#5a4a33"},mint:{bg:"#e3efdd",border:"#b8d0ab",text:"#44573c"},sky:{bg:"#e2ecf5",border:"#b3c9de",text:"#3c5063"},rose:{bg:"#fbe3df",border:"#ecb8b0",text:"#6b4239"}};
+  var NW=168,NH=46;
+  var byId={}; nodes.forEach(function(n){byId[n.id]=n;});
+  var paths=nodes.filter(function(n){return n.parentId;}).map(function(n){
+    var p=byId[n.parentId]; if(!p) return ""; var x1=p.x,y1=p.y,x2=n.x,y2=n.y,mx=(x1+x2)/2;
+    return '<path d="M '+x1+' '+y1+' C '+mx+' '+y1+', '+mx+' '+y2+', '+x2+' '+y2+'" fill="none" stroke="'+(NC[n.color]?NC[n.color].border:"#ddd2c2")+'" stroke-width="'+(2/mgMM.zoom*Math.min(mgMM.zoom,1.4))+'" opacity="0.9"/>';
+  }).join("");
+  var nodeHtml=nodes.map(function(n){
+    var c=NC[n.color]||NC.amber; var isSel=mgMM.sel===n.id;
+    var inner = (mgMM.editing===n.id) ? '<input class="mm-in" data-mm-input="'+n.id+'" value="'+escapeHtml(n.text)+'" style="color:'+c.text+'">' : '<span style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">'+escapeHtml(n.text)+'</span>';
+    return '<div class="mm-node'+(isSel?" nsel":"")+'" data-mm-node="'+n.id+'" style="left:'+(n.x-NW/2)+'px;top:'+(n.y-NH/2)+'px;width:'+NW+'px;height:'+NH+'px;background:'+c.bg+';border-color:'+(isSel?"#f54001":c.border)+';color:'+c.text+'">'+inner+'</div>';
+  }).join("");
+  el.innerHTML='<div class="mm-stage" id="mmStage" style="transform:translate('+mgMM.pan.x+'px,'+mgMM.pan.y+'px)"><div style="transform:scale('+mgMM.zoom+');transform-origin:0 0">'
+    +'<svg style="position:absolute;overflow:visible;left:0;top:0;width:1px;height:1px">'+paths+'</svg>'+nodeHtml+'</div></div>'
+    +'<div class="mm-hint">单击选中 · 双击改字 · 拖拽移动 · 滚轮缩放 · 拖空白平移<br>Tab 加子节点 · Enter 加同级 · Delete 删除</div>';
+  if(mgMM.editing){
+    var inp=el.querySelector("[data-mm-input]"); if(inp){ inp.focus(); inp.select();
+      inp.addEventListener("blur", mmCommitEdit);
+      inp.addEventListener("keydown", function(ev){ ev.stopPropagation(); if(ev.key==="Enter") mmCommitEdit(); if(ev.key==="Escape"){ mgMM.editing=null; mmRender(); } });
+    }
+  }
+}
+/* 人物 / 情节点 弹窗 */
+function mgOpenCharModal(existing){
+  var c=existing || {id:"",name:"",role:"",appearance:"",personality:"",goal:"",arc:""};
+  var body=''
+    +'<label class="mg-field"><span>姓名</span><input class="mg-input" id="mgChName" value="'+escapeHtml(c.name)+'"></label>'
+    +'<label class="mg-field"><span>身份 / 角色</span><input class="mg-input" id="mgChRole" value="'+escapeHtml(c.role)+'"></label>'
+    +'<label class="mg-field"><span>外貌速写</span><input class="mg-input" id="mgChApp" value="'+escapeHtml(c.appearance)+'"></label>'
+    +'<label class="mg-field"><span>性格关键词</span><input class="mg-input" id="mgChPer" value="'+escapeHtml(c.personality)+'"></label>'
+    +'<label class="mg-field"><span>想要什么（目标）</span><input class="mg-input" id="mgChGoal" value="'+escapeHtml(c.goal)+'"></label>'
+    +'<label class="mg-field"><span>弧光（从什么到什么）</span><input class="mg-input" id="mgChArc" value="'+escapeHtml(c.arc)+'"></label>'
+    +'<div class="mg-modal-ops"><button class="btn" data-mg-cancel>取消</button><button class="btn primary" data-mg-save>保存人物</button></div>';
+  mgOpenModal(existing?"编辑人物 · "+c.name:"新建人物卡", body, {onSave:function(box){
+    var name=box.querySelector("#mgChName").value.trim(); if(!name){ alert("请填写姓名"); return; }
+    var w=workshopAll();
+    var rec={id:c.id||("c"+Date.now().toString(36)+Math.random().toString(36).slice(2,5)),name:name,role:box.querySelector("#mgChRole").value.trim(),appearance:box.querySelector("#mgChApp").value.trim(),personality:box.querySelector("#mgChPer").value.trim(),goal:box.querySelector("#mgChGoal").value.trim(),arc:box.querySelector("#mgChArc").value.trim()};
+    if(existing){ for(var i=0;i<w.characters.length;i++) if(w.characters[i].id===c.id) w.characters[i]=rec; } else w.characters.push(rec);
+    saveLocal(); cloudSave(); mgCloseModal(); renderWritingPlot();
+  }});
+}
+function mgOpenPlotModal(existing, actDefault){
+  var p=existing || {id:"",act:actDefault||1,title:"",desc:""};
+  var opts=[1,2,3].map(function(a){return '<option value="'+a+'"'+(p.act==a?" selected":"")+'>'+["第一幕 · 建置","第二幕 · 对抗","第三幕 · 解决"][a-1]+'</option>';}).join("");
+  var body=''
+    +'<label class="mg-field"><span>所属幕</span><select class="mg-select" id="mgPpAct">'+opts+'</select></label>'
+    +'<label class="mg-field"><span>节点名称</span><input class="mg-input" id="mgPpTitle" value="'+escapeHtml(p.title)+'" placeholder="例如：中点反转"></label>'
+    +'<label class="mg-field"><span>发生了什么</span><textarea class="mg-textarea" id="mgPpDesc" rows="4" placeholder="用一两句话说清这个节点上发生的事件与变化…">'+escapeHtml(p.desc)+'</textarea></label>'
+    +'<div class="mg-modal-ops"><button class="btn" data-mg-cancel>取消</button><button class="btn primary" data-mg-save>保存</button></div>';
+  mgOpenModal(existing?"编辑情节点":"添加情节点", body, {onSave:function(box){
+    var title=box.querySelector("#mgPpTitle").value.trim(); if(!title){ alert("请填写节点名称"); return; }
+    var w=workshopAll();
+    var rec={id:p.id||("p"+Date.now().toString(36)+Math.random().toString(36).slice(2,5)),act:parseInt(box.querySelector("#mgPpAct").value,10),title:title,desc:box.querySelector("#mgPpDesc").value.trim()};
+    if(existing){ for(var i=0;i<w.plotPoints.length;i++) if(w.plotPoints[i].id===p.id) w.plotPoints[i]=rec; } else w.plotPoints.push(rec);
+    saveLocal(); cloudSave(); mgCloseModal(); renderWritingPlot();
+  }});
+}
+function mgOpenBookModal(){
+  var body='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><label class="mg-field"><span>书名</span><input class="mg-input" id="mgBkBook"></label><label class="mg-field"><span>作者</span><input class="mg-input" id="mgBkAuthor"></label></div>'
+    +'<label class="mg-field"><span>评分</span><select class="mg-select" id="mgBkRate">'+[5,4,3,2,1].map(function(n){return '<option value="'+n+'">'+("★".repeat(n))+'（'+n+' 星）</option>';}).join("")+'</select></label>'
+    +'<label class="mg-field"><span>笔记（建议写：这本书教会我什么写法？）</span><textarea class="mg-textarea" id="mgBkNote" rows="5" placeholder="不只记感想，更要记下可以学的技法…"></textarea></label>'
+    +'<div class="mg-modal-ops"><button class="btn" data-mg-cancel>取消</button><button class="btn primary" data-mg-save>保存</button></div>';
+  mgOpenModal("记一条阅读笔记", body, {onSave:function(box){
+    var book=box.querySelector("#mgBkBook").value.trim(); if(!book){ alert("请填写书名"); return; }
+    var w=workshopAll();
+    w.bookNotes.unshift({id:"b"+Date.now().toString(36)+Math.random().toString(36).slice(2,5),book:book,author:box.querySelector("#mgBkAuthor").value.trim(),note:box.querySelector("#mgBkNote").value.trim(),rating:parseInt(box.querySelector("#mgBkRate").value,10),createdAt:today()});
+    saveLocal(); cloudSave(); mgCloseModal(); renderWritingLearn();
+  }});
+}
+/* ---- 学习中心 ---- */
+function renderWritingLearn(){
+  var el=document.getElementById("wLearn"); if(!el) return;
+  var w=workshopAll();
+  var ex=MG_EXCERPTS[new Date().getDate()%MG_EXCERPTS.length];
+  var subs=[["courses","技巧微课 "+w.courses.filter(function(c){return c.done;}).length+"/"+w.courses.length],["excerpts","摘录本"],["books","阅读笔记 "+w.bookNotes.length]];
+  var h='<div class="lrn-daily"><div class="wkick" style="color:#f54001">每日精读 · CLOSE READING</div><p class="lrn-q">'+escapeHtml(ex.t)+'</p><div style="font-size:12px;color:#8a7d6b;margin-top:2px">—— '+escapeHtml(ex.s)+'</div><div class="lrn-qw"><b>好在哪里：</b>'+escapeHtml(ex.why)+'</div></div>';
+  h+='<div class="wkick">LEARNING</div><div class="wsec-title">学习中心</div>'
+    +'<div class="wdesc">写作是可以练习的手艺：拆解技巧微课、精读经典摘录、记录阅读笔记——把输入变成手上的功夫。</div>';
+  h+='<div class="wsub">'+subs.map(function(s){return '<button data-act="learn-sub" data-sub="'+s[0]+'"'+(learnTab===s[0]?' class="active"':'')+'>'+s[1]+'</button>';}).join("")+'</div>';
+  if(learnTab==="courses") h+=mgCoursesHtml();
+  else if(learnTab==="excerpts") h+=mgExcerptsHtml();
+  else if(learnTab==="books") h+=mgBooksHtml();
+  el.innerHTML=h;
+}
+function mgCoursesHtml(){
+  var w=workshopAll();
+  return '<div class="lrn-courses">'+w.courses.map(function(c){
+    var open=mgOpenCourse===c.id;
+    var pts=open? '<ul class="lrn-points">'+c.points.map(function(p,i){return '<li data-n="'+("0"+(i+1)).slice(-2)+'">'+escapeHtml(p)+'</li>';}).join("")+'</ul>' : "";
+    return '<div class="lrn-c'+(c.done?" done":"")+'"><div class="lrn-tags"><span class="lrn-tag">'+escapeHtml(c.category)+'</span><span class="lrn-min">≈'+c.minutes+' min</span>'+(c.done?'<span class="lrn-tag done">已学完</span>':'')+'</div>'
+      +'<h3>'+escapeHtml(c.title)+'</h3><div class="lrn-sum">'+escapeHtml(c.summary)+'</div>'+pts
+      +'<div class="lrn-ops"><button class="btn mini" data-act="cs-open" data-id="'+c.id+'">'+(open?"收起":"展开学习")+'</button><button class="btn mini'+(c.done?"":" primary")+'" data-act="cs-toggle" data-id="'+c.id+'">'+(c.done?"标记未学":"学完打卡")+'</button></div></div>';
+  }).join("")+'</div>';
+}
+function mgExcerptsHtml(){
+  return '<div style="margin:14px 0 8px;font-size:13px;color:#8a7d6b">摘录本 · 经典句式拆解</div>'
+    +MG_EXCERPTS.map(function(e,i){return '<div class="lrn-ex"><span class="lrn-ex-n">'+("0"+(i+1)).slice(-2)+'</span><div><p>'+escapeHtml(e.t)+'</p><div class="lrn-ex-why">—— '+escapeHtml(e.s)+'<br><span style="color:#f54001">技法：</span>'+escapeHtml(e.why)+'</div></div></div>';}).join("")
+    +'<p style="font-size:12px;color:#8a7d6b;margin-top:10px">摘录本的用法：不只抄句子，要写出「它好在哪里」——这一步才是把别人的功夫变成自己的。</p>';
+}
+function mgBooksHtml(){
+  var w=workshopAll();
+  var head='<div style="display:flex;justify-content:flex-end;margin-bottom:12px"><button class="btn primary" data-act="bn-add">＋ 记笔记</button></div>';
+  var body = w.bookNotes.length ? '<div class="lrn-courses">'+w.bookNotes.map(function(b){
+    return '<div class="lrn-book" style="position:relative"><div class="wrow-ops"><button class="del" data-act="bn-del" data-id="'+b.id+'">删除</button></div><h3>《'+escapeHtml(b.book)+'》</h3><div class="lrn-book-meta">'+escapeHtml(b.author)+' · <span style="color:#f54001">'+("★".repeat(b.rating)+"☆".repeat(5-b.rating))+'</span></div><div class="lrn-book-note">'+escapeHtml(b.note)+'</div><div class="lrn-book-date">'+escapeHtml(b.createdAt)+'</div></div>';
+  }).join("")+'</div>' : '<div class="todo-empty">还没有阅读笔记。读完一章，记下一条「可以偷师的技法」。</div>';
+  return head+body;
+}
+
 /* ---------- 管理 ---------- */
 function renderManage(){
   try{
@@ -2708,6 +3183,31 @@ document.addEventListener("click",function(e){
   else if(act==="wbook"){ const id=el.dataset.id; curBook=id; expandedBooks[id]=true; editTarget={kind:"book",bookId:id}; showInsp=false; switchWritingTab("studio"); }
   else if(act==="insp-add2"){ const tx=document.getElementById("inspText2"); const ca=document.getElementById("inspCat2"); const v=tx?tx.value.trim():""; if(!v) return; inspAll().push({id:"i"+Date.now(), text:v, cat:ca?ca.value:"随笔", ts:Date.now()}); saveLocal(); cloudSave(); renderWritingInsp(); if(tx) tx.value=""; }
   else if(act==="insp-del2"){ const id=el.dataset.id; const arr=inspAll(); const i=arr.findIndex(function(x){return x.id===id;}); if(i>=0){ arr.splice(i,1); saveLocal(); cloudSave(); renderWritingInsp(); } }
+  /* ---- 墨耕 · 构思工具 / 学习中心 ---- */
+  else if(act==="plot-sub"){ plotTab=el.dataset.sub; renderWritingPlot(); }
+  else if(act==="learn-sub"){ learnTab=el.dataset.sub; renderWritingLearn(); }
+  else if(act==="ch-add"){ mgOpenCharModal(null); }
+  else if(act==="ch-edit"){ const cc=mgFindChar(el.dataset.id); if(cc) mgOpenCharModal(cc); }
+  else if(act==="ch-del"){ const wc=workshopAll(); wc.characters=wc.characters.filter(function(x){return x.id!==el.dataset.id;}); saveLocal(); cloudSave(); renderWritingPlot(); }
+  else if(act==="pp-add"){ mgOpenPlotModal(null, parseInt(el.dataset.ppact,10)||1); }
+  else if(act==="pp-edit"){ const pp=mgFindPlot(el.dataset.id); if(pp) mgOpenPlotModal(pp, pp.act); }
+  else if(act==="pp-del"){ const wp=workshopAll(); wp.plotPoints=wp.plotPoints.filter(function(x){return x.id!==el.dataset.id;}); saveLocal(); cloudSave(); renderWritingPlot(); }
+  else if(act==="id-add"){ const tx=document.getElementById("idText"); const v=tx?tx.value.trim():""; if(!v) return; workshopAll().ideas.unshift({id:"i"+Date.now().toString(36)+Math.random().toString(36).slice(2,5), text:v, color:mgIdeaColor, pinned:false, createdAt:today()}); saveLocal(); cloudSave(); renderWritingPlot(); if(tx) tx.value=""; }
+  else if(act==="id-color"){ mgIdeaColor=el.dataset.color; renderWritingPlot(); }
+  else if(act==="id-pin"){ const wi=workshopAll(); const it=wi.ideas.find(function(x){return x.id===el.dataset.id;}); if(it) it.pinned=!it.pinned; saveLocal(); cloudSave(); renderWritingPlot(); }
+  else if(act==="id-del"){ const wd=workshopAll(); wd.ideas=wd.ideas.filter(function(x){return x.id!==el.dataset.id;}); saveLocal(); cloudSave(); renderWritingPlot(); }
+  else if(act==="cs-open"){ mgOpenCourse=(mgOpenCourse===el.dataset.id)?null:el.dataset.id; renderWritingLearn(); }
+  else if(act==="cs-toggle"){ const wl=workshopAll(); const cs=wl.courses.find(function(x){return x.id===el.dataset.id;}); if(cs) cs.done=!cs.done; saveLocal(); cloudSave(); renderWritingLearn(); }
+  else if(act==="bn-add"){ mgOpenBookModal(); }
+  else if(act==="bn-del"){ const wb=workshopAll(); wb.bookNotes=wb.bookNotes.filter(function(x){return x.id!==el.dataset.id;}); saveLocal(); cloudSave(); renderWritingLearn(); }
+  /* 思维导图 */
+  else if(act==="mm-addchild"){ if(mgMM.sel) mmAddChild(mgMM.sel); }
+  else if(act==="mm-addsib"){ if(mgMM.sel&&mgMM.sel!=="root") mmAddSibling(mgMM.sel); }
+  else if(act==="mm-rename"){ if(mgMM.sel){ mgMM.editing=mgMM.sel; mmRender(); } }
+  else if(act==="mm-del"){ if(mgMM.sel&&mgMM.sel!=="root") mmRemoveNode(mgMM.sel); }
+  else if(act==="mm-color"){ if(mgMM.sel&&mgMM.sel!=="root") mmSetColor(mgMM.sel, el.dataset.mmColor); }
+  else if(act==="mm-zoom"){ mgMM.zoom=Math.min(2,Math.max(0.35, mgMM.zoom+(parseInt(el.dataset.d,10)>0?0.15:-0.15))); mmRender(); }
+  else if(act==="mm-reset"){ mgMM.zoom=1; mgMM.pan={x:0,y:0}; mmRender(); }
   else if(act==="calday"){ calToggle(el.dataset.ds); }
   else if(act==="ttcheck"){
     const it=el.dataset.it, ds=el.dataset.ds;
@@ -3841,7 +4341,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-10h";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-10i";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
