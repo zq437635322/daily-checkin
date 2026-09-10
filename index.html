@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-09-10c</title>
+<title>每日打卡 · 构建2026-09-10d</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -298,7 +298,7 @@ body.mode-pc .habit-heat-label{width:120px}
 body.mode-pc .sleep-field input{min-height:38px}
 
 /* ---------- PC端：TaskFlow 左侧边栏 + 右侧内容区布局 ---------- */
-body.mode-pc #view-habit.active{display:flex;gap:0;align-items:stretch;padding:0;background:var(--tf-bg);min-height:calc(100vh - 56px)}
+body.mode-pc #view-habit.active{display:flex;gap:0;align-items:stretch;padding:0;margin:0 -32px;background:var(--tf-bg);min-height:calc(100vh - 56px)}
 body.mode-pc #view-habit .tf-sidebar{display:flex;flex-direction:column;width:226px;flex-shrink:0;background:#fff;border-right:1px solid var(--tf-border-soft);padding:18px 0 14px;position:sticky;top:0;height:calc(100vh - 56px);overflow-y:auto;z-index:5}
 body.mode-pc #view-habit .tf-main{flex:1;min-width:0;padding:22px 28px;overflow-y:auto}
 body.mode-pc #view-habit .tf-nav{display:none}
@@ -3611,7 +3611,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-10c";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-10d";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
