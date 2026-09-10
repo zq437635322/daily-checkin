@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-09-10d</title>
+<title>每日打卡 · 构建2026-09-10e</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -320,6 +320,20 @@ body.mode-pc .tf-side-icon{width:18px;height:18px;opacity:.9;stroke:currentColor
   body.mode-pc #view-habit .tf-sidebar{display:none}
   body.mode-pc #view-habit .tf-nav{display:flex}
 }
+
+/* ---------- 手机版待办：精简为「待办清单」单一视图 ---------- */
+/* 隐藏：载入示例 / 手动添加年度目标 按钮，以及 仪表盘/年度目标/已删除/操作日志 四个分区 */
+body.mode-mobile #view-habit .tf-topbar-right button[onclick="tfLoadDemo()"],
+body.mode-mobile #view-habit .tf-topbar-right button[onclick="tfOpenGoalModal()"]{display:none !important}
+body.mode-mobile #view-habit [data-tfpage="dashboard"],
+body.mode-mobile #view-habit [data-tfpage="goals"],
+body.mode-mobile #view-habit [data-tfpage="trash"],
+body.mode-mobile #view-habit [data-tfpage="logs"]{display:none !important}
+body.mode-mobile #view-habit #tfPage-dashboard,
+body.mode-mobile #view-habit #tfPage-goals,
+body.mode-mobile #view-habit #tfPage-trash,
+body.mode-mobile #view-habit #tfPage-logs{display:none !important}
+body.mode-mobile #view-habit .tf-nav{display:none !important}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2901,6 +2915,13 @@ function tfGo(p){
   if(pd) pd.textContent=TF_PAGE_META[p][1];
   tfRenderAll();
 }
+/* 手机版：待办模块精简为「待办清单」单一视图，若当前停留在被隐藏的分区则回退到待办清单 */
+function tfEnforceMobilePage(){
+  if(MODE!=="mobile") return;
+  var ap=document.querySelector("#view-habit .page.active");
+  var p=ap ? ap.id.replace(/^tfPage-/, "") : "dashboard";
+  if(p!=="todos") tfGo("todos");
+}
 /* =====================================================
    数据层
 ===================================================== */
@@ -3611,7 +3632,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-10d";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-10e";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
@@ -3641,6 +3662,7 @@ function applyMode(m){
     const u=new URL(location.href); u.searchParams.set("mode",MODE);
     history.replaceState(null,"",u.pathname+u.search+u.hash);
   }catch(e){}
+  tfEnforceMobilePage();
 }
 (function(){
   applyMode(MODE);   // 进入页面即套用模式（URL 参数优先）
