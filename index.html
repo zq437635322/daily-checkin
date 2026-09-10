@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-09-10f</title>
+<title>每日打卡 · 构建2026-09-10g</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -336,6 +336,54 @@ body.mode-mobile #view-habit #tfPage-logs{display:none !important}
 /* 顶部 chip 导航仅保留「待办清单」入口，其余隐藏 */
 body.mode-mobile #view-habit .tf-nav{display:flex !important}
 body.mode-mobile #view-habit .tf-nav .tf-chip:not([data-tfpage="todos"]){display:none !important}
+
+/* ---------- 自定义日期时间选择器 ---------- */
+#view-habit .tf-dtp-mask{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box}
+#view-habit .tf-dtp-mask.hidden{display:none !important}
+#view-habit .tf-dtp{background:#fff;border-radius:16px;width:720px;max-width:100%;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden}
+#view-habit .tf-dtp-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--tf-border-soft)}
+#view-habit .tf-dtp-title{font-size:16px;font-weight:700}
+#view-habit .tf-dtp-close{width:28px;height:28px;border-radius:6px;border:none;background:transparent;color:var(--tf-text3);cursor:pointer;font-size:18px;line-height:1}
+#view-habit .tf-dtp-close:hover{background:var(--tf-surface3);color:var(--tf-text)}
+#view-habit .tf-dtp-body{display:flex;flex:1;min-height:0}
+#view-habit .tf-dtp-cal{flex:1;padding:16px;min-width:0;display:flex;flex-direction:column}
+#view-habit .tf-dtp-cal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+#view-habit .tf-dtp-cal-hd button{width:28px;height:28px;border:1px solid var(--tf-border);background:#fff;border-radius:6px;cursor:pointer;color:var(--tf-text2);font-size:16px}
+#view-habit .tf-dtp-cal-hd button:hover{border-color:var(--mint);color:var(--mint)}
+#view-habit .tf-dtp-cal-hd span{font-weight:700;font-size:15px}
+#view-habit .tf-dtp-cal-weeks{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px}
+#view-habit .tf-dtp-cal-weeks>div{text-align:center;font-size:11px;color:var(--tf-text3);padding:6px 0}
+#view-habit .tf-dtp-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;overflow-y:auto}
+#view-habit .tf-dtp-cell{position:relative;border:1px solid var(--tf-border-soft);border-radius:8px;background:var(--tf-surface);padding:6px 4px;min-height:54px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;transition:all .15s}
+#view-habit .tf-dtp-cell:hover{border-color:var(--mint)}
+#view-habit .tf-dtp-cell.out{opacity:.35}
+#view-habit .tf-dtp-cell.we{color:var(--tf-text3)}
+#view-habit .tf-dtp-cell.hol{background:var(--red-dim);border-color:rgba(229,72,77,.35);color:var(--red)}
+#view-habit .tf-dtp-cell.makeup{background:var(--amber-dim);border-color:rgba(217,134,11,.35);color:var(--amber)}
+#view-habit .tf-dtp-cell.today{box-shadow:0 0 0 1.5px var(--mint-mid)}
+#view-habit .tf-dtp-cell.active{background:var(--mint-dim);border-color:var(--mint);box-shadow:0 0 0 1px var(--mint)}
+#view-habit .tf-dtp-cell .num{font-size:14px;font-weight:700;line-height:1;margin-top:2px}
+#view-habit .tf-dtp-cell .sub{font-size:9px;color:inherit;opacity:.8;margin-top:2px;text-align:center;line-height:1.2;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#view-habit .tf-dtp-cell .dot{position:absolute;top:4px;right:4px;width:5px;height:5px;border-radius:50%}
+#view-habit .tf-dtp-time{width:180px;border-left:1px solid var(--tf-border-soft);padding:16px;display:flex;flex-direction:column;gap:12px}
+#view-habit .tf-dtp-time-title{font-size:14px;font-weight:700}
+#view-habit .tf-dtp-time-row{display:flex;align-items:center;gap:6px}
+#view-habit .tf-dtp-time-row select{flex:1;padding:8px 6px;border:1px solid var(--tf-border);border-radius:8px;background:var(--tf-surface);font-size:14px;color:var(--tf-text)}
+#view-habit .tf-dtp-legend{display:flex;flex-direction:column;gap:6px;margin-top:auto;padding-top:12px;border-top:1px solid var(--tf-border-soft)}
+#view-habit .tf-dtp-leg{font-size:11px;color:var(--tf-text2);display:flex;align-items:center;gap:6px}
+#view-habit .tf-dtp-leg::before{content:"";width:10px;height:10px;border-radius:2px;display:inline-block}
+#view-habit .tf-dtp-leg.hol::before{background:var(--red)}
+#view-habit .tf-dtp-leg.makeup::before{background:var(--amber)}
+#view-habit .tf-dtp-leg.weekend::before{background:#94a3b8}
+#view-habit .tf-dtp-leg.work::before{background:#e3e9e6}
+#view-habit .tf-dtp-tips{font-size:12px;color:var(--tf-text2);min-height:40px;padding:8px;background:var(--tf-surface2);border-radius:8px;line-height:1.5}
+#view-habit .tf-dtp-foot{display:flex;justify-content:flex-end;gap:8px;padding:12px 16px;border-top:1px solid var(--tf-border-soft)}
+@media (max-width:700px){
+  #view-habit .tf-dtp-mask{align-items:flex-end;padding:0}
+  #view-habit .tf-dtp{width:100%;max-width:none;border-radius:16px 16px 0 0;max-height:92vh}
+  #view-habit .tf-dtp-body{flex-direction:column}
+  #view-habit .tf-dtp-time{width:auto;border-left:none;border-top:1px solid var(--tf-border-soft);padding:12px 16px}
+}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -846,7 +894,7 @@ body.mode-mobile #view-habit .tf-nav .tf-chip:not([data-tfpage="todos"]){display
         <div class="tf-modal-title" id="tfTodoModalTitle">新建待办任务</div>
         <div class="form-row"><label>任务内容 *</label><input id="tfTTitle" placeholder="例：提交季度总结报告"></div>
         <div class="form-grid">
-          <div class="form-row"><label>截止时间 *</label><input id="tfTDeadline" type="datetime-local"></div>
+          <div class="form-row"><label>截止时间 *</label><input id="tfTDeadline" type="text" readonly placeholder="选择日期时间" onclick="tfOpenDateTimePicker('tfTDeadline', this.value)"></div>
           <div class="form-row"><label>优先级</label>
             <select id="tfTPriority"><option value="high">高</option><option value="mid" selected>中</option><option value="low">低</option></select>
           </div>
@@ -873,6 +921,49 @@ body.mode-mobile #view-habit .tf-nav .tf-chip:not([data-tfpage="todos"]){display
     </div>
 
     <div class="toast-wrap" id="tfToastWrap"></div>
+
+    <!-- ===== 自定义日期时间选择器 ===== -->
+    <div class="tf-dtp-mask hidden" id="tfDTpMask" onclick="tfDtpCancel()">
+      <div class="tf-dtp" onclick="event.stopPropagation()">
+        <div class="tf-dtp-head">
+          <div class="tf-dtp-title">选择截止时间</div>
+          <button class="tf-dtp-close" onclick="tfDtpCancel()">✕</button>
+        </div>
+        <div class="tf-dtp-body">
+          <div class="tf-dtp-cal">
+            <div class="tf-dtp-cal-hd">
+              <button onclick="tfDtpAddMonth(-1)">‹</button>
+              <span id="tfDtpYM">2026年09月</span>
+              <button onclick="tfDtpAddMonth(1)">›</button>
+            </div>
+            <div class="tf-dtp-cal-weeks">
+              <div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div><div>日</div>
+            </div>
+            <div class="tf-dtp-cal-grid" id="tfDtpGrid"></div>
+          </div>
+          <div class="tf-dtp-time">
+            <div class="tf-dtp-time-title">时间</div>
+            <div class="tf-dtp-time-row">
+              <select id="tfDtpHour" onchange="tfDtpUpdateTips()"></select>
+              <span>:</span>
+              <select id="tfDtpMin" onchange="tfDtpUpdateTips()"></select>
+            </div>
+            <div class="tf-dtp-legend">
+              <div class="tf-dtp-leg hol">节假日</div>
+              <div class="tf-dtp-leg makeup">调休上班</div>
+              <div class="tf-dtp-leg weekend">周末</div>
+              <div class="tf-dtp-leg work">工作日</div>
+            </div>
+            <div class="tf-dtp-tips" id="tfDtpTips">请选择日期和时间</div>
+          </div>
+        </div>
+        <div class="tf-dtp-foot">
+          <button class="btn ghost sm" onclick="tfDtpClear()">清除</button>
+          <button class="btn ghost sm" onclick="tfDtpCancel()">取消</button>
+          <button class="btn sm" onclick="tfDtpConfirm()">确定</button>
+        </div>
+      </div>
+    </div>
     </div>
   </section>
 
@@ -3232,6 +3323,121 @@ function tfStatusLabel(s){ return {todo:'未开始',doing:'进行中',done:'已�
 
 
 /* =====================================================
+   日期时间选择器（替代原生 datetime-local，支持节假日/工作日展示）
+===================================================== */
+let TF_DTP = { inputId:null, sel:'', year:2026, month:9, hour:10, min:0 };
+function tfDtpPad(n){ return String(n).padStart(2,'0'); }
+function tfParseDTP(s){
+  if(!s) return '';
+  s = s.trim();
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T\s])(\d{2}):(\d{2})/);
+  if(!m) return '';
+  return `${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}`;
+}
+function tfFmtDTP(iso){
+  if(!iso) return '';
+  const raw = tfParseDTP(iso); if(!raw) return iso;
+  const d = new Date(raw); if(isNaN(d)) return iso;
+  const ds = fmt(d);
+  const typ = dayType(ds);
+  const t = `${tfDtpPad(d.getHours())}:${tfDtpPad(d.getMinutes())}`;
+  const wd = ['周日','周一','周二','周三','周四','周五','周六'][d.getDay()];
+  const tag = {holiday:'节假日',makeup:'调休上班',weekend:'周末',work:'工作日'}[typ] || '';
+  const hol = HOLIDAY_2026.name[ds] || '';
+  return `${ds} ${t} ${wd}${tag?' · '+tag:''}${hol?' · '+hol:''}`;
+}
+function tfOpenDateTimePicker(inputId, value){
+  TF_DTP.inputId = inputId;
+  const raw = tfParseDTP(value);
+  let d = new Date();
+  let h = d.getHours(), mn = d.getMinutes();
+  if(raw){
+    const [dd,tt] = raw.split('T'); const [yy,mm,dd2] = dd.split('-').map(Number); const [th,tm] = tt.split(':').map(Number);
+    d = new Date(yy, mm-1, dd2); h = th; mn = tm;
+  } else {
+    d.setHours(d.getHours()+1); d.setMinutes(0); h = d.getHours(); mn = 0;
+  }
+  TF_DTP.year = d.getFullYear(); TF_DTP.month = d.getMonth()+1; TF_DTP.hour = h; TF_DTP.min = mn;
+  TF_DTP.sel = fmt(d);
+  const mask = document.getElementById('tfDTpMask'); if(mask) mask.classList.remove('hidden');
+  tfDtpRender();
+}
+function tfDtpClose(){ const mask=document.getElementById('tfDTpMask'); if(mask) mask.classList.add('hidden'); }
+function tfDtpCancel(){ tfDtpClose(); }
+function tfDtpClear(){ const input=TF_DTP.inputId?document.getElementById(TF_DTP.inputId):null; if(input) input.value=''; tfDtpClose(); }
+function tfDtpConfirm(){
+  const ds = TF_DTP.sel || fmt(new Date());
+  const h = +document.getElementById('tfDtpHour').value;
+  const mn = +document.getElementById('tfDtpMin').value;
+  const iso = `${ds}T${tfDtpPad(h)}:${tfDtpPad(mn)}`;
+  const input = TF_DTP.inputId ? document.getElementById(TF_DTP.inputId) : null;
+  if(input) input.value = tfFmtDTP(iso);
+  tfDtpClose();
+}
+function tfDtpAddMonth(delta){
+  let y=TF_DTP.year, m=TF_DTP.month+delta;
+  if(m>12){ m=1; y++; } else if(m<1){ m=12; y--; }
+  TF_DTP.year=y; TF_DTP.month=m; tfDtpRender();
+}
+function tfDtpPickDate(ds){ TF_DTP.sel=ds; tfDtpRender(); }
+function tfDtpUpdateTips(){
+  const tip=document.getElementById('tfDtpTips'); if(!tip) return;
+  if(!TF_DTP.sel){ tip.textContent='请选择日期和时间'; return; }
+  const h=tfDtpPad(+document.getElementById('tfDtpHour').value);
+  const mn=tfDtpPad(+document.getElementById('tfDtpMin').value);
+  const ds=TF_DTP.sel; const typ=dayType(ds); const wd=weekdayOf(ds);
+  const tag={holiday:'法定节假日',makeup:'调休上班',weekend:'周末',work:'工作日'}[typ] || '';
+  const hol=HOLIDAY_2026.name[ds] || '';
+  let html=`已选 <b>${ds} ${wd}</b> ${h}:${mn}`;
+  if(tag){ html += `<br><span style="color:${DAY_COLOR[typ]};font-weight:700">●</span> ${tag}${hol?' · '+hol:''}`; }
+  tip.innerHTML=html;
+}
+function tfDtpRender(){
+  const y=TF_DTP.year, m=TF_DTP.month;
+  const first=new Date(y, m-1, 1);
+  const firstWD=(first.getDay()+6)%7;
+  const daysInMonth=new Date(y, m, 0).getDate();
+  const prevDays=new Date(y, m-1, 0).getDate();
+  const cells=[];
+  for(let i=0;i<firstWD;i++){ const d=prevDays-firstWD+1+i; cells.push({y:y,m:m-1,d:d,inMonth:false}); }
+  for(let d=1;d<=daysInMonth;d++) cells.push({y:y,m:m,d:d,inMonth:true});
+  let nm=1; while(cells.length<42){ cells.push({y:y,m:m+1,d:nm,inMonth:false}); nm++; }
+  let html='';
+  cells.forEach(function(c){
+    const dt=new Date(c.y, c.m-1, c.d);
+    const ds=fmt(dt);
+    const typ=dayType(ds);
+    const hol=HOLIDAY_2026.name[ds] || '';
+    const isWE=dt.getDay()===0||dt.getDay()===6;
+    const isToday=ds===today();
+    const isSel=ds===TF_DTP.sel;
+    const cls=['tf-dtp-cell']; if(!c.inMonth) cls.push('out'); if(isWE) cls.push('we'); if(typ==='holiday') cls.push('hol'); if(typ==='makeup') cls.push('makeup'); if(isToday) cls.push('today'); if(isSel) cls.push('active');
+    let sub=hol || (typ==='makeup'?'调休':'') || (typ==='holiday'?'节':'');
+    if(!sub && isToday) sub='今天';
+    html += '<div class="'+cls.join(' ')+'" onclick="tfDtpPickDate(\''+ds+'\')">'
+          + '<div class="num">'+c.d+'</div>'
+          + (sub?'<div class="sub">'+escapeHtml(sub)+'</div>':'')
+          + '</div>';
+  });
+  const grid=document.getElementById('tfDtpGrid'); if(grid) grid.innerHTML=html;
+  const ym=document.getElementById('tfDtpYM'); if(ym) ym.textContent=y+'年'+tfDtpPad(m)+'月';
+  // 时间选项
+  const hsel=document.getElementById('tfDtpHour');
+  if(hsel){
+    let opts='';
+    for(let i=0;i<24;i++){ const v=tfDtpPad(i); opts += '<option value="'+v+'"'+(i===TF_DTP.hour?' selected':'')+'>'+v+'</option>'; }
+    hsel.innerHTML=opts;
+  }
+  const msel=document.getElementById('tfDtpMin');
+  if(msel){
+    let opts='';
+    for(let i=0;i<60;i++){ const v=tfDtpPad(i); opts += '<option value="'+v+'"'+(i===TF_DTP.min?' selected':'')+'>'+v+'</option>'; }
+    msel.innerHTML=opts;
+  }
+  tfDtpUpdateTips();
+}
+
+/* =====================================================
    待办 CRUD
 ===================================================== */
 var TF_EDIT_TODO = null;
@@ -3241,15 +3447,14 @@ function tfOpenTodoModal(id){
   if(id){
     const t = TFDB().todos.find(x=>x.id===id);
     document.getElementById('tfTTitle').value = t.title;
-    document.getElementById('tfTDeadline').value = t.deadline ? t.deadline.slice(0,16) : '';
+    document.getElementById('tfTDeadline').value = t.deadline ? tfFmtDTP(t.deadline) : '';
     document.getElementById('tfTPriority').value = t.priority;
     document.getElementById('tfTCategory').value = t.category||'';
     document.getElementById('tfTNote').value = t.note||'';
   }else{
     document.getElementById('tfTTitle').value = '';
     const d = new Date(); d.setDate(d.getDate()+1); d.setMinutes(0);
-    document.getElementById('tfTDeadline').value =
-      `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}T${String(d.getHours()).padStart(2,'0')}:00`;
+    document.getElementById('tfTDeadline').value = tfFmtDTP(`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:00`);
     document.getElementById('tfTPriority').value = 'mid';
     document.getElementById('tfTCategory').value = '';
     document.getElementById('tfTNote').value = '';
@@ -3264,7 +3469,9 @@ function tfSaveTodo(){
   const note = document.getElementById('tfTNote').value.trim();
   if(!title){ tfToast('请填写任务内容', true); return; }
   if(!dlRaw){ tfToast('请设置截止时间', true); return; }
-  const deadline = new Date(dlRaw).toISOString();
+  const dlIso = tfParseDTP(dlRaw);
+  if(!dlIso){ tfToast('截止时间格式不正确', true); return; }
+  const deadline = new Date(dlIso).toISOString();
   if(TF_EDIT_TODO){
     const t = TFDB().todos.find(x=>x.id===TF_EDIT_TODO);
     const changes = [];
@@ -3634,7 +3841,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-10f";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-10g";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
