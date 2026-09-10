@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-09-09q</title>
+<title>每日打卡 · 构建2026-09-10a</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -296,6 +296,30 @@ body.mode-pc #view-stats.active{display:grid;grid-template-columns:1fr 1fr;gap:0
 body.mode-pc #view-stats>.section:first-child{grid-column:1/-1}
 body.mode-pc .habit-heat-label{width:120px}
 body.mode-pc .sleep-field input{min-height:38px}
+
+/* ---------- PC端：TaskFlow 左侧边栏 + 右侧内容区布局 ---------- */
+body.mode-pc #view-habit{display:flex;gap:0;align-items:stretch;padding:0;background:var(--tf-bg);min-height:calc(100vh - 56px)}
+body.mode-pc #view-habit .tf-sidebar{display:flex;flex-direction:column;width:226px;flex-shrink:0;background:#fff;border-right:1px solid var(--tf-border-soft);padding:18px 0 14px;position:sticky;top:0;height:calc(100vh - 56px);overflow-y:auto;z-index:5}
+body.mode-pc #view-habit .tf-main{flex:1;min-width:0;padding:22px 28px;overflow-y:auto}
+body.mode-pc #view-habit .tf-nav{display:none}
+body.mode-pc #view-habit .tf-topbar{align-items:flex-start;border-bottom:none;padding:0 0 18px;margin-bottom:0}
+body.mode-pc #view-habit .tf-page-title{font-size:22px}
+body.mode-pc #view-habit .tf-page-desc{font-size:12.5px}
+body.mode-pc .tf-sidebar-brand{padding:0 20px 16px;border-bottom:1px solid var(--tf-border-soft);margin-bottom:10px}
+body.mode-pc .tf-sidebar-logo{font-size:19px;font-weight:800;color:var(--tf-text);letter-spacing:.4px}
+body.mode-pc .tf-sidebar-sub{font-size:11px;color:var(--tf-text3);margin-top:2px;font-weight:500}
+body.mode-pc .tf-sidebar-menu{display:flex;flex-direction:column;gap:3px;padding:0 12px;flex:1}
+body.mode-pc .tf-side-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;font-size:13.5px;font-weight:600;color:var(--tf-text2);transition:all .15s;user-select:none}
+body.mode-pc .tf-side-item:hover{background:var(--tf-surface3);color:var(--tf-text)}
+body.mode-pc .tf-side-item.active{background:var(--mint-dim);color:var(--mint)}
+body.mode-pc .tf-side-item .tf-badge{margin-left:auto}
+body.mode-pc .tf-sidebar-footer{margin-top:auto;padding:14px 20px 0;font-size:11px;color:var(--tf-text3)}
+body.mode-pc .tf-side-icon{width:18px;height:18px;opacity:.9;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+@media (max-width:900px){
+  body.mode-pc #view-habit .tf-sidebar{display:none}
+  body.mode-pc #view-habit .tf-nav{display:flex}
+}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -376,6 +400,7 @@ body.mode-pc .sleep-field input{min-height:38px}
   --tf-mono:"SF Mono","JetBrains Mono",Consolas,"Courier New",monospace;
   background:var(--tf-bg); color:var(--tf-text); font-family:var(--tf-font); font-size:14px; line-height:1.6;
 }
+#view-habit .tf-sidebar{display:none}
 #view-habit *{box-sizing:border-box}
 #view-habit ::-webkit-scrollbar{width:8px;height:8px}
 #view-habit ::-webkit-scrollbar-thumb{background:#cdd5d0;border-radius:4px}
@@ -615,6 +640,40 @@ body.mode-pc .sleep-field input{min-height:38px}
 
   <!-- ============ 待办（拾光·TaskFlow：年度目标 → 季度 → 月度 + 待办清单） ============ -->
   <section class="view" id="view-habit">
+    <aside class="tf-sidebar">
+      <div class="tf-sidebar-brand">
+        <div class="tf-sidebar-logo">拾光·TaskFlow</div>
+        <div class="tf-sidebar-sub">个人目标与待办管理</div>
+      </div>
+      <nav class="tf-sidebar-menu">
+        <div class="tf-side-item active" data-tfpage="dashboard">
+          <svg class="tf-side-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect></svg>
+          <span>仪表盘</span>
+        </div>
+        <div class="tf-side-item" data-tfpage="goals">
+          <svg class="tf-side-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
+          <span>年度目标</span>
+          <span class="tf-badge gray" id="tfSideGoalCount">0</span>
+        </div>
+        <div class="tf-side-item" data-tfpage="todos">
+          <svg class="tf-side-icon" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path></svg>
+          <span>待办清单</span>
+          <span class="tf-badge red" id="tfSideOverdue" style="display:none">0</span>
+        </div>
+        <div class="tf-side-item" data-tfpage="trash">
+          <svg class="tf-side-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path></svg>
+          <span>已删除</span>
+          <span class="tf-badge gray" id="tfSideTrashCount">0</span>
+        </div>
+        <div class="tf-side-item" data-tfpage="logs">
+          <svg class="tf-side-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg>
+          <span>操作日志</span>
+          <span class="tf-badge gray" id="tfSideLogCount">0</span>
+        </div>
+      </nav>
+      <div class="tf-sidebar-footer">拾光·TaskFlow GTD</div>
+    </aside>
+    <div class="tf-main">
     <div class="tf-topbar">
       <div>
         <div class="tf-page-title" id="tfPageTitle">仪表盘</div>
@@ -798,6 +857,7 @@ body.mode-pc .sleep-field input{min-height:38px}
     </div>
 
     <div class="toast-wrap" id="tfToastWrap"></div>
+    </div>
   </section>
 
   <!-- ============ 统计 ============ -->
@@ -3490,14 +3550,14 @@ function tfRenderLogs(){
    导航计数 & 全局渲染
 ===================================================== */
 function tfRenderBadges(){
-  document.getElementById('tfNavGoalCount').textContent = TFDB().goals.filter(g=>!g.deleted).length;
+  const goalCount = TFDB().goals.filter(g=>!g.deleted).length;
   const trashN = TFDB().goals.filter(g=>g.deleted).length + TFDB().todos.filter(t=>t.deleted).length;
-  document.getElementById('tfNavTrashCount').textContent = trashN;
   const odN = TFDB().todos.filter(t=>!t.deleted && tfIsOverdue(t)).length;
-  const badge = document.getElementById('tfNavOverdue');
-  badge.style.display = odN ? 'flex' : 'none';
-  badge.textContent = odN;
-  document.getElementById('tfFootLogCount').textContent = TFDB().logs.length;
+  const logN = TFDB().logs.length;
+  ['tfNavGoalCount','tfSideGoalCount'].forEach(function(id){ const el=document.getElementById(id); if(el) el.textContent=goalCount; });
+  ['tfNavTrashCount','tfSideTrashCount'].forEach(function(id){ const el=document.getElementById(id); if(el) el.textContent=trashN; });
+  ['tfNavOverdue','tfSideOverdue'].forEach(function(id){ const el=document.getElementById(id); if(el){ el.style.display = odN ? 'flex' : 'none'; el.textContent = odN; } });
+  ['tfFootLogCount','tfSideLogCount'].forEach(function(id){ const el=document.getElementById(id); if(el) el.textContent=logN; });
 }
 function tfRenderAll(){
   tfRenderDashboard(); tfRenderGoals(); tfRenderTodos(); tfRenderTrash(); tfRenderLogs(); tfRenderBadges();
