@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-09-09o</title>
+<title>每日打卡 · 构建2026-09-09p</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -357,6 +357,200 @@ body.mode-pc .sleep-field input{min-height:38px}
 .wheat .wc.on{background:#f54001}
 .wheat .wc.today{border:2px solid #38332b;box-sizing:border-box}
 </style>
+<style id="tfCss">
+/* ============================================================
+   待办（拾光·TaskFlow）样式 —— 限定在 #view-habit 内，避免影响其它视图
+   ============================================================ */
+#view-habit{
+  --tf-bg:#f5f7f6; --tf-surface:#ffffff; --tf-surface2:#f2f5f3; --tf-surface3:#e9eeeb;
+  --tf-border:#dde3e0; --tf-border-soft:#e8edea;
+  --mint:#00a87e; --mint-dim:rgba(0,168,126,.1); --mint-mid:rgba(0,168,126,.35);
+  --red:#e5484d; --red-dim:rgba(229,72,77,.1);
+  --amber:#d9860b; --amber-dim:rgba(217,134,11,.12);
+  --blue:#2f6fed; --blue-dim:rgba(47,111,237,.1);
+  --purple:#7c5cd6;
+  --tf-text:#1c2420; --tf-text2:#5b6660; --tf-text3:#98a29c;
+  --tf-radius:10px;
+  --tf-shadow:0 1px 3px rgba(28,36,32,.05),0 4px 14px rgba(28,36,32,.04);
+  --tf-font:"Inter","PingFang SC","Microsoft YaHei","Source Han Sans SC",sans-serif;
+  --tf-mono:"SF Mono","JetBrains Mono",Consolas,"Courier New",monospace;
+  background:var(--tf-bg); color:var(--tf-text); font-family:var(--tf-font); font-size:14px; line-height:1.6;
+}
+#view-habit *{box-sizing:border-box}
+#view-habit ::-webkit-scrollbar{width:8px;height:8px}
+#view-habit ::-webkit-scrollbar-thumb{background:#cdd5d0;border-radius:4px}
+#view-habit ::-webkit-scrollbar-track{background:transparent}
+
+/* ---------- 顶部条 + 分区导航 ---------- */
+#view-habit .tf-topbar{display:flex;align-items:flex-end;gap:12px;padding:2px 2px 12px;border-bottom:1px solid var(--tf-border-soft);margin-bottom:14px;flex-wrap:wrap}
+#view-habit .tf-page-title{font-size:20px;font-weight:700}
+#view-habit .tf-page-desc{font-size:12px;color:var(--tf-text3);margin-top:2px}
+#view-habit .tf-topbar-right{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#view-habit .tf-clock{font-family:var(--tf-mono);font-size:12px;color:var(--tf-text3)}
+#view-habit .tf-nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+#view-habit .tf-chip{padding:6px 14px;border-radius:20px;border:1px solid var(--tf-border);background:var(--tf-surface);color:var(--tf-text2);font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s;user-select:none}
+#view-habit .tf-chip:hover{color:var(--tf-text)}
+#view-habit .tf-chip.active{background:var(--mint-dim);border-color:var(--mint-mid);color:var(--mint);font-weight:600}
+#view-habit .tf-badge{background:var(--red);color:#fff;font-size:10px;font-weight:600;min-width:17px;height:17px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px}
+#view-habit .tf-badge.gray{background:#e3e9e6;color:var(--tf-text2)}
+
+/* ---------- 通用组件 ---------- */
+#view-habit .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 16px;min-height:auto;height:auto;border-radius:8px;border:1px solid transparent;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--tf-font);transition:all .15s;background:var(--mint);color:#ffffff;box-shadow:0 2px 6px rgba(0,168,126,.28)}
+#view-habit .btn:hover{filter:brightness(1.12)}
+#view-habit .btn.ghost{background:transparent;border-color:var(--tf-border);color:var(--tf-text2);box-shadow:none}
+#view-habit .btn.ghost:hover{border-color:var(--tf-text3);color:var(--tf-text);filter:none}
+#view-habit .btn.danger{background:var(--red-dim);color:var(--red);box-shadow:none}
+#view-habit .btn.danger:hover{background:var(--red);color:#fff;filter:none}
+#view-habit .btn.sm{padding:5px 11px;font-size:12px;border-radius:6px;min-height:auto}
+#view-habit .btn:disabled{opacity:.4;cursor:not-allowed}
+#view-habit .icon-btn{width:28px;height:28px;border-radius:6px;border:none;background:transparent;color:var(--tf-text3);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+#view-habit .icon-btn:hover{background:var(--tf-surface3);color:var(--tf-text)}
+#view-habit .icon-btn svg{width:15px;height:15px}
+#view-habit .card{background:var(--tf-surface);border:1px solid var(--tf-border-soft);border-radius:var(--tf-radius);padding:20px;box-shadow:var(--tf-shadow)}
+#view-habit .section-label{font-size:10.5px;letter-spacing:2.2px;text-transform:uppercase;color:var(--tf-text3);font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+#view-habit .section-label::after{content:"";flex:1;height:1px;background:var(--tf-border-soft)}
+#view-habit .tag{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.3px;background:#eceff0;color:var(--tf-text2)}
+#view-habit .tag.mint{background:var(--mint-dim);color:var(--mint)}
+#view-habit .tag.red{background:var(--red-dim);color:var(--red)}
+#view-habit .tag.amber{background:var(--amber-dim);color:var(--amber)}
+#view-habit .tag.blue{background:var(--blue-dim);color:var(--blue)}
+#view-habit .tag.gray{background:#eceff0;color:var(--tf-text2)}
+#view-habit .tag.purple{background:rgba(124,92,214,.12);color:var(--purple)}
+#view-habit .pbar{height:6px;background:#e6ebe8;border-radius:3px;overflow:hidden;position:relative}
+#view-habit .pbar-fill{height:100%;background:var(--mint);border-radius:3px;transition:width .5s cubic-bezier(.22,1,.36,1)}
+#view-habit .pbar-fill.warn{background:var(--amber)}
+#view-habit .pbar-fill.lag{background:var(--red)}
+#view-habit .pbar-row{display:flex;align-items:center;gap:10px}
+#view-habit .pbar-row .pbar{flex:1}
+#view-habit .pbar-pct{font-family:var(--tf-mono);font-size:11.5px;color:var(--mint);min-width:38px;text-align:right}
+#view-habit input,#view-habit select,#view-habit textarea{background:var(--tf-surface2);border:1px solid var(--tf-border);border-radius:8px;color:var(--tf-text);padding:9px 12px;font-size:13px;font-family:var(--tf-font);outline:none;transition:border-color .15s;width:100%;box-sizing:border-box}
+#view-habit input:focus,#view-habit select:focus,#view-habit textarea:focus{border-color:var(--mint)}
+#view-habit textarea{resize:vertical;min-height:70px}
+#view-habit .form-row{margin-bottom:14px}
+#view-habit .form-row label{display:block;font-size:12px;color:var(--tf-text2);margin-bottom:6px;font-weight:600}
+#view-habit .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#view-habit .empty{padding:48px 20px;text-align:center;color:var(--tf-text3);font-size:13px}
+#view-habit .empty svg{width:38px;height:38px;margin-bottom:12px;opacity:.4}
+
+/* ---------- 页面切换 ---------- */
+#view-habit .page{display:none;animation:tfFadeUp .3s ease}
+#view-habit .page.active{display:block}
+@keyframes tfFadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ---------- 仪表盘 ---------- */
+#view-habit .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+#view-habit .dash-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:14px;margin-bottom:22px}
+#view-habit .dash-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+#view-habit .mini-list{display:flex;flex-direction:column}
+#view-habit .mini-item{display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--tf-border-soft);font-size:13px}
+#view-habit .mini-item:last-child{border-bottom:none}
+#view-habit .mini-item .t{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#view-habit .mini-item .d{font-family:var(--tf-mono);font-size:11.5px;color:var(--tf-text3)}
+#view-habit .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+#view-habit .health-bar-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--tf-border-soft);font-size:13px}
+#view-habit .health-bar-row:last-child{border:none}
+#view-habit .health-name{width:180px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#view-habit .health-delta{font-family:var(--tf-mono);font-size:11px;min-width:64px;text-align:right}
+
+/* ---------- 年度目标树 ---------- */
+#view-habit .goal-card{background:var(--tf-surface);border:1px solid var(--tf-border-soft);border-radius:var(--tf-radius);margin-bottom:16px;overflow:hidden;box-shadow:var(--tf-shadow)}
+#view-habit .goal-head{padding:18px 20px;display:flex;align-items:center;gap:14px;cursor:pointer}
+#view-habit .goal-head:hover{background:var(--tf-surface2)}
+#view-habit .goal-info{flex:1;min-width:0}
+#view-habit .goal-title{font-size:15.5px;font-weight:700;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#view-habit .goal-meta{font-size:12px;color:var(--tf-text3);margin-top:3px}
+#view-habit .goal-prog{width:220px;flex-shrink:0}
+#view-habit .goal-actions{display:flex;gap:4px;flex-shrink:0}
+#view-habit .goal-body{border-top:1px solid var(--tf-border-soft);padding:6px 20px 16px;display:none}
+#view-habit .goal-card.open .goal-body{display:block}
+#view-habit .chevron{transition:transform .2s;color:var(--tf-text3);flex-shrink:0}
+#view-habit .goal-card.open .chevron{transform:rotate(90deg)}
+#view-habit .q-block{margin-top:12px;background:var(--tf-surface2);border:1px solid var(--tf-border-soft);border-radius:8px;padding:12px 16px}
+#view-habit .q-head{display:flex;align-items:center;gap:12px;margin-bottom:4px;flex-wrap:wrap}
+#view-habit .q-title{font-weight:700;font-size:13.5px;min-width:44px;color:var(--amber)}
+#view-habit .q-prog{flex:1;min-width:120px}
+#view-habit .q-months{margin-top:8px;display:flex;flex-direction:column;gap:4px}
+#view-habit .m-row{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:7px;font-size:13px;transition:background .15s}
+#view-habit .m-row:hover{background:var(--tf-surface3)}
+#view-habit .m-name{width:52px;flex-shrink:0;font-family:var(--tf-mono);font-size:12px;color:var(--tf-text2)}
+#view-habit .m-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#view-habit .m-title.done{text-decoration:line-through;color:var(--tf-text3)}
+#view-habit .m-status{width:110px;flex-shrink:0}
+#view-habit .m-status select{padding:4px 8px;font-size:12px;border-radius:6px}
+#view-habit .q-empty{font-size:12px;color:var(--tf-text3);padding:6px 0}
+#view-habit .add-m-btn{margin-top:6px}
+
+/* ---------- 待办清单 ---------- */
+#view-habit .todo-toolbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+#view-habit .todo-toolbar input[type=search]{width:200px}
+#view-habit .todo-toolbar select{width:auto;min-width:110px}
+#view-habit .todo-list{display:flex;flex-direction:column;gap:8px}
+#view-habit .todo-item{display:flex;align-items:center;gap:14px;background:var(--tf-surface);border:1px solid var(--tf-border-soft);border-radius:var(--tf-radius);padding:14px 18px;transition:border-color .15s;box-shadow:var(--tf-shadow)}
+#view-habit .todo-item:hover{border-color:var(--tf-border)}
+#view-habit .todo-item.done{opacity:.55}
+#view-habit .todo-item.overdue:not(.done){border-color:rgba(229,72,77,.4)}
+#view-habit .todo-check{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--tf-text3);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;background:transparent;padding:0}
+#view-habit .todo-check:hover{border-color:var(--mint)}
+#view-habit .todo-check.on{background:var(--mint);border-color:var(--mint);color:#ffffff}
+#view-habit .todo-check svg{width:12px;height:12px}
+#view-habit .todo-main{flex:1;min-width:0}
+#view-habit .todo-title{font-size:14px;font-weight:600}
+#view-habit .todo-item.done .todo-title{text-decoration:line-through;color:var(--tf-text3)}
+#view-habit .todo-sub{font-size:12px;color:var(--tf-text3);margin-top:2px;display:flex;gap:12px;flex-wrap:wrap}
+#view-habit .todo-sub .ddl{font-family:var(--tf-mono)}
+#view-habit .todo-sub .ddl.overdue{color:var(--red)}
+#view-habit .todo-sub .ddl.soon{color:var(--amber)}
+
+/* ---------- 回收站 ---------- */
+#view-habit .trash-item{display:flex;align-items:center;gap:14px;background:var(--tf-surface);border:1px solid var(--tf-border-soft);border-radius:var(--tf-radius);padding:14px 18px;margin-bottom:8px;box-shadow:var(--tf-shadow);flex-wrap:wrap}
+#view-habit .trash-item .info{flex:1;min-width:0}
+#view-habit .trash-item .name{font-size:14px;font-weight:600;text-decoration:line-through;color:var(--tf-text2)}
+#view-habit .trash-item .meta{font-size:12px;color:var(--tf-text3);margin-top:2px}
+
+/* ---------- 日志 ---------- */
+#view-habit .log-filters{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+#view-habit .log-timeline{position:relative;padding-left:26px}
+#view-habit .log-timeline::before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:1.5px;background:var(--tf-border)}
+#view-habit .log-entry{position:relative;padding:10px 0 10px 4px;border-bottom:1px solid var(--tf-border-soft)}
+#view-habit .log-entry::before{content:"";position:absolute;left:-23px;top:17px;width:9px;height:9px;border-radius:50%;background:var(--tf-surface3);border:2px solid var(--tf-border)}
+#view-habit .log-entry.c-add::before{background:var(--mint-dim);border-color:var(--mint)}
+#view-habit .log-entry.c-del::before{background:var(--red-dim);border-color:var(--red)}
+#view-habit .log-entry.c-edit::before{background:var(--amber-dim);border-color:var(--amber)}
+#view-habit .log-entry.c-status::before{background:var(--blue-dim);border-color:var(--blue)}
+#view-habit .log-entry.c-sys::before{background:rgba(124,92,214,.15);border-color:var(--purple)}
+#view-habit .log-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#view-habit .log-detail{font-size:12.5px;color:var(--tf-text2);margin-top:3px}
+#view-habit .log-time{font-family:var(--tf-mono);font-size:11px;color:var(--tf-text3);margin-left:auto}
+
+/* ---------- 弹窗（避开主页面全局 .modal 语义） ---------- */
+#view-habit .tf-mask{position:fixed;inset:0;background:rgba(28,36,32,.4);backdrop-filter:blur(3px);z-index:120;display:none;align-items:center;justify-content:center;padding:16px}
+#view-habit .tf-mask.show{display:flex;animation:tfFadeIn .18s ease}
+@keyframes tfFadeIn{from{opacity:0}to{opacity:1}}
+#view-habit .tf-modal{background:var(--tf-surface);border:1px solid var(--tf-border);border-radius:14px;width:480px;max-width:92vw;max-height:88vh;overflow-y:auto;padding:26px;box-shadow:0 12px 40px rgba(28,36,32,.16);animation:tfPop .22s cubic-bezier(.22,1,.36,1)}
+@keyframes tfPop{from{opacity:0;transform:scale(.96) translateY(10px)}to{opacity:1;transform:none}}
+#view-habit .tf-modal-title{font-size:16px;font-weight:700;margin-bottom:18px}
+#view-habit .tf-modal-foot{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+
+/* ---------- Toast ---------- */
+#view-habit .toast-wrap{position:fixed;bottom:80px;right:20px;z-index:200;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+#view-habit .toast{background:var(--tf-surface3);border:1px solid var(--tf-border);border-left:3px solid var(--mint);border-radius:8px;padding:11px 18px;font-size:13px;animation:tfSlideIn .25s ease;max-width:320px;box-shadow:var(--tf-shadow)}
+#view-habit .toast.err{border-left-color:var(--red)}
+@keyframes tfSlideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+
+@media (max-width:1100px){
+  #view-habit .dash-grid,#view-habit .dash-grid-2{grid-template-columns:1fr}
+  #view-habit .goal-prog{width:150px}
+}
+@media (max-width:760px){
+  #view-habit .goal-prog{display:none}
+  #view-habit .health-name{width:120px}
+  #view-habit .form-grid{grid-template-columns:1fr}
+  #view-habit .card{padding:16px}
+  #view-habit .todo-toolbar input[type=search]{width:100%}
+  #view-habit .todo-toolbar select{width:100%}
+  #view-habit .trash-item{flex-wrap:wrap}
+}
+</style>
 </head>
 <body>
 <div class="topbar">
@@ -419,25 +613,190 @@ body.mode-pc .sleep-field input{min-height:38px}
     <div id="sleepHist"></div>
   </section>
 
-  <!-- ============ 待办 ============ -->
+  <!-- ============ 待办（拾光·TaskFlow：年度目标 → 季度 → 月度 + 待办清单） ============ -->
   <section class="view" id="view-habit">
-    <div class="habit-monitor-note">
-      <b>关于「监控」的实话：</b>网页（即使添加到 iPhone 主屏幕）无法自动感知你是否躺着、刷短剧或看小说——iOS 不向网页开放屏幕内容 / 应用使用情况。本模块是<b>自我记录式追踪</b>：你每天点选「达标 / 未达标」，系统记录连续天数与本周达标率。<br>
-      想硬性限制刷短剧，可用 iPhone 自带 <b>设置 → 屏幕使用时间 → App 限额</b>，对抖音 / 快手等设限额。其余打卡、睡眠、待办记录均真实可用并云端同步。
+    <div class="tf-topbar">
+      <div>
+        <div class="tf-page-title" id="tfPageTitle">仪表盘</div>
+        <div class="tf-page-desc" id="tfPageDesc">整体进度与风险监控一览</div>
+      </div>
+      <div class="tf-topbar-right">
+        <span class="tf-clock" id="tfClock"></span>
+        <button class="btn ghost sm" onclick="tfOpenTodoModal()">+ 待办</button>
+        <button class="btn sm" onclick="tfOpenGoalModal()">+ 年度目标</button>
+      </div>
     </div>
-    <div class="section">
-      <div class="sec-title">今日待办 <span class="tag">点选 达标 / 未达标</span></div>
-      <div id="habitToday"></div>
+    <div class="tf-nav">
+      <div class="tf-chip active" data-tfpage="dashboard">仪表盘</div>
+      <div class="tf-chip" data-tfpage="goals">年度目标 <span class="tf-badge gray" id="tfNavGoalCount">0</span></div>
+      <div class="tf-chip" data-tfpage="todos">待办清单 <span class="tf-badge red" id="tfNavOverdue" style="display:none">0</span></div>
+      <div class="tf-chip" data-tfpage="trash">已删除 <span class="tf-badge gray" id="tfNavTrashCount">0</span></div>
+      <div class="tf-chip" data-tfpage="logs">操作日志</div>
     </div>
-    <div class="section">
-      <div class="sec-title">本周达标率</div>
-      <div id="habitWeekList"></div>
+
+    <!-- ===== 仪表盘 ===== -->
+    <section class="page active" id="tfPage-dashboard">
+      <div class="dash-grid">
+        <div class="card">
+          <div class="section-label">年度目标进度健康度 · 实际 vs 时间基准</div>
+          <div id="tfHealthList"></div>
+        </div>
+        <div class="card">
+          <div class="section-label">临期 / 逾期提醒</div>
+          <div class="mini-list" id="tfAlertList"></div>
+        </div>
+      </div>
+      <div class="dash-grid-2">
+        <div class="card">
+          <div class="section-label">即将截止的待办</div>
+          <div class="mini-list" id="tfUpcomingList"></div>
+        </div>
+        <div class="card">
+          <div class="section-label">最近操作</div>
+          <div class="mini-list" id="tfRecentLogList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 年度目标 ===== -->
+    <section class="page" id="tfPage-goals">
+      <div class="todo-toolbar">
+        <select id="tfGoalYearFilter" onchange="tfRenderGoals()" style="width:130px"></select>
+        <input type="search" id="tfGoalSearch" placeholder="搜索目标…" oninput="tfRenderGoals()">
+        <span style="flex:1"></span>
+        <button class="btn sm" onclick="tfOpenGoalModal()">+ 新建年度目标</button>
+      </div>
+      <div id="tfGoalList"></div>
+    </section>
+
+    <!-- ===== 待办清单 ===== -->
+    <section class="page" id="tfPage-todos">
+      <div class="todo-toolbar">
+        <input type="search" id="tfTodoSearch" placeholder="搜索待办…" oninput="tfRenderTodos()">
+        <select id="tfTodoStatusFilter" onchange="tfRenderTodos()">
+          <option value="all">全部状态</option>
+          <option value="open">未完成</option>
+          <option value="done">已完成</option>
+          <option value="overdue">已逾期</option>
+        </select>
+        <select id="tfTodoPriFilter" onchange="tfRenderTodos()">
+          <option value="all">全部优先级</option>
+          <option value="high">高优先级</option>
+          <option value="mid">中优先级</option>
+          <option value="low">低优先级</option>
+        </select>
+        <span style="flex:1"></span>
+        <button class="btn sm" onclick="tfOpenTodoModal()">+ 新建待办</button>
+      </div>
+      <div class="todo-list" id="tfTodoList"></div>
+    </section>
+
+    <!-- ===== 已删除 ===== -->
+    <section class="page" id="tfPage-trash">
+      <div class="section-label">已删除的年度目标（可恢复）</div>
+      <div id="tfTrashGoals"></div>
+      <div class="section-label" style="margin-top:26px">已删除的待办任务</div>
+      <div id="tfTrashTodos"></div>
+    </section>
+
+    <!-- ===== 操作日志 ===== -->
+    <section class="page" id="tfPage-logs">
+      <div class="log-filters">
+        <div class="tf-chip active" data-tfl="all">全部</div>
+        <div class="tf-chip" data-tfl="add">新增</div>
+        <div class="tf-chip" data-tfl="edit">修改</div>
+        <div class="tf-chip" data-tfl="status">状态/进度</div>
+        <div class="tf-chip" data-tfl="del">删除</div>
+        <div class="tf-chip" data-tfl="sys">系统</div>
+      </div>
+      <div class="log-timeline" id="tfLogList"></div>
+    </section>
+
+    <!-- ===== 弹窗：年度目标 ===== -->
+    <div class="tf-mask" id="tfGoalModal">
+      <div class="tf-modal">
+        <div class="tf-modal-title" id="tfGoalModalTitle">新建年度目标</div>
+        <div class="form-grid">
+          <div class="form-row"><label>目标名称 *</label><input id="tfGTitle" placeholder="例：完成专业资格认证"></div>
+          <div class="form-row"><label>所属年度 *</label><input id="tfGYear" type="number" min="2000" max="2100"></div>
+        </div>
+        <div class="form-row"><label>目标描述</label><textarea id="tfGDesc" placeholder="目标的衡量标准、意义…"></textarea></div>
+        <div class="form-row" id="tfGSplitRow">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--tf-text2);font-weight:400">
+            <input type="checkbox" id="tfGAutoSplit" checked style="width:auto"> 创建后自动拆分为 Q1–Q4 四个季度
+          </label>
+        </div>
+        <div class="tf-modal-foot">
+          <button class="btn ghost sm" onclick="tfCloseModal('tfGoalModal')">取消</button>
+          <button class="btn sm" onclick="tfSaveGoal()">保存</button>
+        </div>
+      </div>
     </div>
-    <div class="section">
-      <div class="sec-title">待办打卡热力图 <span class="tag">近 14 天 · 点格补记</span></div>
-      <div id="habitHeatList"></div>
+
+    <!-- ===== 弹窗：季度任务 ===== -->
+    <div class="tf-mask" id="tfQuarterModal">
+      <div class="tf-modal">
+        <div class="tf-modal-title" id="tfQModalTitle">新建季度任务</div>
+        <div class="form-row"><label>季度任务名称 *</label><input id="tfQTitle" placeholder="例：完成教材第一轮学习"></div>
+        <div class="tf-modal-foot">
+          <button class="btn ghost sm" onclick="tfCloseModal('tfQuarterModal')">取消</button>
+          <button class="btn sm" onclick="tfSaveQuarter()">保存</button>
+        </div>
+      </div>
     </div>
-    <div style="margin-top:14px;padding:0 2px"><button class="btn" id="btnManageHabit">管理待办</button></div>
+
+    <!-- ===== 弹窗：月度任务 ===== -->
+    <div class="tf-mask" id="tfMonthModal">
+      <div class="tf-modal">
+        <div class="tf-modal-title" id="tfMModalTitle">新建月度任务</div>
+        <div class="form-grid">
+          <div class="form-row"><label>月份 *</label><select id="tfMMonth"></select></div>
+          <div class="form-row"><label>状态</label>
+            <select id="tfMStatus"><option value="todo">未开始</option><option value="doing">进行中</option><option value="done">已完成</option></select>
+          </div>
+        </div>
+        <div class="form-row"><label>任务内容 *</label><input id="tfMTitle" placeholder="例：读完第 1–4 章并做笔记"></div>
+        <div class="form-row"><label>备注</label><textarea id="tfMNote" placeholder="交付物、验收标准…"></textarea></div>
+        <div class="tf-modal-foot">
+          <button class="btn ghost sm" onclick="tfCloseModal('tfMonthModal')">取消</button>
+          <button class="btn sm" onclick="tfSaveMonth()">保存</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 弹窗：待办 ===== -->
+    <div class="tf-mask" id="tfTodoModal">
+      <div class="tf-modal">
+        <div class="tf-modal-title" id="tfTodoModalTitle">新建待办任务</div>
+        <div class="form-row"><label>任务内容 *</label><input id="tfTTitle" placeholder="例：提交季度总结报告"></div>
+        <div class="form-grid">
+          <div class="form-row"><label>截止时间 *</label><input id="tfTDeadline" type="datetime-local"></div>
+          <div class="form-row"><label>优先级</label>
+            <select id="tfTPriority"><option value="high">高</option><option value="mid" selected>中</option><option value="low">低</option></select>
+          </div>
+        </div>
+        <div class="form-row"><label>分类标签</label><input id="tfTCategory" placeholder="例：工作 / 学习 / 生活"></div>
+        <div class="form-row"><label>备注</label><textarea id="tfTNote" placeholder="补充说明…"></textarea></div>
+        <div class="tf-modal-foot">
+          <button class="btn ghost sm" onclick="tfCloseModal('tfTodoModal')">取消</button>
+          <button class="btn sm" onclick="tfSaveTodo()">保存</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 弹窗：确认 ===== -->
+    <div class="tf-mask" id="tfConfirmModal">
+      <div class="tf-modal" style="width:400px">
+        <div class="tf-modal-title" id="tfConfirmTitle">确认操作</div>
+        <p id="tfConfirmText" style="font-size:13.5px;color:var(--tf-text2)"></p>
+        <div class="tf-modal-foot">
+          <button class="btn ghost sm" onclick="tfCloseModal('tfConfirmModal')">取消</button>
+          <button class="btn danger sm" id="tfConfirmOk">确认</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast-wrap" id="tfToastWrap"></div>
   </section>
 
   <!-- ============ 统计 ============ -->
@@ -604,7 +963,6 @@ body.mode-pc .sleep-field input{min-height:38px}
     <div class="section">
       <div class="sec-title">数据 <span class="tag">备份 / 恢复 / 云端工具</span></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn" id="btnMngHabit">管理待办</button>
         <button class="btn" id="btnResetCheckin">重置打卡记录</button>
         <button class="btn primary" id="btnCfg">设置云端</button>
         <button class="btn" id="btnExport">导出备份</button>
@@ -647,27 +1005,6 @@ drop policy if exists "anon_all" on public.checkin_state;
 create policy "anon_all" on public.checkin_state
   for all to anon using (true) with check (true);</pre>
     </div>
-  </div>
-</div>
-
-<div class="modal" id="habitModal">
-  <div class="modal-box" style="max-width:480px">
-    <div class="modal-title">管理待办</div>
-    <div id="habitListEdit"></div>
-    <label>新增待办</label>
-    <input class="inp" id="habitName" placeholder="待办名称，如：睡前不看手机">
-    <div style="display:flex;gap:8px;margin-top:8px">
-      <select class="inp" id="habitType" style="flex:1">
-        <option value="keep">养成（坚持做）</option>
-        <option value="avoid">戒除（避免做）</option>
-      </select>
-    </div>
-    <input class="inp" id="habitDef" placeholder="说明：达标的定义，如 上床即睡不刷手机" style="margin-top:8px">
-    <div class="modal-actions">
-      <button class="btn" id="habitCancel">关闭</button>
-      <button class="btn primary" id="habitAdd">添加</button>
-    </div>
-    <div class="modal-note">待办为自我记录式追踪：每天点选「达标 / 未达标」。网页无法自动感知你的行为（iOS 也不开放此能力）；如需硬性限制刷短剧，请用 iPhone 自带「屏幕使用时间 → App 限额」。</div>
   </div>
 </div>
 
@@ -835,14 +1172,6 @@ const META = {
   "锻炼":{short:"锻",color:"#10b981"},
   "写作练习":{short:"写",color:"#f59e0b"}
 };
-const DEFAULT_HABITS = [
-  {id:"h1", name:"睡觉不上床干躺着", type:"avoid", def:"上床即睡，不躺着刷手机 / 发呆"},
-  {id:"h2", name:"早上醒了就起床", type:"keep", def:"醒来不赖床，立即起身"},
-  {id:"h3", name:"在家不看短剧", type:"avoid", def:"在家期间不刷抖音 / 快手等短剧"},
-  {id:"h4", name:"看小说", type:"keep", def:"用看小说替代刷短剧"},
-];
-function habitDefs(){ return (RECORDS.habitDefs && RECORDS.habitDefs.length) ? RECORDS.habitDefs : DEFAULT_HABITS; }
-function habitMap(id){ return (RECORDS.habits && RECORDS.habits[id]) || {}; }
 
 /* 2026 农历月表：monthName, startDate(YYYY-MM-DD), days */
 const LUNAR_2026 = [
@@ -1334,59 +1663,6 @@ function renderBackupHint(){
   else box.style.display="none";
 }
 
-function habitStreak(id){
-  const m=habitMap(id); let s=0; const d=new Date();
-  if(!m[fmt(d)]) d.setDate(d.getDate()-1);
-  while(m[fmt(d)]===true){ s++; d.setDate(d.getDate()-1); }
-  return s;
-}
-function habitWeekRate(id){
-  const m=habitMap(id); const ms=mondayOf(new Date()); const td=new Date();
-  let elapsed=Math.floor((td-ms)/86400000)+1; if(elapsed<1) elapsed=1;
-  let met=0;
-  for(let i=0;i<elapsed;i++){ const d=new Date(ms); d.setDate(d.getDate()+i); if(m[fmt(d)]===true) met++; }
-  return {met:met, elapsed:elapsed, pct: elapsed? met/elapsed:0};
-}
-function renderHabit(){
-  const defs=habitDefs(); const t=today(); let html="";
-  defs.forEach(h=>{
-    const m=habitMap(h.id); const v=(t in m)? m[t] : null;
-    const tl=h.type==="avoid"?"戒除":"养成"; const tc=h.type==="avoid"?"avoid":"keep";
-    html+='<div class="habit-row"><div class="habit-info">'
-      +'<div class="habit-name">'+escapeHtml(h.name)+'</div>'
-      +'<div class="habit-def"><span class="habit-tag '+tc+'">'+tl+'</span>'+escapeHtml(h.def||"")+'</div>'
-      +'<div class="habit-streak">🔥 连续 '+habitStreak(h.id)+' 天</div></div>'
-      +'<div class="seg">'
-      +'<button class="seg-btn '+(v===true?'on-y':'')+'" data-act="habit" data-id="'+h.id+'" data-val="1">达标</button>'
-      +'<button class="seg-btn '+(v===false?'on-n':'')+'" data-act="habit" data-id="'+h.id+'" data-val="0">未达标</button>'
-      +'</div></div>';
-  });
-  if(!defs.length) html='<div class="c-sum muted">还没有待办，点下方「管理待办」添加。</div>';
-  const box=document.getElementById("habitToday"); if(box) box.innerHTML=html;
-}
-function renderHabitWeek(){
-  const defs=habitDefs(); let html="";
-  defs.forEach(h=>{ const r=habitWeekRate(h.id);
-    html+='<div class="habit-card"><div class="wdonut">'+donut(r.pct)+'</div><div class="wmeta">'
-      +'<div class="wname">'+escapeHtml(h.name)+'</div>'
-      +'<div class="wcount"><b>'+r.met+'</b> / '+r.elapsed+' 天</div>'
-      +'<div class="wsub">本周（周一~周日）达标率</div></div></div>';
-  });
-  const box=document.getElementById("habitWeekList"); if(box) box.innerHTML=html;
-}
-function renderHabitHeat(){
-  const defs=habitDefs(); const td=new Date(); const dates=[];
-  for(let i=13;i>=0;i--){ const d=new Date(td); d.setDate(d.getDate()-i); dates.push(fmt(d)); }
-  let html='<div class="heat-head">绿色=达标，红色=未达标，灰=未记录。点击格子可补记过去日期。</div>';
-  defs.forEach(h=>{ const m=habitMap(h.id);
-    let row='<div class="habit-heat-row"><div class="habit-heat-label">'+escapeHtml(h.name)+'</div><div class="heat-cells">';
-    dates.forEach(ds=>{ const v=m[ds]; let cls="hc"; if(v===true) cls+=" on"; else if(v===false) cls+=" miss";
-      row+='<span class="'+cls+'" data-act="habitcell" data-id="'+h.id+'" data-ds="'+ds+'" title="'+ds+'"></span>'; });
-    row+='</div></div>'; html+=row;
-  });
-  html+='<div class="heat-legend"><span><i class="hc on"></i>达标</span><span><i class="hc miss"></i>未达标</span><span><i class="hc"></i>未记录</span></div>';
-  const box=document.getElementById("habitHeatList"); if(box) box.innerHTML=html;
-}
 function renderSleepHist(){
   const box=document.getElementById("sleepHist"); if(!box) return;
   let html='<div class="sec-title" style="margin-top:14px">近期睡眠 <span class="tag">最近 7 天</span></div><div class="grid">';
@@ -1401,30 +1677,15 @@ function renderSleepHist(){
   }
   html+='</div>'; box.innerHTML=html;
 }
-async function toggleHabit(id, val){
-  if(!RECORDS.habits) RECORDS.habits={};
-  if(!RECORDS.habits[id]) RECORDS.habits[id]={};
-  const cur=RECORDS.habits[id][today()]; const b=(val==="1");
-  if(cur===b) delete RECORDS.habits[id][today()]; else RECORDS.habits[id][today()]=b;
-  renderHabit(); renderHabitWeek(); renderHabitHeat();
-  if(SYNC!=="nocfg") await cloudSave();
-}
 function render(){
-  [renderSleep,renderSleepHist,renderHabit,renderHabitWeek,renderHabitHeat,renderBackupHint,renderHome,renderStats,renderDocs,renderManage,renderHomeTodos].forEach(function(f){ try{ f(); }catch(e){ console.error("render error in "+(f&&f.name), e); } });
+  [renderSleep,renderSleepHist,tfRenderAll,renderBackupHint,renderHome,renderStats,renderDocs,renderManage,renderHomeTodos].forEach(function(f){ try{ f(); }catch(e){ console.error("render error in "+(f&&f.name), e); } });
 }
 
 /* ---------- 事件 ---------- */
 document.addEventListener("click",function(e){
   const el=e.target.closest("[data-act]"); if(!el)return;
   const act=el.dataset.act, it=el.dataset.it, ds=el.dataset.ds;
-  if(act==="habit"){ toggleHabit(el.dataset.id, el.dataset.val); }
-  else if(act==="habitcell"){ const id=el.dataset.id, dsv=el.dataset.ds;
-    if(!RECORDS.habits)RECORDS.habits={}; if(!RECORDS.habits[id])RECORDS.habits[id]={};
-    const cur=RECORDS.habits[id][dsv]; const nv = cur===undefined? true : (cur===true? false : true);
-    RECORDS.habits[id][dsv]=nv; renderHabit(); renderHabitWeek(); renderHabitHeat();
-    if(SYNC!=="nocfg") cloudSave();
-  }
-  else if(act==="check"||act==="uncheck"){ toggle(it,ds); }
+  if(act==="check"||act==="uncheck"){ toggle(it,ds); }
   else if(act==="toggle"){ const diff=Math.round((parse(today())-parse(ds))/86400000); if(Math.abs(diff)>3){ alert(diff>0?"补打卡仅支持近 3 天（含今天）的日期。":"提前打卡仅支持未来 3 天内的日期。"); return; } toggle(it,ds); }
   else if(act==="toggle-detail"){ const d=document.getElementById("det-"+it); if(d) d.classList.toggle("show"); }
   else if(act==="rec-more"){ _recLimit=99999; renderStatRecords(); }
@@ -1439,12 +1700,8 @@ document.addEventListener("click",function(e){
 });
 document.getElementById("homeTodos").addEventListener("change",function(e){
   const el=e.target.closest('[data-act="todo-check"]'); if(!el) return;
-  const id=el.dataset.id; const checked=el.checked; const t=today();
-  if(!RECORDS.habits) RECORDS.habits={};
-  if(!RECORDS.habits[id]) RECORDS.habits[id]={};
-  if(checked) RECORDS.habits[id][t]=true; else delete RECORDS.habits[id][t];
-  renderHabit(); renderHabitWeek(); renderHabitHeat(); renderHomeTodos();
-  if(SYNC!=="nocfg") cloudSave();
+  if(el.checked) tfToggleTodo(el.dataset.id);
+  renderHomeTodos();
 });
 document.getElementById("btnRetry").addEventListener("click",function(){ retryNow(); });
 document.getElementById("btnDiag").addEventListener("click",function(){ cloudSelfTest(); });
@@ -1475,7 +1732,8 @@ document.getElementById("btnImport").addEventListener("click",function(){ docume
 document.getElementById("btnExportCsv").addEventListener("click",function(){
   const rows=[["模块","计划日","状态","完成时间"]];
   ITEMS.forEach(function(it){ const o=RECORDS[it]||{}; Object.keys(o).forEach(function(ds){ const v=o[ds]; rows.push([it,ds,"已打卡",(v&&v.ts)?new Date(v.ts).toLocaleString("zh-CN"):""]); }); });
-  if(RECORDS.habits) Object.keys(RECORDS.habits).forEach(function(id){ const o=RECORDS.habits[id]||{}; Object.keys(o).forEach(function(ds){ const v=o[ds]; rows.push(["待办:"+id,ds,(v===true?"已完成":(v===false?"未完成":"—")),""]); }); });
+  if(RECORDS.habits) Object.keys(RECORDS.habits).forEach(function(id){ const o=RECORDS.habits[id]||{}; Object.keys(o).forEach(function(ds){ const v=o[ds]; rows.push(["习惯(历史)",ds,(v===true?"已完成":(v===false?"未完成":"—")),""]); }); });
+  if(RECORDS.taskflow && RECORDS.taskflow.todos) RECORDS.taskflow.todos.forEach(function(x){ rows.push(["待办任务",(x.completedAt||x.deadline||"").slice(0,10),(x.deleted?"已删除":(x.done?"已完成":(tfIsOverdue(x)?"已逾期":"进行中"))),x.title+(x.category?(" #"+x.category):"")]); });
   const csv="﻿"+rows.map(function(r){return r.map(function(c){return '"'+String(c==null?"":c).replace(/"/g,'""')+'"';}).join(",");}).join("\r\n");
   const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
   const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="签到记录_"+today()+".csv"; a.click(); URL.revokeObjectURL(a.href);
@@ -1642,22 +1900,28 @@ function renderHome(){
   }catch(e){}
 }
 function renderHomeTodos(){
-  const defs=habitDefs(); const t=today(); let html="", done=0, remaining=0;
-  defs.forEach(function(h){
-    const v=habitMap(h.id)[t]===true;
-    if(v){ done++; return; }          // 已完成：首页不再显示，仅在计数里体现
-    remaining++;
+  const db=TFDB(); const t=today();
+  const all=db.todos.filter(function(x){ return !x.deleted; });
+  const open=all.filter(function(x){ return !x.done; }).sort(function(a,b){
+    const da=a.deadline?new Date(a.deadline).getTime():9e15;
+    const dbv=b.deadline?new Date(b.deadline).getTime():9e15;
+    return da-dbv;
+  });
+  const doneToday=all.filter(function(x){ return x.done && x.completedAt && String(x.completedAt).slice(0,10)===t; }).length;
+  let html="";
+  open.slice(0,6).forEach(function(x){
+    const dt=tfFmtDT(x.deadline).slice(5,16);
     html+='<label class="todo-item">'
-      +'<input type="checkbox" data-act="todo-check" data-id="'+h.id+'">'
+      +'<input type="checkbox" data-act="todo-check" data-id="'+x.id+'">'
       +'<div style="flex:1;min-width:0">'
-      +'<div class="todo-text">'+escapeHtml(h.name)+'</div>'
-      +(h.def?'<div class="todo-meta">'+escapeHtml(h.def)+'</div>':'')
+      +'<div class="todo-text">'+escapeHtml(x.title)+'</div>'
+      +'<div class="todo-meta">'+(dt?('截止 '+escapeHtml(dt)):'无截止时间')+(tfIsOverdue(x)?' · 已逾期':'')+'</div>'
       +'</div></label>';
   });
-  if(!defs.length) html='<div class="todo-empty">还没有待办，到「待办」页点击「管理待办」添加。</div>';
-  else if(!remaining) html='<div class="todo-empty done-all">今天待办已全部完成 ✓</div>';
+  if(!all.length) html='<div class="todo-empty">还没有待办，到「待办」页点击「+ 待办」添加。</div>';
+  else if(!open.length) html='<div class="todo-empty done-all">今天待办已全部完成 ✓</div>';
   const box=document.getElementById("homeTodos"); if(box) box.innerHTML=html;
-  const c=document.getElementById("homeTodoCount"); if(c) c.textContent=done+" / "+defs.length;
+  const c=document.getElementById("homeTodoCount"); if(c) c.textContent=doneToday+" / "+(doneToday+open.length);
 }
 
 /* ---------- 统计（PRD F2：周/月 + 日历热力图 + 法定节假日标记） ---------- */
@@ -2526,7 +2790,6 @@ document.addEventListener("click",function(e){
     saveLocal(); cloudSave({immediate:true}); render();
     alert("已重置所有打卡任务，文档内容已保留。");
   });
-  on("btnMngHabit",function(){ const b=document.getElementById("btnManageHabit"); if(b) b.click(); });
   document.querySelectorAll("[data-dt]").forEach(function(b){
     b.addEventListener("click",function(){
       const v=document.getElementById("dtDate").value;
@@ -2559,47 +2822,701 @@ document.addEventListener("click",function(e){
   const t=e.target && e.target.closest ? e.target.closest(".tabbar .tab") : null;
   if(t && t.dataset && t.dataset.view) switchView(t.dataset.view);
 });
-/* ---------- 待办管理 ---------- */
-function renderHabitEdit(){
-  const defs=habitDefs(); let html="";
-  defs.forEach(function(h){ const t=h.type==="avoid"?"戒除":"养成"; const tc=h.type==="avoid"?"avoid":"keep";
-    html+='<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-top:1px solid var(--line)">'
-      +'<div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13.5px">'+escapeHtml(h.name)+' <span class="habit-tag '+tc+'">'+t+'</span></div>'
-      +'<div style="font-size:12px;color:var(--muted)">'+escapeHtml(h.def||"")+'</div></div>'
-      +'<button class="btn mini" data-act="hd-del" data-id="'+h.id+'">删除</button></div>';
-  });
-  const box=document.getElementById("habitListEdit"); if(box) box.innerHTML=html||'<div class="c-sub">暂无待办</div>';
+
+/* ---------- 待办（拾光·TaskFlow）：数据存 RECORDS.taskflow，随主记录一起云端同步 ---------- */
+function TFDB(){
+  if(!RECORDS.taskflow || !RECORDS.taskflow.goals){
+    RECORDS.taskflow={goals:[],quarters:[],months:[],todos:[],logs:[]};
+  }
+  return RECORDS.taskflow;
 }
-document.getElementById("btnManageHabit").addEventListener("click",function(){
-  renderHabitEdit(); document.getElementById("habitModal").classList.add("show");
+function tfSave(){ RECORDS.taskflow=TFDB(); saveLocal(); if(SYNC!=="nocfg") cloudSave(); }
+function tfGo(p){
+  if(!TF_PAGE_META[p]) return;
+  document.querySelectorAll("[data-tfpage]").forEach(function(x){ x.classList.toggle("active", x.dataset.tfpage===p); });
+  document.querySelectorAll("#view-habit .page").forEach(function(x){ x.classList.toggle("active", x.id==="tfPage-"+p); });
+  var pt=document.getElementById("tfPageTitle"), pd=document.getElementById("tfPageDesc");
+  if(pt) pt.textContent=TF_PAGE_META[p][0];
+  if(pd) pd.textContent=TF_PAGE_META[p][1];
+  tfRenderAll();
+}
+/* =====================================================
+   数据层
+===================================================== */
+
+function tfUid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function tfNow(){ return new Date().toISOString(); }
+
+/* ---------- 日志 ---------- */
+const TF_LOG_LABEL = { add:'新增', edit:'修改', status:'状态/进度', del:'删除', sys:'系统' };
+function tfLog(type, action, detail){
+  TFDB().logs.unshift({ id:tfUid(), ts:tfNow(), type, action, detail:detail||'' });
+  if(TFDB().logs.length > 800) TFDB().logs.length = 800;
+}
+
+/* ---------- 进度计算 ---------- */
+function tfMonthScore(m){ return m.status==='done' ? 1 : m.status==='doing' ? 0.5 : 0; }
+function tfQuarterProgress(qid){
+  const ms = TFDB().months.filter(m=>m.quarterId===qid);
+  if(!ms.length) return null;
+  return Math.round(ms.reduce((s,m)=>s+tfMonthScore(m),0)/ms.length*100);
+}
+function tfGoalProgress(gid){
+  const qs = TFDB().quarters.filter(q=>q.goalId===gid);
+  if(!qs.length) return 0;
+  let sum=0, n=0;
+  qs.forEach(q=>{ const p=tfQuarterProgress(q.id); if(p!==null){ sum+=p; n++; } });
+  return n ? Math.round(sum/n) : 0;
+}
+function tfGoalMonthStats(gid){
+  const qids = TFDB().quarters.filter(q=>q.goalId===gid).map(q=>q.id);
+  const ms = TFDB().months.filter(m=>qids.includes(m.quarterId));
+  return { total:ms.length, done:ms.filter(m=>m.status==='done').length };
+}
+/* 时间基准：今年已流逝百分比；非当年目标返回 null */
+function tfTimeBaseline(year){
+  const now = new Date();
+  if(Number(year) !== now.getFullYear()) return null;
+  const start = new Date(year,0,1), end = new Date(Number(year)+1,0,1);
+  return Math.round((now-start)/(end-start)*100);
+}
+
+/* =====================================================
+   提示
+===================================================== */
+function tfToast(msg, err){
+  const el = document.createElement('div');
+  el.className = 'tfToast' + (err?' err':'');
+  el.textContent = msg;
+  document.getElementById('tfToastWrap').appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(()=>el.remove(),320); }, 2600);
+}
+function tfEsc(s){ return String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function tfFmtDT(iso){
+  if(!iso) return '';
+  const d = new Date(iso);
+  const p = n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+function tfFmtDate(iso){ return tfFmtDT(iso).slice(0,10); }
+
+/* =====================================================
+   导航
+===================================================== */
+const TF_PAGE_META = {
+  dashboard:['仪表盘','整体进度与风险监控一览'],
+  goals:['年度目标','目标拆分：年度 → 季度 → 月度，进度逐级汇总'],
+  todos:['待办清单','零散任务 · 截止时间 · 优先级管理'],
+  trash:['已删除','删除记录可追溯，支持恢复'],
+  logs:['操作日志','每一次操作都有迹可循'],
+  settings:['数据维护','备份、恢复与初始化']
+};
+/* =====================================================
+   弹窗
+===================================================== */
+function tfOpenModal(id){ document.getElementById(id).classList.add('show'); }
+function tfCloseModal(id){ document.getElementById(id).classList.remove('show'); }
+function tfConfirm(title, text, fn){
+  document.getElementById('tfConfirmTitle').textContent = title;
+  document.getElementById('tfConfirmText').textContent = text;
+  const ok = document.getElementById('tfConfirmOk');
+  ok.onclick = ()=>{ tfCloseModal('tfConfirmModal'); fn(); };
+  tfOpenModal('tfConfirmModal');
+}
+
+/* =====================================================
+   年度目标 CRUD
+===================================================== */
+var TF_EDIT_GOAL = null;
+function tfOpenGoalModal(id){
+  TF_EDIT_GOAL = id || null;
+  document.getElementById('tfGoalModalTitle').textContent = id ? '编辑年度目标' : '新建年度目标';
+  document.getElementById('tfGSplitRow').style.display = id ? 'none' : 'block';
+  if(id){
+    const g = TFDB().goals.find(x=>x.id===id);
+    document.getElementById('tfGTitle').value = g.title;
+    document.getElementById('tfGYear').value = g.year;
+    document.getElementById('tfGDesc').value = g.desc||'';
+  }else{
+    document.getElementById('tfGTitle').value = '';
+    document.getElementById('tfGYear').value = new Date().getFullYear();
+    document.getElementById('tfGDesc').value = '';
+  }
+  tfOpenModal('tfGoalModal');
+}
+function tfSaveGoal(){
+  const title = document.getElementById('tfGTitle').value.trim();
+  const year = parseInt(document.getElementById('tfGYear').value,10);
+  const desc = document.getElementById('tfGDesc').value.trim();
+  if(!title){ tfToast('请填写目标名称', true); return; }
+  if(!year){ tfToast('请填写有效年度', true); return; }
+  if(TF_EDIT_GOAL){
+    const g = TFDB().goals.find(x=>x.id===TF_EDIT_GOAL);
+    const old = g.title;
+    g.title = title; g.year = year; g.desc = desc;
+    tfLog('edit','修改年度目标', `「${old}」更新为「${title}」（${year}）`);
+    tfToast('目标已更新');
+  }else{
+    const g = { id:tfUid(), title, year, desc, createdAt:tfNow(), deleted:false, deletedAt:null };
+    TFDB().goals.push(g);
+    tfLog('add','新建年度目标', `「${title}」（${year} 年）`);
+    if(document.getElementById('tfGAutoSplit').checked){
+      for(let q=1;q<=4;q++){
+        TFDB().quarters.push({ id:tfUid(), goalId:g.id, q, title:`Q${q} 阶段任务`, createdAt:tfNow(), deleted:false });
+      }
+      tfLog('add','拆分季度任务', `「${title}」自动拆分为 Q1–Q4`);
+    }
+    tfToast('年度目标已创建');
+  }
+}
+function tfDeleteGoal(id){
+  const g = TFDB().goals.find(x=>x.id===id);
+  tfConfirm('删除年度目标', `确定删除「${g.title}」吗？其下属季度与月度任务将一并移入已删除区，可随时恢复。`, ()=>{
+    g.deleted = true; g.deletedAt = tfNow();
+    TFDB().quarters.filter(q=>q.goalId===id).forEach(q=>{ q.deleted=true; });
+    const qids = TFDB().quarters.filter(q=>q.goalId===id).map(q=>q.id);
+    TFDB().months.filter(m=>qids.includes(m.quarterId)).forEach(m=>{ m.deleted=true; });
+    tfLog('del','删除年度目标', `「${g.title}」及其全部子任务移入已删除区`);
+    tfSave(); tfRenderAll(); tfToast('已删除，可在「已删除」页恢复');
+  });
+}
+function tfRestoreGoal(id){
+  const g = TFDB().goals.find(x=>x.id===id);
+  g.deleted = false; g.deletedAt = null;
+  TFDB().quarters.filter(q=>q.goalId===id).forEach(q=>{ q.deleted=false; });
+  const qids = TFDB().quarters.filter(q=>q.goalId===id).map(q=>q.id);
+  TFDB().months.filter(m=>qids.includes(m.quarterId)).forEach(m=>{ m.deleted=false; });
+  tfLog('sys','恢复年度目标', `「${g.title}」已从已删除区恢复`);
+  tfSave(); tfRenderAll(); tfToast('目标已恢复');
+}
+function tfPurgeGoal(id){
+  const g = TFDB().goals.find(x=>x.id===id);
+  tfConfirm('彻底删除', `彻底删除「${g.title}」及其全部子任务？此操作不可恢复！`, ()=>{
+    const qids = TFDB().quarters.filter(q=>q.goalId===id).map(q=>q.id);
+    TFDB().months = TFDB().months.filter(m=>!qids.includes(m.quarterId));
+    TFDB().quarters = TFDB().quarters.filter(q=>q.goalId!==id);
+    TFDB().goals = TFDB().goals.filter(x=>x.id!==id);
+    tfLog('del','彻底删除年度目标', `「${g.title}」已永久清除`);
+    tfSave(); tfRenderAll(); tfToast('已彻底删除');
+  });
+}
+
+/* =====================================================
+   季度任务 CRUD
+===================================================== */
+var TF_Q_CTX = null; // {goalId, q} 或 {id}
+function tfOpenQuarterModal(goalId, q, editId){
+  TF_Q_CTX = editId ? {id:editId} : {goalId, q};
+  document.getElementById('tfQModalTitle').textContent =
+    editId ? `编辑 Q${TFDB().quarters.find(x=>x.id===editId).q} 季度任务` : `新建 Q${q} 季度任务`;
+  document.getElementById('tfQTitle').value = editId ? TFDB().quarters.find(x=>x.id===editId).title : '';
+  tfOpenModal('tfQuarterModal');
+}
+function tfSaveQuarter(){
+  const title = document.getElementById('tfQTitle').value.trim();
+  if(!title){ tfToast('请填写季度任务名称', true); return; }
+  if(TF_Q_CTX.id){
+    const q = TFDB().quarters.find(x=>x.id===TF_Q_CTX.id);
+    const old = q.title; q.title = title;
+    tfLog('edit','修改季度任务', `Q${q.q}：「${old}」→「${title}」`);
+  }else{
+    TFDB().quarters.push({ id:tfUid(), goalId:TF_Q_CTX.goalId, q:TF_Q_CTX.q, title, createdAt:tfNow(), deleted:false });
+    const g = TFDB().goals.find(x=>x.id===TF_Q_CTX.goalId);
+    tfLog('add','新建季度任务', `「${g.title}」新增 Q${TF_Q_CTX.q}：「${title}」`);
+  }
+  tfSave(); tfCloseModal('tfQuarterModal'); tfRenderAll(); tfToast('季度任务已保存');
+}
+function tfDeleteQuarter(id){
+  const q = TFDB().quarters.find(x=>x.id===id);
+  tfConfirm('删除季度任务', `确定删除 Q${q.q}「${q.title}」及其下全部月度任务吗？`, ()=>{
+    q.deleted = true;
+    TFDB().months.filter(m=>m.quarterId===id).forEach(m=>m.deleted=true);
+    tfLog('del','删除季度任务', `Q${q.q}「${q.title}」及其月度任务已删除`);
+    tfSave(); tfRenderAll(); tfToast('季度任务已删除');
+  });
+}
+
+/* =====================================================
+   月度任务 CRUD
+===================================================== */
+var TF_M_CTX = null;
+function tfFillMonthSelect(selected){
+  const sel = document.getElementById('tfMMonth');
+  sel.innerHTML = '';
+  for(let i=1;i<=12;i++){
+    const o = document.createElement('option');
+    o.value = i; o.textContent = i + ' 月';
+    if(i===selected) o.selected = true;
+    sel.appendChild(o);
+  }
+}
+function tfOpenMonthModal(quarterId, editId){
+  TF_M_CTX = editId ? {id:editId} : {quarterId};
+  document.getElementById('tfMModalTitle').textContent = editId ? '编辑月度任务' : '新建月度任务';
+  if(editId){
+    const m = TFDB().months.find(x=>x.id===editId);
+    tfFillMonthSelect(m.month);
+    document.getElementById('tfMTitle').value = m.title;
+    document.getElementById('tfMStatus').value = m.status;
+    document.getElementById('tfMNote').value = m.note||'';
+  }else{
+    const q = TFDB().quarters.find(x=>x.id===quarterId);
+    tfFillMonthSelect((q.q-1)*3+1);
+    document.getElementById('tfMTitle').value = '';
+    document.getElementById('tfMStatus').value = 'todo';
+    document.getElementById('tfMNote').value = '';
+  }
+  tfOpenModal('tfMonthModal');
+}
+function tfSaveMonth(){
+  const title = document.getElementById('tfMTitle').value.trim();
+  const month = parseInt(document.getElementById('tfMMonth').value,10);
+  const status = document.getElementById('tfMStatus').value;
+  const note = document.getElementById('tfMNote').value.trim();
+  if(!title){ tfToast('请填写任务内容', true); return; }
+  if(TF_M_CTX.id){
+    const m = TFDB().months.find(x=>x.id===TF_M_CTX.id);
+    const changes = [];
+    if(m.title!==title) changes.push(`内容「${m.title}」→「${title}」`);
+    if(m.month!==month) changes.push(`月份 ${m.month}月 → ${month}月`);
+    if(m.status!==status) changes.push(`状态 ${tfStatusLabel(m.status)} → ${tfStatusLabel(status)}`);
+    Object.assign(m,{title,month,status,note});
+    tfLog('edit','修改月度任务', changes.join('；')||`更新「${title}」备注`);
+  }else{
+    TFDB().months.push({ id:tfUid(), quarterId:TF_M_CTX.quarterId, month, title, status, note, createdAt:tfNow(), deleted:false });
+    const q = TFDB().quarters.find(x=>x.id===TF_M_CTX.quarterId);
+    const g = TFDB().goals.find(x=>x.id===q.goalId);
+    tfLog('add','新建月度任务', `「${g.title} / Q${q.q}」新增 ${month} 月任务：「${title}」`);
+  }
+  tfSave(); tfCloseModal('tfMonthModal'); tfRenderAll(); tfToast('月度任务已保存');
+}
+function tfSetMonthStatus(id, status){
+  const m = TFDB().months.find(x=>x.id===id);
+  const old = m.status;
+  m.status = status;
+  if(status==='done' && old!=='done') m.completedAt = tfNow();
+  if(status!=='done') m.completedAt = null;
+  const q = TFDB().quarters.find(x=>x.id===m.quarterId);
+  const g = TFDB().goals.find(x=>x.id===q.goalId);
+  tfLog('status','月度任务状态变更', `「${g.title} / Q${q.q} / ${m.month}月」${tfStatusLabel(old)} → ${tfStatusLabel(status)}，年度进度更新为 ${tfGoalProgress(g.id)}%`);
+  tfSave(); tfRenderAll();
+}
+function tfDeleteMonth(id){
+  const m = TFDB().months.find(x=>x.id===id);
+  tfConfirm('删除月度任务', `确定删除 ${m.month} 月任务「${m.title}」吗？`, ()=>{
+    m.deleted = true;
+    tfLog('del','删除月度任务', `${m.month} 月任务「${m.title}」已删除`);
+    tfSave(); tfRenderAll(); tfToast('月度任务已删除');
+  });
+}
+function tfStatusLabel(s){ return {todo:'未开始',doing:'进行中',done:'已完成'}[s]||s; }
+
+
+
+/* =====================================================
+   待办 CRUD
+===================================================== */
+var TF_EDIT_TODO = null;
+function tfOpenTodoModal(id){
+  TF_EDIT_TODO = id || null;
+  document.getElementById('tfTodoModalTitle').textContent = id ? '编辑待办任务' : '新建待办任务';
+  if(id){
+    const t = TFDB().todos.find(x=>x.id===id);
+    document.getElementById('tfTTitle').value = t.title;
+    document.getElementById('tfTDeadline').value = t.deadline ? t.deadline.slice(0,16) : '';
+    document.getElementById('tfTPriority').value = t.priority;
+    document.getElementById('tfTCategory').value = t.category||'';
+    document.getElementById('tfTNote').value = t.note||'';
+  }else{
+    document.getElementById('tfTTitle').value = '';
+    const d = new Date(); d.setDate(d.getDate()+1); d.setMinutes(0);
+    document.getElementById('tfTDeadline').value =
+      `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}T${String(d.getHours()).padStart(2,'0')}:00`;
+    document.getElementById('tfTPriority').value = 'mid';
+    document.getElementById('tfTCategory').value = '';
+    document.getElementById('tfTNote').value = '';
+  }
+  tfOpenModal('tfTodoModal');
+}
+function tfSaveTodo(){
+  const title = document.getElementById('tfTTitle').value.trim();
+  const dlRaw = document.getElementById('tfTDeadline').value;
+  const priority = document.getElementById('tfTPriority').value;
+  const category = document.getElementById('tfTCategory').value.trim();
+  const note = document.getElementById('tfTNote').value.trim();
+  if(!title){ tfToast('请填写任务内容', true); return; }
+  if(!dlRaw){ tfToast('请设置截止时间', true); return; }
+  const deadline = new Date(dlRaw).toISOString();
+  if(TF_EDIT_TODO){
+    const t = TFDB().todos.find(x=>x.id===TF_EDIT_TODO);
+    const changes = [];
+    if(t.title!==title) changes.push(`内容「${t.title}」→「${title}」`);
+    if(t.deadline!==deadline) changes.push(`截止时间 ${tfFmtDT(t.deadline)} → ${tfFmtDT(deadline)}`);
+    if(t.priority!==priority) changes.push(`优先级 ${tfPriLabel(t.priority)} → ${tfPriLabel(priority)}`);
+    Object.assign(t,{title,deadline,priority,category,note});
+    tfLog('edit','修改待办任务', changes.join('；')||`更新「${title}」`);
+    tfToast('待办已更新');
+  }else{
+    TFDB().todos.push({ id:tfUid(), title, deadline, priority, category, note, done:false, createdAt:tfNow(), completedAt:null, deleted:false });
+    tfLog('add','新建待办任务', `「${title}」，截止 ${tfFmtDT(deadline)}，优先级：${tfPriLabel(priority)}`);
+    tfToast('待办已创建');
+  }
+  tfSave(); tfCloseModal('tfTodoModal'); tfRenderAll();
+}
+function tfToggleTodo(id){
+  const t = TFDB().todos.find(x=>x.id===id);
+  t.done = !t.done;
+  t.completedAt = t.done ? tfNow() : null;
+  tfLog('status', t.done?'完成待办任务':'重开待办任务', `「${t.title}」${t.done?'已完成':'标记为未完成'}`);
+  tfSave(); tfRenderAll();
+}
+function tfDeleteTodo(id){
+  const t = TFDB().todos.find(x=>x.id===id);
+  t.deleted = true; t.deletedAt = tfNow();
+  tfLog('del','删除待办任务', `「${t.title}」移入已删除区`);
+  tfSave(); tfRenderAll(); tfToast('已删除，可在「已删除」页恢复');
+}
+function tfRestoreTodo(id){
+  const t = TFDB().todos.find(x=>x.id===id);
+  t.deleted = false; t.deletedAt = null;
+  tfLog('sys','恢复待办任务', `「${t.title}」已恢复`);
+  tfSave(); tfRenderAll(); tfToast('待办已恢复');
+}
+function tfPurgeTodo(id){
+  const t = TFDB().todos.find(x=>x.id===id);
+  tfConfirm('彻底删除', `彻底删除待办「${t.title}」？此操作不可恢复！`, ()=>{
+    TFDB().todos = TFDB().todos.filter(x=>x.id!==id);
+    tfLog('del','彻底删除待办任务', `「${t.title}」已永久清除`);
+    tfSave(); tfRenderAll(); tfToast('已彻底删除');
+  });
+}
+function tfPriLabel(p){ return {high:'高',mid:'中',low:'低'}[p]||p; }
+function tfPriTag(p){ return {high:'red',mid:'amber',low:'gray'}[p]; }
+function tfIsOverdue(t){ return !t.done && t.deadline && new Date(t.deadline) < new Date(); }
+function tfIsSoon(t){
+  if(t.done || !t.deadline) return false;
+  const diff = new Date(t.deadline) - new Date();
+  return diff > 0 && diff < 48*3600*1000;
+}
+
+/* =====================================================
+   渲染：仪表盘
+===================================================== */
+function tfRenderDashboard(){
+  const goals = TFDB().goals.filter(g=>!g.deleted);
+  const todos = TFDB().todos.filter(t=>!t.deleted);
+  const openTodos = todos.filter(t=>!t.done);
+  const overdue = openTodos.filter(tfIsOverdue);
+
+  /* 进度健康度 */
+  const hl = document.getElementById('tfHealthList');
+  if(!goals.length){ hl.innerHTML = `<div class="empty">暂无年度目标，点击右上角「+ 年度目标」开始</div>`; }
+  else{
+    hl.innerHTML = goals.map(g=>{
+      const p = tfGoalProgress(g.id);
+      const base = tfTimeBaseline(g.year);
+      let cls = '', deltaHtml = '';
+      if(base!==null){
+        const d = p - base;
+        cls = d < -15 ? 'lag' : d < 0 ? 'warn' : '';
+        const c = d < -15 ? 'var(--red)' : d < 0 ? 'var(--amber)' : 'var(--mint)';
+        deltaHtml = `<span class="health-delta" style="color:${c}">${d>=0?'+':''}${d}%</span>`;
+      }else{
+        deltaHtml = `<span class="health-delta" style="color:var(--text3)">—</span>`;
+      }
+      return `<div class="health-bar-row">
+        <span class="health-name" title="${tfEsc(g.title)}">${tfEsc(g.title)}</span>
+        <div class="pbar-row" style="flex:1"><div class="pbar"><div class="pbar-fill ${cls}" style="width:${p}%"></div></div>
+        <span class="pbar-pct">${p}%</span></div>
+        ${base!==null?`<span style="font-size:11px;color:var(--text3);min-width:70px;text-align:right">基准 ${base}%</span>`:'<span style="min-width:70px"></span>'}
+        ${deltaHtml}
+      </div>`;
+    }).join('') + `<div style="font-size:11px;color:var(--text3);margin-top:10px">基准 = 当年时间已流逝百分比；落后 15% 以上标红预警</div>`;
+  }
+
+  /* 临期/逾期 */
+  const alerts = [...overdue, ...openTodos.filter(tfIsSoon)]
+    .sort((a,b)=>new Date(a.deadline)-new Date(b.deadline)).slice(0,7);
+  document.getElementById('tfAlertList').innerHTML = alerts.length ? alerts.map(t=>`
+    <div class="mini-item">
+      <span class="dot" style="background:${tfIsOverdue(t)?'var(--red)':'var(--amber)'}"></span>
+      <span class="t">${tfEsc(t.title)}</span>
+      <span class="tag ${tfIsOverdue(t)?'red':'amber'}">${tfIsOverdue(t)?'已逾期':'临期'}</span>
+      <span class="d">${tfFmtDT(t.deadline)}</span>
+    </div>`).join('') : `<div class="empty">没有临期或逾期的任务</div>`;
+
+  /* 即将截止 */
+  const upcoming = openTodos.filter(t=>t.deadline)
+    .sort((a,b)=>new Date(a.deadline)-new Date(b.deadline)).slice(0,6);
+  document.getElementById('tfUpcomingList').innerHTML = upcoming.length ? upcoming.map(t=>`
+    <div class="mini-item">
+      <span class="dot" style="background:var(--${tfPriTag(t.priority)==='gray'?'text3':tfPriTag(t.priority)})"></span>
+      <span class="t">${tfEsc(t.title)}</span>
+      <span class="d">${tfFmtDT(t.deadline)}</span>
+    </div>`).join('') : `<div class="empty">暂无待办任务</div>`;
+
+  /* 最近操作 */
+  document.getElementById('tfRecentLogList').innerHTML = TFDB().logs.slice(0,6).map(l=>`
+    <div class="mini-item">
+      <span class="tag ${tfLogTagColor(l.type)}" style="min-width:58px;justify-content:center">${TF_LOG_LABEL[l.type]}</span>
+      <span class="t">${tfEsc(l.action)}：${tfEsc(l.detail)}</span>
+      <span class="d">${tfFmtDT(l.ts).slice(5)}</span>
+    </div>`).join('') || `<div class="empty">暂无操作记录</div>`;
+}
+function tfLogTagColor(t){ return {add:'mint',edit:'amber',status:'blue',del:'red',sys:'purple'}[t]; }
+
+/* =====================================================
+   渲染：年度目标
+===================================================== */
+function tfRenderGoals(){
+  /* 年份筛选 */
+  const years = [...new Set(TFDB().goals.filter(g=>!g.deleted).map(g=>g.year))].sort((a,b)=>b-a);
+  const yf = document.getElementById('tfGoalYearFilter');
+  const cur = yf.value || 'all';
+  yf.innerHTML = `<option value="all">全部年度</option>` + years.map(y=>`<option value="${y}">${y} 年</option>`).join('');
+  yf.value = [...yf.options].some(o=>o.value===cur) ? cur : 'all';
+
+  const kw = document.getElementById('tfGoalSearch').value.trim().toLowerCase();
+  let goals = TFDB().goals.filter(g=>!g.deleted);
+  if(yf.value!=='all') goals = goals.filter(g=>String(g.year)===yf.value);
+  if(kw) goals = goals.filter(g=>g.title.toLowerCase().includes(kw)||(g.desc||'').toLowerCase().includes(kw));
+  goals.sort((a,b)=>b.year-a.year || b.createdAt.localeCompare(a.createdAt));
+
+  const box = document.getElementById('tfGoalList');
+  if(!goals.length){ box.innerHTML = `<div class="empty" style="background:var(--surface);border:1px solid var(--border-soft);border-radius:10px">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg>
+    <div>暂无年度目标<br><span style="font-size:12px">点击「新建年度目标」，并可自动拆分为四个季度</span></div></div>`; return; }
+
+  box.innerHTML = goals.map(g=>{
+    const p = tfGoalProgress(g.id);
+    const base = tfTimeBaseline(g.year);
+    const lagCls = base!==null ? (p-base<-15?'lag':p-base<0?'warn':'') : '';
+    const ms = tfGoalMonthStats(g.id);
+    const qs = TFDB().quarters.filter(q=>q.goalId===g.id && !q.deleted).sort((a,b)=>a.q-b.q);
+    const qHtml = qs.map(q=>{
+      const qp = tfQuarterProgress(q.id);
+      const mts = TFDB().months.filter(m=>m.quarterId===q.id && !m.deleted).sort((a,b)=>a.month-b.month);
+      const mHtml = mts.length ? mts.map(m=>`
+        <div class="m-row">
+          <span class="m-name">${String(m.month).padStart(2,'0')} 月</span>
+          <span class="m-title ${m.status==='done'?'done':''}" title="${tfEsc(m.note||'')}">${tfEsc(m.title)}</span>
+          <span class="m-status">
+            <select onchange="tfSetMonthStatus('${m.id}',this.value)">
+              <option value="todo" ${m.status==='todo'?'selected':''}>未开始</option>
+              <option value="doing" ${m.status==='doing'?'selected':''}>进行中</option>
+              <option value="done" ${m.status==='done'?'selected':''}>已完成</option>
+            </select>
+          </span>
+          <button class="icon-btn" title="编辑" onclick="tfOpenMonthModal(null,'${m.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.8 2.8 0 114 4L7.5 20.5 2 22l1.5-5.5z"/></svg></button>
+          <button class="icon-btn" title="删除" onclick="tfDeleteMonth('${m.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>
+        </div>`).join('') : `<div class="q-empty">尚未拆分月度任务</div>`;
+      return `<div class="q-block">
+        <div class="q-head">
+          <span class="q-title">Q${q.q}</span>
+          <span style="font-size:13px;font-weight:600;flex-shrink:0">${tfEsc(q.title)}</span>
+          <div class="q-prog pbar-row"><div class="pbar"><div class="pbar-fill" style="width:${qp??0}%"></div></div>
+          <span class="pbar-pct">${qp===null?'—':qp+'%'}</span></div>
+          <button class="icon-btn" title="编辑季度任务" onclick="tfOpenQuarterModal(null,null,'${q.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.8 2.8 0 114 4L7.5 20.5 2 22l1.5-5.5z"/></svg></button>
+          <button class="icon-btn" title="删除季度任务" onclick="tfDeleteQuarter('${q.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>
+        </div>
+        <div class="q-months">${mHtml}</div>
+        <button class="btn ghost sm add-m-btn" onclick="tfOpenMonthModal('${q.id}')">+ 拆分月度任务</button>
+      </div>`;
+    }).join('');
+
+    return `<div class="goal-card" data-gid="${g.id}">
+      <div class="goal-head" onclick="tfToggleGoalCard('${g.id}')">
+        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        <div class="goal-info">
+          <div class="goal-title">${tfEsc(g.title)}
+            <span class="tag blue">${g.year} 年</span>
+            ${base!==null && p-base<-15 ? '<span class="tag red">进度落后</span>' : base!==null && p-base<0 ? '<span class="tag amber">略低于基准</span>' : base!==null ? '<span class="tag mint">正常推进</span>' : ''}
+          </div>
+          <div class="goal-meta">${tfEsc(g.desc||'')} · 月度任务 ${ms.done}/${ms.total} 完成 · 创建于 ${tfFmtDate(g.createdAt)}</div>
+        </div>
+        <div class="goal-prog">
+          <div class="pbar-row"><div class="pbar"><div class="pbar-fill ${lagCls}" style="width:${p}%"></div></div>
+          <span class="pbar-pct">${p}%</span></div>
+        </div>
+        <div class="goal-actions" onclick="event.stopPropagation()">
+          <button class="btn ghost sm" onclick="tfOpenQuarterPicker('${g.id}')">+ 季度</button>
+          <button class="icon-btn" title="编辑目标" onclick="tfOpenGoalModal('${g.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.8 2.8 0 114 4L7.5 20.5 2 22l1.5-5.5z"/></svg></button>
+          <button class="icon-btn" title="删除目标" onclick="tfDeleteGoal('${g.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>
+        </div>
+      </div>
+      <div class="goal-body">${qHtml || '<div class="q-empty" style="padding:14px 0">尚未拆分季度任务，点击上方「+ 季度」开始拆分</div>'}</div>
+    </div>`;
+  }).join('');
+}
+function tfToggleGoalCard(id){
+  document.querySelector(`.goal-card[data-gid="${id}"]`).classList.toggle('open');
+}
+function tfOpenQuarterPicker(goalId){
+  const existing = TFDB().quarters.filter(q=>q.goalId===goalId && !q.deleted).map(q=>q.q);
+  const avail = [1,2,3,4].filter(q=>!existing.includes(q));
+  if(!avail.length){ tfToast('四个季度均已存在', true); return; }
+  tfOpenQuarterModal(goalId, avail[0], null);
+}
+
+/* =====================================================
+   渲染：待办
+===================================================== */
+function tfRenderTodos(){
+  const kw = document.getElementById('tfTodoSearch').value.trim().toLowerCase();
+  const sf = document.getElementById('tfTodoStatusFilter').value;
+  const pf = document.getElementById('tfTodoPriFilter').value;
+  let list = TFDB().todos.filter(t=>!t.deleted);
+  if(kw) list = list.filter(t=>t.title.toLowerCase().includes(kw)||(t.category||'').toLowerCase().includes(kw)||(t.note||'').toLowerCase().includes(kw));
+  if(sf==='open') list = list.filter(t=>!t.done);
+  if(sf==='done') list = list.filter(t=>t.done);
+  if(sf==='overdue') list = list.filter(tfIsOverdue);
+  if(pf!=='all') list = list.filter(t=>t.priority===pf);
+  const priW = {high:0,mid:1,low:2};
+  list.sort((a,b)=> (a.done-b.done) || (priW[a.priority]-priW[b.priority]) || (new Date(a.deadline)-new Date(b.deadline)));
+
+  const box = document.getElementById('tfTodoList');
+  if(!list.length){ box.innerHTML = `<div class="empty" style="background:var(--surface);border:1px solid var(--border-soft);border-radius:10px">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3 8-8"/><path d="M21 12v6a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2h11"/></svg>
+    <div>没有符合条件的待办</div></div>`; return; }
+
+  box.innerHTML = list.map(t=>{
+    const od = tfIsOverdue(t), soon = tfIsSoon(t);
+    return `<div class="todo-item ${t.done?'done':''} ${od?'overdue':''}">
+      <button class="todo-check ${t.done?'on':''}" onclick="tfToggleTodo('${t.id}')" title="${t.done?'标记未完成':'标记完成'}">
+        ${t.done?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>':''}
+      </button>
+      <div class="todo-main">
+        <div class="todo-title">${tfEsc(t.title)}</div>
+        <div class="todo-sub">
+          <span class="ddl ${od?'overdue':soon?'soon':''}">⏱ ${tfFmtDT(t.deadline)}${od?' · 已逾期':soon?' · 即将到期':''}</span>
+          ${t.category?`<span>#${tfEsc(t.category)}</span>`:''}
+          ${t.note?`<span title="${tfEsc(t.note)}">${tfEsc(t.note.length>24?t.note.slice(0,24)+'…':t.note)}</span>`:''}
+          ${t.done&&t.completedAt?`<span>完成于 ${tfFmtDT(t.completedAt)}</span>`:''}
+        </div>
+      </div>
+      <span class="tag ${tfPriTag(t.priority)}">${tfPriLabel(t.priority)}优先</span>
+      <button class="icon-btn" title="编辑" onclick="tfOpenTodoModal('${t.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.8 2.8 0 114 4L7.5 20.5 2 22l1.5-5.5z"/></svg></button>
+      <button class="icon-btn" title="删除" onclick="tfDeleteTodo('${t.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>
+    </div>`;
+  }).join('');
+}
+
+/* =====================================================
+   渲染：已删除
+===================================================== */
+function tfRenderTrash(){
+  const dg = TFDB().goals.filter(g=>g.deleted).sort((a,b)=>(b.deletedAt||'').localeCompare(a.deletedAt||''));
+  const dt = TFDB().todos.filter(t=>t.deleted).sort((a,b)=>(b.deletedAt||'').localeCompare(a.deletedAt||''));
+  document.getElementById('tfTrashGoals').innerHTML = dg.length ? dg.map(g=>{
+    const qn = TFDB().quarters.filter(q=>q.goalId===g.id).length;
+    return `<div class="trash-item">
+      <div class="info">
+        <div class="name">${tfEsc(g.title)} <span class="tag blue" style="text-decoration:none">${g.year} 年</span></div>
+        <div class="meta">含 ${qn} 个季度任务 · 删除于 ${tfFmtDT(g.deletedAt)}</div>
+      </div>
+      <span class="tag red">已删除</span>
+      <button class="btn ghost sm" onclick="tfRestoreGoal('${g.id}')">恢复</button>
+      <button class="btn danger sm" onclick="tfPurgeGoal('${g.id}')">彻底删除</button>
+    </div>`;
+  }).join('') : `<div class="empty" style="padding:24px">没有被删除的年度目标</div>`;
+
+  document.getElementById('tfTrashTodos').innerHTML = dt.length ? dt.map(t=>`
+    <div class="trash-item">
+      <div class="info">
+        <div class="name">${tfEsc(t.title)}</div>
+        <div class="meta">截止 ${tfFmtDT(t.deadline)} · 删除于 ${tfFmtDT(t.deletedAt)}</div>
+      </div>
+      <span class="tag red">已删除</span>
+      <button class="btn ghost sm" onclick="tfRestoreTodo('${t.id}')">恢复</button>
+      <button class="btn danger sm" onclick="tfPurgeTodo('${t.id}')">彻底删除</button>
+    </div>`).join('') : `<div class="empty" style="padding:24px">没有被删除的待办任务</div>`;
+}
+
+/* =====================================================
+   渲染：日志
+===================================================== */
+var TF_LOG_FILTER = 'all';
+function tfRenderLogs(){
+  const F = (typeof TF_LOG_FILTER==='string' && TF_LOG_FILTER) || 'all';
+  let list = TFDB().logs;
+  if(F!=='all') list = list.filter(l=>l.type===F);
+  document.getElementById('tfLogList').innerHTML = list.length ? list.slice(0,200).map(l=>`
+    <div class="tfLog-entry c-${l.type}">
+      <div class="tfLog-top">
+        <span class="tag ${tfLogTagColor(l.type)}">${TF_LOG_LABEL[l.type]}</span>
+        <span style="font-weight:600;font-size:13px">${tfEsc(l.action)}</span>
+        <span class="tfLog-time">${tfFmtDT(l.ts)}</span>
+      </div>
+      <div class="tfLog-detail">${tfEsc(l.detail)}</div>
+    </div>`).join('') : `<div class="empty">暂无日志记录</div>`;
+}
+
+/* =====================================================
+   导航计数 & 全局渲染
+===================================================== */
+function tfRenderBadges(){
+  document.getElementById('tfNavGoalCount').textContent = TFDB().goals.filter(g=>!g.deleted).length;
+  const trashN = TFDB().goals.filter(g=>g.deleted).length + TFDB().todos.filter(t=>t.deleted).length;
+  document.getElementById('tfNavTrashCount').textContent = trashN;
+  const odN = TFDB().todos.filter(t=>!t.deleted && tfIsOverdue(t)).length;
+  const badge = document.getElementById('tfNavOverdue');
+  badge.style.display = odN ? 'flex' : 'none';
+  badge.textContent = odN;
+  document.getElementById('tfFootLogCount').textContent = TFDB().logs.length;
+}
+function tfRenderAll(){
+  tfRenderDashboard(); tfRenderGoals(); tfRenderTodos(); tfRenderTrash(); tfRenderLogs(); tfRenderBadges();
+}
+
+/* =====================================================
+   数据维护
+===================================================== */
+/* =====================================================
+   演示数据
+===================================================== */
+/* =====================================================
+   时钟 & 启动
+===================================================== */
+function tfTick(){
+  const d = new Date(), p = n=>String(n).padStart(2,'0');
+  const week = ['日','一','二','三','四','五','六'][d.getDay()];
+  document.getElementById('tfClock').textContent =
+    `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} 周${week} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+}
+
+
+tfRenderAll();
+/* 默认展开第一个目标 */
+
+/* ---------- 待办页：分区切换 / 日志过滤 / 弹窗遮罩 —— 统一用事件委托 ---------- */
+document.addEventListener("click",function(e){
+  const chip = e.target && e.target.closest ? e.target.closest("[data-tfpage]") : null;
+  if(chip){ tfGo(chip.dataset.tfpage); return; }
+  const lf = e.target && e.target.closest ? e.target.closest("[data-tfl]") : null;
+  if(lf){
+    document.querySelectorAll("[data-tfl]").forEach(function(c){ c.classList.remove("active"); });
+    lf.classList.add("active");
+    TF_LOG_FILTER = lf.dataset.tfl;
+    tfRenderLogs(); return;
+  }
+  const mask = (e.target && e.target.classList && e.target.classList.contains("tf-mask")) ? e.target : null;
+  if(mask){ mask.classList.remove("show"); }
 });
-document.getElementById("habitCancel").addEventListener("click",function(){
-  document.getElementById("habitModal").classList.remove("show");
+document.addEventListener("keydown",function(e){
+  if(e.key==="Escape") document.querySelectorAll(".tf-mask.show").forEach(function(m){ m.classList.remove("show"); });
 });
-document.getElementById("habitAdd").addEventListener("click",function(){
-  const name=document.getElementById("habitName").value.trim();
-  const type=document.getElementById("habitType").value;
-  const def=document.getElementById("habitDef").value.trim();
-  if(!name){ alert("请填写待办名称"); return; }
-  if(!RECORDS.habitDefs) RECORDS.habitDefs=[];
-  RECORDS.habitDefs.push({id:"h"+Date.now(), name:name, type:type, def:def});
-  document.getElementById("habitName").value=""; document.getElementById("habitDef").value="";
-  renderHabitEdit(); renderHabit(); renderHabitWeek(); renderHabitHeat();
-  if(SYNC!=="nocfg") cloudSave();
-});
-document.getElementById("habitListEdit").addEventListener("click",function(e){
-  const el=e.target.closest("[data-act='hd-del']"); if(!el) return;
-  const id=el.dataset.id;
-  if(!confirm("删除该待办？其历史打卡记录也会一并清除。")) return;
-  RECORDS.habitDefs=RECORDS.habitDefs.filter(function(h){return h.id!==id;});
-  if(RECORDS.habits && RECORDS.habits[id]) delete RECORDS.habits[id];
-  renderHabitEdit(); renderHabit(); renderHabitWeek(); renderHabitHeat();
-  if(SYNC!=="nocfg") cloudSave();
-});
+function tfTick(){
+  const d=new Date(), p=function(n){ return String(n).padStart(2,"0"); };
+  const week=["日","一","二","三","四","五","六"][d.getDay()];
+  const el=document.getElementById("tfClock");
+  if(el) el.textContent = d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+" 周"+week+" "+p(d.getHours())+":"+p(d.getMinutes())+":"+p(d.getSeconds());
+}
+setInterval(tfTick,1000); tfTick();
+
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-09o";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-09p";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
