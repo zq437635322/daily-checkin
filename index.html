@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-09-11d</title>
+<title>每日打卡 · 构建2026-09-11e</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -1737,8 +1737,18 @@ function syncFitness(allowSave){
     RECORDS.fitness={ v:FITNESS_RULES.v, generated:today(), source:FITNESS_RULES.source,
       rules:FITNESS_RULES, lib:EXERCISE_LIB, seq:FITNESS_FALLBACK };
     need=true;
+  } else {
+    // 自愈：云端/本地排班早于计划起点 → 用当前 PLAN_START 重建，避免 seqOf 过滤后首页空白
+    const s0=RECORDS.fitness.seq[0] && RECORDS.fitness.seq[0].date;
+    if(s0 && s0 < PLAN_START){
+      RECORDS.fitness.seq=buildFitnessSeq(PLAN_START, RECORDS.fitness.rules||FITNESS_RULES);
+      RECORDS.fitness.generated=today(); need=true;
+    }
   }
   applyFitnessPlan(RECORDS.fitness);
+  if(seqOf("锻炼").length===0){            // 终极兜底：无论数据来源如何，保证内置排班非空
+    RECORDS.fitness.seq=FITNESS_FALLBACK; applyFitnessPlan(RECORDS.fitness); need=true;
+  }
   if(need && allowSave!==false && SYNC!=="nocfg") cloudSave();
   return need;
 }
@@ -1795,8 +1805,18 @@ function syncWriting(allowSave){
     RECORDS.writing={ v:WRITING_RULES.v, generated:today(), source:WRITING_RULES.source,
       rules:WRITING_RULES, lib:WRITING_LIB, seq:WRITING_FALLBACK };
     need=true;
+  } else {
+    // 自愈：云端/本地排班早于计划起点 → 用当前 PLAN_START 重建，避免 seqOf 过滤后首页空白
+    const s0=RECORDS.writing.seq[0] && RECORDS.writing.seq[0].date;
+    if(s0 && s0 < PLAN_START){
+      RECORDS.writing.seq=buildWritingSeq(PLAN_START, RECORDS.writing.rules||WRITING_RULES);
+      RECORDS.writing.generated=today(); need=true;
+    }
   }
   applyWritingPlan(RECORDS.writing);
+  if(seqOf("写作练习").length===0){         // 终极兜底：无论数据来源如何，保证内置排班非空
+    RECORDS.writing.seq=WRITING_FALLBACK; applyWritingPlan(RECORDS.writing); need=true;
+  }
   if(need && allowSave!==false && SYNC!=="nocfg") cloudSave();
   return need;
 }
@@ -5449,7 +5469,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-11d";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-11e";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
