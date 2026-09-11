@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-09-10m</title>
+<title>每日打卡 · 构建2026-09-11a</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -787,7 +787,9 @@ body.mode-pc #view-docs.active .wg-topline{display:flex;align-items:center;justi
    ================================================================== */
 
 /* ---------- 打卡页：骨架与排序 ---------- */
-body.mode-pc #view-home{display:flex;flex-direction:column}
+/* ⚠️ 必须限定 .active：body.mode-pc #view-home 的特异性高于 .view{display:none}，
+   不限定会导致切到其它 Tab 后打卡页依然显示（压在目标页之上）。 */
+body.mode-pc #view-home.active{display:flex;flex-direction:column}
 body.mode-pc #view-home>.section{margin:0 0 18px;padding:0}
 body.mode-pc #view-home #homeGreet{display:none}
 .pcv-sec-ov{order:1} .pcv-sec-task{order:2} .pcv-sec-todo{order:3} .pcv-sec-week{order:4}
@@ -4852,7 +4854,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-10m";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-11a";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
