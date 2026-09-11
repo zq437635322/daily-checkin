@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-09-11c</title>
+<title>每日打卡 · 构建2026-09-11d</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -1456,15 +1456,15 @@ body.mode-pc #view-manage #mgPage-settings .pcv-set-grid{display:grid;
       </div>
       <table class="pcv-table" id="mgTable">
         <thead>
-          <tr>
-            <th style="width:22%">打卡内容</th><th>分类</th><th>计划日期</th>
-            <th>计划时段</th><th>时长</th><th>状态</th><th style="width:18%">操作</th>
-          </tr>
+            <tr>
+              <th style="width:52px">顺序</th><th style="width:20%">打卡内容</th><th>分类</th><th>计划日期</th>
+              <th>计划时段</th><th>时长</th><th>状态</th><th style="width:16%">操作</th>
+            </tr>
         </thead>
         <tbody id="mgTableBody"></tbody>
       </table>
       <div class="pcv-caption" id="mgCaption">—</div>
-      <div class="pcv-hint">ⓘ 说明：打卡内容由 Excel（锻炼_去重版 / 写作练习）生成，在此只做查看与补打卡；修改内容请改 Excel 后重新生成计划。编辑打卡内容不回溯历史记录。</div>
+      <div class="pcv-hint">ⓘ 说明：此处<b>不支持补打卡</b>（打卡请到「打卡」页完成），仅用于查看打卡明细，以及修改 / 调整<b>未打卡</b>内容的执行顺序（↑ ↓）。修改只影响当天这一条，不改动其它日期，也不回溯已完成记录。</div>
       <div class="pcv-mini-grid" id="mgMini"></div>
     </div>
 
@@ -1615,6 +1615,28 @@ create policy "anon_all" on public.checkin_state
     <div class="modal-actions">
       <button class="btn" type="button" data-act="ct-imp-cancel">取消</button>
       <button class="btn primary" type="button" data-act="ct-imp-ok">确认导入</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 打卡明细 / 编辑未打卡内容 ===== -->
+<div class="modal" id="mgRowModal">
+  <div class="modal-box" style="width:660px;max-width:94vw">
+    <div class="modal-title" id="mgRowTitle">打卡明细</div>
+    <div class="pcv-caption" id="mgRowInfo" style="margin:2px 0 10px"></div>
+    <div id="mgRowDetail" style="max-height:34vh;overflow:auto"></div>
+    <div id="mgRowEdit" style="display:none;border-top:1px solid var(--line);margin-top:12px;padding-top:12px">
+      <div style="display:flex;gap:12px">
+        <div style="flex:2"><label>名称</label><input class="inp" id="mgEdName"></div>
+        <div style="flex:1"><label>时长</label><input class="inp" id="mgEdDur"></div>
+        <div style="flex:1"><label>类型</label><input class="inp" id="mgEdType"></div>
+      </div>
+      <label>详细内容</label><textarea class="inp" id="mgEdContent" style="height:96px;resize:vertical"></textarea>
+      <div class="pcv-caption">修改只影响这一天的计划内容，不改动其它日期，也不回溯已完成的打卡。</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" type="button" data-act="mgrow-close">关闭</button>
+      <button class="btn primary" type="button" data-act="mgrow-save" id="mgRowSave">保存修改</button>
     </div>
   </div>
 </div>
@@ -2290,6 +2312,7 @@ function renderSleepHist(){
 }
 function render(){
   try{ applyCustomTypes(); }catch(e){}   // 自定义打卡类型：并入 ITEMS/META/SCHEDULE/SMAP（无变化时不重建）
+  try{ applyPlanMods(); }catch(e){}      // 计划项「编辑 / 排序」覆盖层（基于原始计划快照重建）
   [renderSleep,renderSleepHist,tfRenderAll,renderBackupHint,renderHome,renderStats,renderDocs,renderManage,renderHomeTodos].forEach(function(f){ try{ f(); }catch(e){ console.error("render error in "+(f&&f.name), e); } });
 }
 
@@ -3511,8 +3534,9 @@ function pcvHHMM(ts){
   try{ const d=new Date(ts); return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"); }catch(e){ return ""; }
 }
 function pcvDurOf(it,e){
-  if(it==="锻炼"){ const m=String(e.time||"").match(/（\s*(\d+)\s*分钟/); return m?(m[1]+" 分钟"):"40 分钟"; }
-  return e.duration ? String(e.duration).replace(/\s*分钟\s*/," 分钟") : "—";
+  if(e && e.duration) return String(e.duration).replace(/\s*分钟\s*/," 分钟");   // 编辑过的优先
+  if(it==="锻炼"){ const m=String((e&&e.time)||"").match(/（\s*(\d+)\s*分钟/); return m?(m[1]+" 分钟"):"40 分钟"; }
+  return "—";
 }
 function pcvSlotOf(it,e){
   if(it==="锻炼") return e.time || "灵活安排";
@@ -3671,12 +3695,9 @@ let mgCat="all", mgKw="", mgStatus="all", mgOpenRow=null;
 const SYNC_LABEL={init:"初始化中",syncing:"同步中…",synced:"已同步",offline:"离线",nocfg:"未配置云端",error:"同步失败",pending:"待同步"};
 function mgPlanRows(){
   const rows=[];
+  // 按「执行顺序」返回（不按日期排序），这样 ↑↓ 调整顺序在表格里能立刻看出来
   ITEMS.forEach(function(it){
-    seqOf(it).forEach(function(e){ rows.push({it:it, e:e, name:summaryOf(it,e), date:e.date}); });
-  });
-  rows.sort(function(a,b){
-    if(a.date!==b.date) return a.date<b.date?-1:1;
-    return a.it<b.it?-1:(a.it>b.it?1:0);
+    seqOf(it).forEach(function(e,i){ rows.push({it:it, e:e, idx:i, name:summaryOf(it,e), date:e.date}); });
   });
   return rows;
 }
@@ -3704,7 +3725,7 @@ function renderManageContent(){
     else nPlan++;
   });
   if(!rows.length){
-    body.innerHTML='<tr><td colspan="7"><div class="pcv-empty">没有符合条件的打卡内容</div></td></tr>';
+    body.innerHTML='<tr><td colspan="8"><div class="pcv-empty">没有符合条件的打卡内容</div></td></tr>';
   } else {
     let h="";
     rows.forEach(function(r,i){
@@ -3713,8 +3734,9 @@ function renderManageContent(){
       const st = done ? '<span class="pcv-status-on">● 已完成</span>'
                : (r.date<td ? '<span style="color:#dc2626">● 待补卡</span>'
                : '<span class="pcv-status-plan">○ 未开始</span>');
-      const key=r.it+"|"+r.date;
+      const key=r.it+"|"+r.date;   // 保留：明细弹窗按下标定位，行展开已改为弹窗
       h+='<tr'+(done?' class="pcv-row-done"':'')+'>'
+        +'<td style="color:var(--muted)">'+(r.idx+1)+'</td>'
         +'<td><span class="pcv-mini-dot" style="display:inline-block;margin-right:6px;background:'+META[r.it].color+'"></span>'
         +'<span class="pcv-row-name">'+escapeHtml(r.name)+'</span></td>'
         +'<td>'+escapeHtml(r.it)+'</td>'
@@ -3722,12 +3744,11 @@ function renderManageContent(){
         +'<td>'+escapeHtml(pcvSlotOf(r.it,r.e))+'</td>'
         +'<td>'+escapeHtml(pcvDurOf(r.it,r.e))+'</td>'
         +'<td>'+st+'</td>'
-        +'<td><span class="pcv-act" data-act="ttcheck" data-it="'+r.it+'" data-ds="'+r.date+'">'+(done?'撤销':'打卡')+'</span>'
-        +'<span class="pcv-act stop" data-act="mgdetail" data-key="'+key+'">'+(mgOpenRow===key?'收起':'详情')+'</span></td>'
+        +'<td><span class="pcv-act" data-act="mgrow" data-it="'+r.it+'" data-ds="'+r.date+'">明细</span>'
+        +(done?'':'<span class="pcv-act stop" data-act="mgmove" data-it="'+r.it+'" data-ds="'+r.date+'" data-dir="-1" title="上移">↑</span>'
+              +'<span class="pcv-act stop" data-act="mgmove" data-it="'+r.it+'" data-ds="'+r.date+'" data-dir="1" title="下移">↓</span>')
+        +'</td>'
         +'</tr>';
-      if(mgOpenRow===key){
-        h+='<tr><td colspan="7" style="background:var(--soft,#eef1f5)"><div class="pcv-task-detail" style="display:block;margin:0">'+detailHtml(r.it,r.e)+'</div></td></tr>';
-      }
     });
     body.innerHTML=h;
   }
@@ -3836,6 +3857,7 @@ function applyCustomTypes(){
     _ctApplied.push(t.name);
     META[t.name]={ short:t.short||t.name.charAt(0), color:t.color||"#0ea5e9", custom:true };
     SCHEDULE[t.name]=buildCustomSeq(t);
+    ORIG_SCHEDULE[t.name]=SCHEDULE[t.name].slice();   // 原始计划快照，供「编辑/排序」覆盖层使用
     SMAP[t.name]={};
     SCHEDULE[t.name].forEach(function(e){ SMAP[t.name][e.date]=e; });
   });
@@ -4136,6 +4158,117 @@ function renderManageTypes(){
   if(cap) cap.textContent="内置 "+Object.keys(CT_BUILTIN).length+" 个 · 自定义 "+arr.length+" 个　｜　自定义类型的打卡记录与其它类型一起随云端同步";
 }
 
+/* ==================================================================
+   计划项「编辑 / 排序」覆盖层（管理端 · 打卡内容）
+   原始计划保存在 ORIG_SCHEDULE，改动只存差异到 RECORDS.planMod：
+     planMod[it] = { order:["YYYY-MM-DD",…], edits:{ date:{字段:值} } }
+   存差异而非整份计划，避免备份与云端同步体积膨胀。
+   ================================================================== */
+const ORIG_SCHEDULE = {};
+function pmMod(it){
+  if(!RECORDS.planMod) RECORDS.planMod={};
+  if(!RECORDS.planMod[it]) RECORDS.planMod[it]={};
+  return RECORDS.planMod[it];
+}
+function pmField(it){
+  return (it==="锻炼")
+    ? { name:"theme", content:"detail" }
+    : { name:"name",  content:"content" };
+}
+function pmSnapshot(it){ if(!ORIG_SCHEDULE[it]) ORIG_SCHEDULE[it]=(SCHEDULE[it]||[]).slice(); }
+function applyPlanMods(){
+  ITEMS.forEach(function(it){
+    pmSnapshot(it);
+    const base=ORIG_SCHEDULE[it]||[];
+    const mod=(RECORDS.planMod&&RECORDS.planMod[it])||null;
+    if(!mod || (!mod.order && !mod.edits)){
+      if(SCHEDULE[it]!==base){
+        SCHEDULE[it]=base; SMAP[it]={};
+        base.forEach(function(e){ SMAP[it][e.date]=e; });
+      }
+      return;
+    }
+    let arr=base.slice();
+    if(mod.order && mod.order.length){
+      const by={}; base.forEach(function(e){ by[e.date]=e; });
+      const re=[];
+      mod.order.forEach(function(d){ if(by[d]){ re.push(by[d]); delete by[d]; } });
+      Object.keys(by).forEach(function(d){ re.push(by[d]); });      // 未列出的补到末尾
+      arr=re;
+    }
+    if(mod.edits){
+      arr=arr.map(function(e){
+        const ov=mod.edits[e.date]; if(!ov) return e;
+        const n={}; Object.keys(e).forEach(function(k){ n[k]=e[k]; });
+        Object.keys(ov).forEach(function(k){ n[k]=ov[k]; });
+        return n;
+      });
+    }
+    SCHEDULE[it]=arr;
+    SMAP[it]={}; arr.forEach(function(e){ SMAP[it][e.date]=e; });
+  });
+}
+function mgMove(it,ds,dir){
+  const arr=(SCHEDULE[it]||[]).slice();
+  let idx=-1; for(let k=0;k<arr.length;k++){ if(arr[k].date===ds){ idx=k; break; } }
+  if(idx<0) return;
+  const j=idx+dir;
+  if(j<0 || j>=arr.length) return;
+  if(isChecked(it,arr[idx].date) || isChecked(it,arr[j].date)){ alert("已打卡的计划不能调整顺序。"); return; }
+  const tmp=arr[idx]; arr[idx]=arr[j]; arr[j]=tmp;
+  pmMod(it).order=arr.map(function(e){ return e.date; });
+  saveLocal(); cloudSave(); applyPlanMods(); render();
+}
+let _mgRow=null;
+function mgOpenRowModal(it,ds){
+  const e=(SMAP[it]&&SMAP[it][ds])||null;
+  if(!e){ alert("未找到该计划项"); return; }
+  _mgRow={it:it, ds:ds};
+  const done=isChecked(it,ds), rec=(RECORDS[it]||{})[ds]||null;
+  const ti=document.getElementById("mgRowTitle");
+  if(ti) ti.textContent="打卡明细 · "+it+" · "+ds;
+  const info=document.getElementById("mgRowInfo");
+  if(info){
+    const st = done
+      ? '<span class="pcv-status-on">● 已完成</span>'+(rec&&rec.ts?("　打卡时间："+new Date(rec.ts).toLocaleString("zh-CN")):"")
+      : (ds<today() ? '<span style="color:#dc2626">● 未打卡（已过期）</span>' : '<span class="pcv-status-plan">○ 未打卡</span>');
+    info.innerHTML="状态："+st+"　｜　"+weekdayOf(ds)+"　｜　"+DAY_LABEL[dayType(ds)]+(dayName(ds)?("（"+dayName(ds)+"）"):"")
+      + (done?"":"　｜　未打卡的内容可修改 / 调整顺序");
+  }
+  const det=document.getElementById("mgRowDetail");
+  if(det) det.innerHTML=detailHtml(it,e);
+  const box=document.getElementById("mgRowEdit"), sv=document.getElementById("mgRowSave");
+  if(box) box.style.display = done?"none":"block";
+  if(sv) sv.style.display = done?"none":"inline-flex";
+  if(!done){
+    const f=pmField(it);
+    const set=function(id,v){ const el=document.getElementById(id); if(el) el.value=(v==null?"":String(v)); };
+    set("mgEdName", e[f.name]||"");
+    set("mgEdDur", e.duration||"");
+    set("mgEdType", e.type||"");
+    set("mgEdContent", e[f.content]||"");
+  }
+  const m=document.getElementById("mgRowModal"); if(m) m.classList.add("show");
+}
+function mgSaveRow(){
+  if(!_mgRow) return;
+  const it=_mgRow.it, ds=_mgRow.ds;
+  if(isChecked(it,ds)){ alert("已打卡的计划不能修改。"); return; }
+  const f=pmField(it);
+  const g=function(id){ const el=document.getElementById(id); return el?(el.value||""):""; };
+  const name=g("mgEdName").trim();
+  if(!name){ alert("请填写名称"); return; }
+  const mod=pmMod(it);
+  if(!mod.edits) mod.edits={};
+  const ov={}; ov[f.name]=name;
+  const dur=g("mgEdDur").trim(); if(dur) ov.duration=dur;
+  const ty=g("mgEdType").trim(); if(ty) ov.type=ty;
+  ov[f.content]=g("mgEdContent");
+  mod.edits[ds]=Object.assign({}, mod.edits[ds]||{}, ov);
+  saveLocal(); cloudSave(); applyPlanMods(); render();
+  const m=document.getElementById("mgRowModal"); if(m) m.classList.remove("show");
+}
+
 function renderManage(){
   try{
     if(isPcMode()){ try{ renderManageContent(); renderManageTypes(); }catch(e){} }
@@ -4210,6 +4343,11 @@ document.addEventListener("click",function(e){
     renderManageContent();
   }
   else if(act==="mgdetail"){ mgOpenRow = (mgOpenRow===el.dataset.key)?null:el.dataset.key; renderManageContent(); }
+  /* ---- 管理端「打卡内容」：明细 / 修改 / 排序（不支持补打卡） ---- */
+  else if(act==="mgrow"){ mgOpenRowModal(el.dataset.it, el.dataset.ds); }
+  else if(act==="mgmove"){ mgMove(el.dataset.it, el.dataset.ds, parseInt(el.dataset.dir,10)||0); }
+  else if(act==="mgrow-close"){ const m=document.getElementById("mgRowModal"); if(m) m.classList.remove("show"); }
+  else if(act==="mgrow-save"){ mgSaveRow(); }
   /* ---- 自定义打卡类型（管理 · 打卡类型） ---- */
   else if(act==="ct-new"){ ctOpenModal(null); }
   else if(act==="ct-edit"){ ctOpenModal(el.dataset.id); }
@@ -5311,7 +5449,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-11c";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-11d";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
