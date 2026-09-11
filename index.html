@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-09-11a</title>
+<title>每日打卡 · 构建2026-09-11b</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -2217,7 +2217,7 @@ document.addEventListener("click",function(e){
   const el=e.target.closest("[data-act]"); if(!el)return;
   const act=el.dataset.act, it=el.dataset.it, ds=el.dataset.ds;
   if(act==="check"||act==="uncheck"){ toggle(it,ds); }
-  else if(act==="toggle"){ const diff=Math.round((parse(today())-parse(ds))/86400000); if(Math.abs(diff)>3){ alert(diff>0?"补打卡仅支持近 3 天（含今天）的日期。":"提前打卡仅支持未来 3 天内的日期。"); return; } toggle(it,ds); }
+  else if(act==="toggle"){ const diff=Math.round((parse(today())-parse(ds))/86400000); if(diff>3){ alert("补打卡仅支持近 3 天（含今天）的日期。"); return; } toggle(it,ds); }
   else if(act==="toggle-detail"){ const d=document.getElementById("det-"+it); if(d) d.classList.toggle("show"); }
   else if(act==="rec-more"){ _recLimit=99999; renderStatRecords(); }
   else if(act==="rec-less"){ _recLimit=20; renderStatRecords(); }
@@ -2407,7 +2407,7 @@ function renderHome(){
         let lbl, act="homecheck", dis="";
         if(ok){ lbl="已完成 ✓（点击撤销）"; }
         else if(isToday){ lbl="完成打卡"; }
-        else if(future){ lbl="未开始（"+e.date+"）"; act=""; dis=" disabled style=\"opacity:.5;cursor:not-allowed\""; }
+        else if(future){ lbl="提前打卡 · "+e.date; act="homecheck"; }   // 顺序推进下允许提前完成后面的计划项
         else { lbl="补卡 · "+e.date; }
         html+="<div class=\"tcard-a row\">"
           + "<button class=\"btn "+(ok?"":"primary")+"\" data-act=\""+act+"\" data-it=\""+it+"\" data-ds=\""+e.date+"\""+dis+">"+lbl+"</button>"
@@ -2636,7 +2636,7 @@ function renderCal(){
 }
 function calToggle(ds){
   const diff=Math.round((parse(today())-parse(ds))/86400000);
-  if(Math.abs(diff)>3){ alert(diff>0?"补打卡仅支持近 3 天（含今天）的日期。":"提前打卡仅支持未来 3 天内的日期。"); return; }
+  if(diff>3){ alert("补打卡仅支持近 3 天（含今天）的日期。"); return; }
   let found=0;
   ITEMS.forEach(function(it){
     if(!(SMAP[it]&&SMAP[it][ds])) return;
@@ -3497,7 +3497,7 @@ function renderHomePC(){
       let act="homecheck", lbl="", cls="pcv-btn pcv-btn-primary";
       if(ok){ lbl="撤销打卡"; cls="pcv-btn"; }
       else if(isToday){ lbl="完成打卡"; }
-      else if(future){ lbl=""; act=""; }
+      else if(future){ lbl="提前打卡 · "+e.date.slice(5); cls="pcv-btn"; }   // 顺序推进下允许提前完成后面的计划项
       else { lbl="补卡 · "+e.date.slice(5); }
       html+='<div class="pcv-task-actions">'
         +(act?'<button class="'+cls+'" data-act="'+act+'" data-it="'+it+'" data-ds="'+e.date+'">'+lbl+'</button>'
@@ -3704,7 +3704,7 @@ document.addEventListener("click",function(e){
   if(act==="homecheck"){
     const hd=el.dataset.ds;
     const diff=Math.round((parse(today())-parse(hd))/86400000);
-    if(Math.abs(diff)>3){ alert(diff>0?"补打卡仅支持近 3 天（含今天）的日期。":"提前打卡仅支持未来 3 天内的日期。"); return; }
+    if(diff>3){ alert("补打卡仅支持近 3 天（含今天）的日期。"); return; }
     toggle(el.dataset.it, hd);
   }
   else if(act==="wtab"){ switchWritingTab(el.dataset.tab); }
@@ -3741,7 +3741,7 @@ document.addEventListener("click",function(e){
   else if(act==="ttcheck"){
     const it=el.dataset.it, ds=el.dataset.ds;
     const diff=Math.round((parse(today())-parse(ds))/86400000);
-    if(Math.abs(diff)>3){ alert(diff>0?"补打卡仅支持近 3 天（含今天）的日期。":"提前打卡仅支持未来 3 天内的日期。"); return; }
+    if(diff>3){ alert("补打卡仅支持近 3 天（含今天）的日期。"); return; }
     if(!(SMAP[it]&&SMAP[it][ds])){ alert("该事项当天没有安排任务，无需补打卡。"); return; }
     toggle(it, ds);
   }
@@ -3792,7 +3792,7 @@ document.addEventListener("click",function(e){
   else if(act==="hw-check"){
     const ds=el.dataset.ds;
     const diff=Math.round((parse(today())-parse(ds))/86400000);
-    if(Math.abs(diff)>3){ alert(diff>0?"补打卡仅支持近 3 天（含今天）的日期。":"提前打卡仅支持未来 3 天内的日期。"); return; }
+    if(diff>3){ alert("补打卡仅支持近 3 天（含今天）的日期。"); return; }
     toggle("写作练习", ds);
     // 打卡完成后，把对应作业文档标题前缀更新为实际完成日期
     const d=docsAll(); const hwId="hw-"+ds; const rec=(RECORDS["写作练习"]||{})[ds];
@@ -4854,7 +4854,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-11a";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-11b";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
