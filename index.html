@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-09-11e</title>
+<title>每日打卡 · 构建2026-09-11f</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -1820,10 +1820,84 @@ function syncWriting(allowSave){
   if(need && allowSave!==false && SYNC!=="nocfg") cloudSave();
   return need;
 }
-const ITEMS = ["锻炼","写作练习"];
+/* ================= 视频创作排班（数据源：AI真人短剧学习路线图.xlsx · 详细周计划，已内嵌） =================
+   机制：① 工作日每周 2-3 天（3天/2天逐周交替）
+        ② 周末（周六、周日）每天安排
+        ③ 法定节假日每天安排
+        ④ 任务按 Excel「详细周计划」顺序一轮一轮轮巡
+        ⑤ 规则 + 任务库 + 排班结果写进云端数据库（RECORDS.video），跨设备一致
+   ============================================================================================ */
+const VIDEO_LIB = [{"stage": "阶段0 · 第1周(第1-3天)", "name": "工具与环境准备", "content": "① 注册即梦AI、可灵AI、豆包/DeepSeek、剪映专业版；② 注册抖音、B站账号；③ 安装剪映专业版电脑版\n\n本周成果物：全部账号注册完成并可正常登录\n\n推荐教程/渠道：各工具官网/App直接注册；可灵免费版每日5次生成额度\n\n预计投入：2-3小时", "duration": "2-3小时", "type": "阶段0"}, {"stage": "阶段0 · 第1周(第1-3天)", "name": "建立拆解习惯", "content": "在番茄/红果收藏20部爆款AI短剧，建拆解文档：记录开头钩子、每集时长、反转位置、题材\n\n本周成果物：20部剧拆解文档（Excel或飞书文档）\n\n推荐教程/渠道：番茄小说App-短剧频道 / 红果短剧App\n\n预计投入：3-4小时", "duration": "3-4小时", "type": "阶段0"}, {"stage": "阶段1 · 第1周", "name": "短剧底层逻辑", "content": "学习黄金60秒结构：0-3秒钩子→3-20秒人物矛盾→20-50秒冲突升级→50-60秒反转留悬念；了解5大新手赛道（家庭爽文/打脸/古风逆袭/悬疑反转/职场逆袭）\n\n本周成果物：手写一份60秒短剧结构模板（自用）\n\n推荐教程/渠道：B站搜\"2026 AI短剧保姆级教程 0成本起号\"，看结构讲解部分\n\n预计投入：3小时", "duration": "3小时", "type": "阶段1"}, {"stage": "阶段1 · 第1周", "name": "剧本与分镜", "content": "用豆包/DeepSeek生成3个短剧剧本并人工改台词；学习把剧本拆成分镜表（景别/运镜/动作/情绪/时长）\n\n本周成果物：1份剧本 + 1张8-10镜头的分镜表\n\n推荐教程/渠道：B站搜\"豆包+即梦+剪映 AI短剧全流程\"完整版教程\n\n预计投入：4小时", "duration": "4小时", "type": "阶段1"}, {"stage": "阶段1 · 第2周", "name": "即梦/可灵基础操作", "content": "学习文生图、图生视频、提示词写法、参数设置；重点学提示词书写技巧和角色一致性入门\n\n本周成果物：生成并保存10张满意的角色/场景图\n\n推荐教程/渠道：可灵官方免费系统课：平台总览→文生图→图生视频→首尾帧→运镜（11节以上）\n\n预计投入：5小时", "duration": "5小时", "type": "阶段1"}, {"stage": "阶段1 · 第2周", "name": "剪映基础剪辑", "content": "学习导入素材、剪接、转场、自动字幕、AI配音、音效、导出\n\n本周成果物：剪出一个带字幕配音的30秒练习片段\n\n推荐教程/渠道：B站搜\"剪映专业版 零基础入门教程\"，看前5集（20万+播放的系统课）\n\n预计投入：4小时", "duration": "4小时", "type": "阶段1"}, {"stage": "阶段1 · 第2周", "name": "第一部作品交付", "content": "即梦生图→剪映每张图2-3秒+KenBurns动态效果→AI配音+字幕+音效（配音70%、BGM30%）→导出9:16竖屏→发布抖音/B站\n\n本周成果物：✦ 成果：人生第一条60秒AI短剧（全网发布）\n\n推荐教程/渠道：参照阶段1全流程教程的第3步\"最简方案\"\n\n预计投入：6小时", "duration": "6小时", "type": "阶段1"}, {"stage": "阶段2 · 第3周", "name": "角色一致性·定妆照工作流", "content": "生成角色正/侧/背三视图+表情库存入资产库；之后全部改用图生视频，提示词只写动作不写外貌\n\n本周成果物：1套角色定妆资产库（含三视图+5种表情）\n\n推荐教程/渠道：可灵系统课\"保持角色前后一致性\"章节 + B站搜\"AI角色一致性 教程\"\n\n预计投入：5小时", "duration": "5小时", "type": "阶段2"}, {"stage": "阶段2 · 第4周", "name": "角色描述卡片法", "content": "写死一段含细节锚点的外貌描述（如\"右眼下方浅色小痣，三七侧分黑发\"），每个镜头提示词原样粘贴，不凭感觉改写\n\n本周成果物：1张角色描述卡片 + 5个一致性测试镜头\n\n推荐教程/渠道：B站搜\"AI短剧 角色一致性 提示词 技巧\"，配合自己实践\n\n预计投入：4小时", "duration": "4小时", "type": "阶段2"}, {"stage": "阶段2 · 第5周", "name": "真人感进阶·仿真人玩法", "content": "学习即梦Seedance 2.0仿真人短剧玩法（目前番茄AI真人剧主流生产方案）；研究真人口型与微表情\n\n本周成果物：3段以假乱真的仿真人对话镜头\n\n推荐教程/渠道：B站搜\"即梦 seedance2.0 仿真人短剧 教程\"，看超实用玩法专场\n\n预计投入：6小时", "duration": "6小时", "type": "阶段2"}, {"stage": "阶段2 · 第6周", "name": "运镜语言", "content": "学习推/拉/摇/移/跟分别在什么情绪场景使用；练习对话镜头不僵硬\n\n本周成果物：1段含3种以上运镜的30秒叙事片段\n\n推荐教程/渠道：可灵官方课\"运镜技巧详解\"章节\n\n预计投入：4小时", "duration": "4小时", "type": "阶段2"}, {"stage": "阶段2 · 第7周", "name": "配音精修", "content": "台词与旁白分开；每句标注角色名+情绪提示词（[颤抖地][愤怒地]）；剪映AI配音选角色音\n\n本周成果物：一段情绪到位的1分钟配音成品\n\n推荐教程/渠道：B站搜\"剪映 AI配音 情绪 短剧 教程\"\n\n预计投入：3小时", "duration": "3小时", "type": "阶段2"}, {"stage": "阶段2 · 第8周", "name": "阶段作品交付", "content": "整合前7周技能：剧本→分镜→生成→配音→精剪→发布，完成3-5集连载；整理作品集PDF（剧本/分镜表/成片链接）\n\n本周成果物：✦ 成果：3-5集角色一致的AI真人短剧 + 作品集PDF\n\n推荐教程/渠道：全流程综合练习；可参考《豢龙人》AIGC仿真人短剧10节全流程解析课（剧本改编分镜→角色/场景设计→提示词→后期）\n\n预计投入：10小时", "duration": "10小时", "type": "阶段2"}, {"stage": "阶段3 · 第9-10周", "name": "流程模板化", "content": "建立剧本模板、提示词模板、分镜模板、剪映工程模板；目标一天出一集；了解小云雀/天工短剧工作台等项目化AI制片平台\n\n本周成果物：个人生产SOP文档v1.0\n\n推荐教程/渠道：B站搜\"AI短剧 工业化流程 教程\"；注册小云雀/天工工作台体验\n\n预计投入：8小时", "duration": "8小时", "type": "阶段3"}, {"stage": "阶段3 · 第11-12周", "name": "题材深耕+爆款拆解", "content": "选1-2个赛道（建议家庭爽文或古风逆袭）；研究番茄/红果分账榜，逐镜头拆解同赛道爆款卡点结构\n\n本周成果物：2份爆款逐镜头拆解笔记\n\n推荐教程/渠道：红果短剧App分账榜 + 自己的拆解文档\n\n预计投入：6小时", "duration": "6小时", "type": "阶段3"}, {"stage": "阶段3 · 第13-16周", "name": "合规+阶段作品交付", "content": "学习AI生成内容标识要求、版权红线（不碰明星脸/侵权IP）；产出10-20集完整连载剧并全网分发\n\n本周成果物：✦ 成果：10-20集连载剧 + 至少1集播放破万 + SOP文档v2.0\n\n推荐教程/渠道：各平台创作者中心规则页（抖音/番茄/快手）\n\n预计投入：20小时", "duration": "20小时", "type": "阶段3"}, {"stage": "阶段4 · 第17-18周", "name": "入行准备", "content": "包装作品集（B站/视频号合集+PDF档案）；写简历突出作品；整理投递清单（AI短剧编导/AI制片/提示词工程师/后期剪辑）\n\n本周成果物：1份作品集 + 1份简历 + 20家目标公司清单\n\n推荐教程/渠道：招聘平台搜\"AI短剧\"\"AIGC制片\"；目标城市：北京/杭州/郑州/西安\n\n预计投入：8小时", "duration": "8小时", "type": "阶段4"}, {"stage": "阶段4 · 第19-20周", "name": "商单试水", "content": "在抖音/小红书发接单视频；进短剧制作社群；从本地商家营销短剧小单开始，报价几千元起，关键是交付稳定不跳票\n\n本周成果物：发出至少5次接单触达\n\n推荐教程/渠道：抖音/小红书搜\"AI短剧 接单\"看同行怎么做；威客平台挂单\n\n预计投入：6小时", "duration": "6小时", "type": "阶段4"}, {"stage": "阶段4 · 第21-24周", "name": "变现冲刺", "content": "三线并行：① 投简历约面试 ② 持续接商单 ③ 数据好的账号加大产量冲分账，开第二个账号做矩阵\n\n本周成果物：✦ 成果：入职offer / 首笔商单收入 / 分账收入（三选一）\n\n推荐教程/渠道：结合自身数据反馈调整\n\n预计投入：12小时", "duration": "12小时", "type": "阶段4"}, {"stage": "阶段5 · 第25-26周", "name": "数据复盘与方法论沉淀", "content": "复盘所有已发布剧集：完播率、3秒跳出率、卡点流失位置；找出数据最好的1部剧，反推做对了什么，形成个人\"爆款公式\"文档\n\n本周成果物：1份数据复盘报告 + 1份爆款公式文档v1.0\n\n推荐教程/渠道：抖音/B站创作者服务中心数据后台；番茄/红果后台\n\n预计投入：8小时", "duration": "8小时", "type": "阶段5"}, {"stage": "阶段5 · 第27-28周", "name": "团队化/工作室化", "content": "组建或加入3-5人小团队并分工（编导/AI生成/剪辑/运营）；建立协作SOP：资产库共享、审片流程、交付节点表；了解AI制片岗位的项目化管理方式\n\n本周成果物：团队协作SOP + 首个团队合制项目立项\n\n推荐教程/渠道：B站搜\"AI短剧 工作室 协作流程\"；小云雀/天工短剧工作台的项目功能\n\n预计投入：10小时", "duration": "10小时", "type": "阶段5"}, {"stage": "阶段5 · 第29-30周", "name": "矩阵化运营与投流", "content": "开第2-3个账号做题材矩阵；多平台分发（番茄/红果、抖音、快手、视频号）；学习投流基础：DOU+小额测试、短剧行业投流逻辑（素材-消耗-ROI）\n\n本周成果物：3个账号矩阵 + 1次投流测试记录\n\n推荐教程/渠道：抖音巨量学堂/快手磁力学堂免费课；观察同行投流素材\n\n预计投入：10小时", "duration": "10小时", "type": "阶段5"}, {"stage": "阶段5 · 第31-32周", "name": "商业化升级", "content": "商单单价升级：从散单到打包报价/月度年框客户；拓展变现线：版权售卖、品牌定制剧、平台分账对账优化；建立客户档案和复购机制\n\n本周成果物：1份正式报价单 + 至少1个复购客户\n\n推荐教程/渠道：结合阶段4接单经验迭代报价单；参考同行报价体系\n\n预计投入：8小时", "duration": "8小时", "type": "阶段5"}, {"stage": "阶段5 · 第33-36周", "name": "职业深耕与个人品牌", "content": "① 技术敏感度：跟进新一代AI视频模型动态并快速试用；② 选一个长期方向深耕：AI制片管理/垂类爆款导演/后期精修专家；③ 可选分支：做教程账号、运营创作者社群，把经验变成第二收入\n\n本周成果物：✦ 成果：月入稳定过万 + 明确的长期职业定位 + 个人品牌账号（可选）\n\n推荐教程/渠道：关注即梦/可灵官方更新日志；行业资讯号；持续周更作品保持手感\n\n预计投入：12小时/周", "duration": "12小时/周", "type": "阶段5"}];
+const VIDEO_RULES = {
+  v: 1,
+  source: "AI真人短剧学习路线图.xlsx",
+  weeks: 40,
+  weekDays: [[1,3,5],[2,4]],            // 逐周交替：3 天 / 2 天（工作日每周 2-3 天）
+  weekendAll: true,                      // 周六、周日每天安排
+  holidayAll: true,                      // 法定节假日每天安排
+  seed: 20260911
+};
+function buildVideoSeq(start, rules){
+  const L=VIDEO_LIB;
+  const s0=mondayOf(new Date(start+"T00:00:00"));
+  const seq=[]; let i=0;
+  for(let k=0;k<rules.weeks*7;k++){
+    const d=new Date(s0); d.setDate(d.getDate()+k);
+    const ds=fmt(d); if(ds<start) continue;
+    const dow=d.getDay(), weekIdx=Math.floor(k/7);
+    const want=rules.weekDays[weekIdx%rules.weekDays.length];
+    const hol=isHolidayDate(ds);
+    const wknd=(dow===0||dow===6);
+    if(!hol && !(rules.weekendAll && wknd) && want.indexOf(dow)<0) continue;
+    seq.push({date:ds, week:"第"+(weekIdx+1)+"周", idx:i%L.length}); i++;
+  }
+  return seq;
+}
+const VIDEO_FALLBACK = buildVideoSeq(PLAN_START, VIDEO_RULES);
+function applyVideoPlan(vr){
+  const lib=(vr&&vr.lib)||VIDEO_LIB;
+  const seq=(vr&&vr.seq)||VIDEO_FALLBACK;
+  const arr=seq.map(function(e,i){
+    const t=lib[e.idx]||lib[0]||{};
+    const d=new Date(e.date+"T00:00:00");
+    return {date:e.date, name:t.name||"视频创作任务", content:t.content||"", duration:t.duration||"", type:t.type||"", stage:t.stage||"",
+            week:e.week, day:"第"+(i+1)+"天", 星期:["日","一","二","三","四","五","六"][d.getDay()]};
+  });
+  SCHEDULE["视频创作"]=arr;
+  SMAP["视频创作"]={}; arr.forEach(function(e){ SMAP["视频创作"][e.date]=e; });
+}
+function syncVideo(allowSave){
+  let need=false;
+  // 迁移：若用户曾把「视频创作」当自定义类型保存，移除之，改由内置库驱动（记录仍保留在 RECORDS["视频创作"]，可正常打卡）
+  if(RECORDS.customTypes){
+    const ci=RECORDS.customTypes.findIndex(function(c){ return c && c.name==="视频创作"; });
+    if(ci>=0){ RECORDS.customTypes.splice(ci,1); need=true; }
+  }
+  if(!RECORDS.video || !RECORDS.video.seq || !RECORDS.video.lib || !RECORDS.video.rules){
+    RECORDS.video={ v:VIDEO_RULES.v, generated:today(), source:VIDEO_RULES.source,
+      rules:VIDEO_RULES, lib:VIDEO_LIB, seq:VIDEO_FALLBACK };
+    need=true;
+  } else {
+    // 自愈：云端/本地排班早于计划起点 → 用当前 PLAN_START 重建，避免 seqOf 过滤后首页空白
+    const s0=RECORDS.video.seq[0] && RECORDS.video.seq[0].date;
+    if(s0 && s0 < PLAN_START){
+      RECORDS.video.seq=buildVideoSeq(PLAN_START, RECORDS.video.rules||VIDEO_RULES);
+      RECORDS.video.generated=today(); need=true;
+    }
+  }
+  applyVideoPlan(RECORDS.video);
+  if(seqOf("视频创作").length===0){       // 终极兜底：无论数据来源如何，保证内置排班非空
+    RECORDS.video.seq=VIDEO_FALLBACK; applyVideoPlan(RECORDS.video); need=true;
+  }
+  if(need && allowSave!==false && SYNC!=="nocfg") cloudSave();
+  return need;
+}
+
+const ITEMS = ["锻炼","写作练习","视频创作"];
 const META = {
   "锻炼":{short:"锻",color:"#10b981"},
-  "写作练习":{short:"写",color:"#f59e0b"}
+  "写作练习":{short:"写",color:"#f59e0b"},
+  "视频创作":{short:"视",color:"#ef4444"}
 };
 
 /* 2026 农历月表：monthName, startDate(YYYY-MM-DD), days */
@@ -1903,7 +1977,8 @@ const CFG_KEY="wb_sb_cfg", OFF_KEY="wb_offline_cache";
 const SMAP = {};
 ITEMS.forEach(it=>{ SMAP[it]={}; (SCHEDULE[it]||[]).forEach(e=>{ SMAP[it][e.date]=e; }); });
 applyFitnessPlan({lib:EXERCISE_LIB, seq:FITNESS_FALLBACK});
-applyWritingPlan({lib:WRITING_LIB, seq:WRITING_FALLBACK});   // 写作：首屏先用内嵌库排好，云端数据到了再覆盖;   // 首屏：先用内嵌库排好，云端数据到了再覆盖
+applyWritingPlan({lib:WRITING_LIB, seq:WRITING_FALLBACK});
+applyVideoPlan({lib:VIDEO_LIB, seq:VIDEO_FALLBACK});   // 写作：首屏先用内嵌库排好，云端数据到了再覆盖;   // 首屏：先用内嵌库排好，云端数据到了再覆盖
 
 let RECORDS = {};          // 打卡数据（云端为权威）
 let SYNC = "init";         // init|syncing|synced|offline|nocfg|error
@@ -2005,7 +2080,7 @@ function hasPending(){ return _saveFails>0 || SYNC==="pending"; }
 async function cloudLoad(){
   if(!cfg.url || !cfg.anon){ SYNC="nocfg"; renderStatus(); render(); return; }
   const local=loadLocal();
-  if(local){ RECORDS=local; syncFitness(false); syncWriting(false); render(); }            // 本地秒开
+  if(local){ RECORDS=local; syncFitness(false); syncWriting(false); syncVideo(false); render(); }            // 本地秒开
   SYNC="syncing"; renderStatus();
   try{
     const r=await fetch(tableUrl()+"?id=eq.default&select=data", { headers: headers() });
@@ -2018,21 +2093,21 @@ async function cloudLoad(){
       const lv=(RECORDS._meta&&RECORDS._meta.version)||0;
       if(_cloudVersion>lv && hasPending()){
         if(confirm("检测到云端有更新的记录（其他设备同步过）。\n点「确定」用云端版本覆盖本机未同步的改动；点「取消」保留本机并上传覆盖云端。")){
-          RECORDS=remote.data; syncFitness(false); syncWriting(false);
+          RECORDS=remote.data; syncFitness(false); syncWriting(false); syncVideo(false);
         }
       } else if(_cloudVersion>lv){
-        RECORDS=remote.data; syncFitness(false); syncWriting(false);       // 云端更新且本机无未同步改动，直接采用
+        RECORDS=remote.data; syncFitness(false); syncWriting(false); syncVideo(false);       // 云端更新且本机无未同步改动，直接采用
       } else if(lv>_cloudVersion){
         cloudSave({immediate:true});                // 本机比云端新（离线期间的打卡）：立即上传，否则数据会一直卡在本地
       }
       const __pruned=pruneOldRecords();
-      syncFitness(); syncWriting();
+      syncFitness(); syncWriting(); syncVideo();
       saveLocal();
       SYNC="synced"; localStorage.removeItem(OFF_KEY); _saveFails=0;
       renderStatus(); render();
       if(__pruned) cloudSave();
     } else {
-      syncFitness(); syncWriting();
+      syncFitness(); syncWriting(); syncVideo();
       SYNC="synced"; renderStatus(); render();
       cloudSave();                                  // 云端无记录，上传本地
     }
@@ -3829,7 +3904,7 @@ function mgSwitch(p){
    本周网格、CSV 导出全部自动生效（它们都遍历 ITEMS）。
    ================================================================== */
 function ctDB(){ if(!RECORDS.customTypes) RECORDS.customTypes=[]; return RECORDS.customTypes; }
-const CT_BUILTIN = { "锻炼":1, "写作练习":1 };
+const CT_BUILTIN = { "锻炼":1, "写作练习":1, "视频创作":1 };
 let _ctSig = null, _ctApplied = [];
 function ctSig(){
   return JSON.stringify(ctDB().map(function(t){
@@ -5469,7 +5544,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-11e";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-11f";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
