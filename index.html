@@ -1442,9 +1442,9 @@ body.mode-pc #view-manage #mgPage-settings .pcv-set-grid{display:grid;
     <div id="mgPage-content">
       <div class="pcv-toolbar">
         <input class="pcv-search" id="mgSearch" type="search" placeholder="搜索打卡内容…" autocomplete="off">
-        <button class="pcv-filter active" type="button" data-act="mgfilter" data-cat="all">全部</button>
-        <button class="pcv-filter" type="button" data-act="mgfilter" data-cat="锻炼">锻炼</button>
-        <button class="pcv-filter" type="button" data-act="mgfilter" data-cat="写作练习">写作练习</button>
+        <span id="mgCatChips" style="display:contents">
+          <button class="pcv-filter active" type="button" data-act="mgfilter" data-cat="all">全部</button>
+        </span>
         <span style="width:1px;height:22px;background:var(--line)"></span>
         <button class="pcv-filter active" type="button" data-act="mgstatus" data-st="all">全部状态</button>
         <button class="pcv-filter" type="button" data-act="mgstatus" data-st="todo">待补卡</button>
@@ -1488,7 +1488,7 @@ body.mode-pc #view-manage #mgPage-settings .pcv-set-grid{display:grid;
     <div class="section">
       <div class="sec-title">任务重置</div>
       <div class="tcard">
-        <div class="tcard-b" style="font-size:13px;color:var(--muted)">清空所有打卡记录（锻炼 / 写作练习从头开始），<b>保留文档内容</b>。此操作不可撤销，建议先「导出备份」。</div>
+        <div class="tcard-b" style="font-size:13px;color:var(--muted)">清空所有打卡记录（<span id="resetTypeNames">锻炼 / 写作练习 / 视频创作</span> 从头开始），<b>保留文档内容</b>。此操作不可撤销，建议先「导出备份」。</div>
         <div class="tcard-a"><button class="btn" id="btnResetAll">重置所有任务</button></div>
       </div>
     </div>
@@ -2484,7 +2484,7 @@ document.getElementById("btnClearAll").addEventListener("click",function(){
   }
 });
 document.getElementById("btnResetCheckin").addEventListener("click",function(){
-  if(confirm("重置打卡记录？将清除「锻炼 / 写作练习」的全部打卡记录（保留待办与睡眠记录），记录从今天重新开始。此操作不可恢复，建议先点「导出备份」。")){
+  if(confirm("重置打卡记录？将清除「"+ITEMS.join(" / ")+"」的全部打卡记录（保留待办与睡眠记录），记录从今天重新开始。此操作不可恢复，建议先点「导出备份」。")){
     ITEMS.forEach(function(it){ delete RECORDS[it]; });
     render();
     if(SYNC==="nocfg"){ alert("本机预览已重置（未配置云端，未上传）。"); }
@@ -3785,8 +3785,20 @@ function mgPlanRows(){
   });
   return rows;
 }
+/* 分类筛选按钮：按当前 ITEMS（内置 + 自定义类型）动态生成，新增类型自动出现 */
+function renderMgCatChips(){
+  const box=document.getElementById("mgCatChips"); if(!box) return;
+  if(mgCat!=="all" && ITEMS.indexOf(mgCat)<0) mgCat="all";   // 类型被删除/改名 → 回落「全部」
+  let h='<button class="pcv-filter'+(mgCat==="all"?" active":"")+'" type="button" data-act="mgfilter" data-cat="all">全部</button>';
+  ITEMS.forEach(function(it){
+    h+='<button class="pcv-filter'+(mgCat===it?" active":"")+'" type="button" data-act="mgfilter" data-cat="'+escapeHtml(it)+'">'+escapeHtml(it)+'</button>';
+  });
+  if(box.innerHTML!==h) box.innerHTML=h;
+  const rn=document.getElementById("resetTypeNames"); if(rn) rn.textContent=ITEMS.join(" / ");
+}
 function renderManageContent(){
   const body=document.getElementById("mgTableBody"); if(!body) return;
+  renderMgCatChips();
   const td=today();
   const all=mgPlanRows();
   const rows=all.filter(function(r){
@@ -3946,7 +3958,7 @@ function applyCustomTypes(){
     SCHEDULE[t.name].forEach(function(e){ SMAP[t.name][e.date]=e; });
   });
 }
-function ctForceRefresh(){ _ctSig=null; applyCustomTypes(); }
+function ctForceRefresh(){ _ctSig=null; applyCustomTypes(); try{ renderMgCatChips(); }catch(e){} }
 function ctFind(id){ const a=ctDB(); for(let i=0;i<a.length;i++){ if(a[i].id===id) return a[i]; } return null; }
 
 /* ---------- 轻量 XLSX / CSV 解析（零依赖：zip + DecompressionStream + XML） ---------- */
@@ -4676,7 +4688,7 @@ document.addEventListener("click",function(e){
     }
   });
   on("btnResetAll",function(){
-    if(!confirm("确定重置所有任务吗？\n将清空锻炼 / 写作练习的全部打卡记录（文档内容保留）。\n此操作不可撤销，建议先「导出备份」。")) return;
+    if(!confirm("确定重置所有任务吗？\n将清空 "+ITEMS.join(" / ")+" 的全部打卡记录（文档内容保留）。\n此操作不可撤销，建议先「导出备份」。")) return;
     ITEMS.forEach(function(it){ RECORDS[it]={}; });
     if(!RECORDS._meta) RECORDS._meta={};
     RECORDS._meta.version=(RECORDS._meta.version||0)+1;
@@ -5533,7 +5545,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-11g";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-11h";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
