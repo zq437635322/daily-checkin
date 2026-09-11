@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-09-11b</title>
+<title>每日打卡 · 构建2026-09-11c</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -892,6 +892,8 @@ body.mode-pc #view-manage #mgSubtabs{display:flex;gap:8px;margin-bottom:16px}
 .pcv-subtab.active{background:#e8f7ee;border-color:var(--primary,#10b981);color:var(--primary-d,#059669);font-weight:600}
 #mgPage-content{display:none}
 body.mode-pc #view-manage.show-content #mgPage-content{display:block}
+#mgPage-types{display:none}
+body.mode-pc #view-manage.show-types #mgPage-types{display:block}
 body.mode-pc #view-manage #mgPage-settings{display:none}
 body.mode-pc #view-manage.show-settings #mgPage-settings{display:block}
 
@@ -1434,6 +1436,7 @@ body.mode-pc #view-manage #mgPage-settings .pcv-set-grid{display:grid;
   <section class="view show-content" id="view-manage">
     <div id="mgSubtabs">
       <button class="pcv-subtab active" type="button" data-act="mgsub" data-p="content">打卡内容</button>
+      <button class="pcv-subtab" type="button" data-act="mgsub" data-p="types">打卡类型</button>
       <button class="pcv-subtab" type="button" data-act="mgsub" data-p="settings">设置</button>
     </div>
 
@@ -1463,6 +1466,22 @@ body.mode-pc #view-manage #mgPage-settings .pcv-set-grid{display:grid;
       <div class="pcv-caption" id="mgCaption">—</div>
       <div class="pcv-hint">ⓘ 说明：打卡内容由 Excel（锻炼_去重版 / 写作练习）生成，在此只做查看与补打卡；修改内容请改 Excel 后重新生成计划。编辑打卡内容不回溯历史记录。</div>
       <div class="pcv-mini-grid" id="mgMini"></div>
+    </div>
+
+    <!-- ===== 管理端 · 打卡类型（自定义分类 + Excel 导入） ===== -->
+    <div id="mgPage-types">
+      <div class="pcv-toolbar">
+        <span style="font-size:12.5px;color:var(--muted)">内置类型来自 Excel 计划，不可删除；自定义类型可新增、导入内容库、设置排班规则</span>
+        <button class="btn primary" style="margin-left:auto" type="button" data-act="ct-new">＋ 新增打卡类型</button>
+      </div>
+      <table class="pcv-table">
+        <thead>
+          <tr><th style="width:18%">类型名称</th><th>标识</th><th>内容条目</th><th>排班规则</th><th>计划项</th><th style="width:26%">操作</th></tr>
+        </thead>
+        <tbody id="ctTableBody"></tbody>
+      </table>
+      <div class="pcv-caption" id="ctCaption">—</div>
+      <div class="pcv-hint">ⓘ 导入支持 <b>.xlsx</b> 与 <b>.csv</b>：表头需含「名称」列，可选「内容 / 时长 / 类型」列；首行不是表头时按 A/B/C/D 列顺序读取。导入会<b>覆盖</b>该类型现有内容库，历史打卡记录保留。</div>
     </div>
 
     <!-- ===== 管理端 · 设置 ===== -->
@@ -1535,6 +1554,67 @@ alter table public.checkin_state enable row level security;
 drop policy if exists "anon_all" on public.checkin_state;
 create policy "anon_all" on public.checkin_state
   for all to anon using (true) with check (true);</pre>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 新增 / 编辑打卡类型 ===== -->
+<div class="modal" id="ctModal">
+  <div class="modal-box">
+    <div class="modal-title" id="ctModalTitle">新增打卡类型</div>
+    <label>类型名称 <span style="color:var(--red)">*</span></label>
+    <input class="inp" id="ctName" placeholder="例如：阅读 / 英语 / 冥想">
+    <div style="display:flex;gap:12px">
+      <div style="flex:1"><label>单字标识</label><input class="inp" id="ctShort" maxlength="2" placeholder="读"></div>
+      <div style="flex:1"><label>主题色</label><input class="inp" id="ctColor" type="color" value="#0ea5e9" style="height:38px;padding:2px"></div>
+    </div>
+    <div style="display:flex;gap:12px">
+      <div style="flex:1"><label>每周安排</label>
+        <select class="inp" id="ctPerWeek">
+          <option value="7">每天</option><option value="6">每周 6 天</option>
+          <option value="5" selected>每周 5 天</option><option value="4">每周 4 天</option>
+          <option value="3">每周 3 天</option><option value="2">每周 2 天</option><option value="1">每周 1 天</option>
+        </select>
+      </div>
+      <div style="flex:1"><label>周期（周）</label><input class="inp" id="ctWeeks" type="number" min="1" max="260" value="26"></div>
+      <div style="flex:1"><label>默认时长</label><input class="inp" id="ctDur" placeholder="30分钟"></div>
+    </div>
+    <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text)">
+      <input type="checkbox" id="ctHoliday" style="width:16px;height:16px"> 法定节假日每天都安排
+    </label>
+    <div class="modal-actions">
+      <button class="btn" type="button" data-act="ct-cancel">取消</button>
+      <button class="btn primary" type="button" data-act="ct-save">保存类型</button>
+    </div>
+    <div class="modal-note">保存后可在「打卡类型」页点「导入」上传 Excel / CSV 建立内容库；内容按表格顺序逐条轮巡生成每日计划。</div>
+  </div>
+</div>
+
+<!-- ===== 导入打卡内容（Excel / CSV） ===== -->
+<div class="modal" id="ctImportModal">
+  <div class="modal-box" style="width:760px;max-width:94vw">
+    <div class="modal-title">导入打卡内容 · <span id="ctImpName" style="color:var(--primary-d)"></span></div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+      <button class="btn" type="button" data-act="ct-pick">选择文件（.xlsx / .csv）</button>
+      <input type="file" id="ctFile" accept=".xlsx,.csv,.txt" hidden>
+      <span style="font-size:12px;color:var(--muted)" id="ctImpFile">未选择文件</span>
+    </div>
+    <div id="ctImpMap" style="display:none">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+        <span style="font-size:12px;color:var(--muted);align-self:center">列映射：</span>
+        <select class="inp" id="ctMapName" style="width:130px;height:32px"></select>
+        <select class="inp" id="ctMapContent" style="width:130px;height:32px"></select>
+        <select class="inp" id="ctMapDur" style="width:130px;height:32px"></select>
+        <select class="inp" id="ctMapType" style="width:130px;height:32px"></select>
+      </div>
+      <div style="max-height:240px;overflow:auto;border:1px solid var(--line);border-radius:8px">
+        <table class="pcv-table" style="border:none;border-radius:0"><tbody id="ctImpPreview"></tbody></table>
+      </div>
+      <div class="pcv-caption" id="ctImpStat">—</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" type="button" data-act="ct-imp-cancel">取消</button>
+      <button class="btn primary" type="button" data-act="ct-imp-ok">确认导入</button>
     </div>
   </div>
 </div>
@@ -1818,12 +1898,12 @@ function warnSvg(){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentC
 function summaryOf(it,e){
   if(it==="锻炼") return e.theme||"训练";
   if(it==="写作练习") return e.name||"写作任务";
-  return "";
+  return e.name||e.theme||"任务";                     // 自定义打卡类型
 }
 function subOf(it,e){
   if(it==="锻炼") return [e.time,e.week].filter(Boolean).join(" · ");
   if(it==="写作练习") return [e.type,e.duration].filter(Boolean).join(" · ");
-  return "";
+  return [e.type,e.duration,e.week].filter(Boolean).join(" · ");   // 自定义打卡类型
 }
 function detailHtml(it,e){
   let rows=[];
@@ -2209,6 +2289,7 @@ function renderSleepHist(){
   html+='</div>'; box.innerHTML=html;
 }
 function render(){
+  try{ applyCustomTypes(); }catch(e){}   // 自定义打卡类型：并入 ITEMS/META/SCHEDULE/SMAP（无变化时不重建）
   [renderSleep,renderSleepHist,tfRenderAll,renderBackupHint,renderHome,renderStats,renderDocs,renderManage,renderHomeTodos].forEach(function(f){ try{ f(); }catch(e){ console.error("render error in "+(f&&f.name), e); } });
 }
 
@@ -3683,15 +3764,381 @@ function mgSwitch(p){
   const bs=document.querySelectorAll("#mgSubtabs .pcv-subtab");
   for(let i=0;i<bs.length;i++){ bs[i].classList.toggle("active", bs[i].getAttribute("data-p")===p); }
   if(p==="content") renderManageContent();
+  else if(p==="types") renderManageTypes();
 }
 (function(){
   var s=document.getElementById("mgSearch");
   if(s) s.addEventListener("input", function(){ mgKw=(s.value||"").trim(); renderManageContent(); });
 })();
+/* 自定义打卡类型：文件选择与列映射（弹窗 DOM 位于脚本之前，可直接绑定） */
+(function(){
+  var f=document.getElementById("ctFile");
+  if(f) f.addEventListener("change", function(){ if(f.files && f.files[0]) ctReadFile(f.files[0]); });
+  ["ctMapName","ctMapContent","ctMapDur","ctMapType"].forEach(function(id){
+    var e=document.getElementById(id);
+    if(e) e.addEventListener("change", function(){ try{ ctRenderImportPreview(); }catch(err){} });
+  });
+})();
+
+/* ==================================================================
+   自定义打卡类型（管理端「打卡类型」页）
+   数据：RECORDS.customTypes=[{id,name,short,color,items:[{name,content,duration,type}],
+                              rules:{perWeek,weeks,duration,holidayAll}}]
+   运行时并入 ITEMS / META / SCHEDULE / SMAP —— 首页卡片、打卡、统计、
+   本周网格、CSV 导出全部自动生效（它们都遍历 ITEMS）。
+   ================================================================== */
+function ctDB(){ if(!RECORDS.customTypes) RECORDS.customTypes=[]; return RECORDS.customTypes; }
+const CT_BUILTIN = { "锻炼":1, "写作练习":1 };
+let _ctSig = null, _ctApplied = [];
+function ctSig(){
+  return JSON.stringify(ctDB().map(function(t){
+    return [t.id,t.name,t.short,t.color,(t.items||[]).length,JSON.stringify(t.rules||{})].join("~");
+  }));
+}
+function buildCustomSeq(t){
+  const r=t.rules||{}, items=(t.items||[]).filter(function(x){ return x && String(x.name||"").trim(); });
+  if(!items.length) return [];
+  const perWeek=Math.max(1,Math.min(7,parseInt(r.perWeek,10)||5));
+  const weeks=Math.max(1,Math.min(260,parseInt(r.weeks,10)||26));
+  const s0=mondayOf(new Date(PLAN_START+"T00:00:00"));
+  const out=[]; let idx=0;
+  for(let k=0;k<weeks*7;k++){
+    const d=new Date(s0); d.setDate(d.getDate()+k);
+    const ds=fmt(d);
+    if(ds < PLAN_START) continue;
+    const slot=(d.getDay()+6)%7;                 // 0=周一 … 6=周日
+    const hol=isHolidayDate(ds);
+    const on = (hol && r.holidayAll) || perWeek>=7 || slot < perWeek;
+    if(!on) continue;
+    const it=items[idx % items.length]; idx++;
+    out.push({ date:ds, name:String(it.name||"").trim(), content:it.content||"",
+      duration:it.duration||r.duration||"", type:it.type||"",
+      week:"第"+(Math.floor(k/7)+1)+"周", day:"第"+idx+"天" });
+  }
+  return out;
+}
+function applyCustomTypes(){
+  if(!RECORDS.customTypes) RECORDS.customTypes=[];
+  const sig=ctSig();
+  if(sig===_ctSig) return;                        // 无变化不重建
+  _ctSig=sig;
+  // 先清掉上一轮已应用的自定义类型（改名 / 删除后不留残留在 SCHEDULE / META / SMAP）
+  _ctApplied.forEach(function(k){
+    delete SCHEDULE[k]; delete SMAP[k]; delete META[k];
+    const i=ITEMS.indexOf(k); if(i>=0) ITEMS.splice(i,1);
+  });
+  _ctApplied=[];
+  for(let i=ITEMS.length-1;i>=0;i--){ if(!CT_BUILTIN[ITEMS[i]]) ITEMS.splice(i,1); }
+  ctDB().forEach(function(t){
+    if(!t || !t.name || CT_BUILTIN[t.name]) return;
+    if(ITEMS.indexOf(t.name)>=0) return;
+    ITEMS.push(t.name);
+    _ctApplied.push(t.name);
+    META[t.name]={ short:t.short||t.name.charAt(0), color:t.color||"#0ea5e9", custom:true };
+    SCHEDULE[t.name]=buildCustomSeq(t);
+    SMAP[t.name]={};
+    SCHEDULE[t.name].forEach(function(e){ SMAP[t.name][e.date]=e; });
+  });
+}
+function ctForceRefresh(){ _ctSig=null; applyCustomTypes(); }
+function ctFind(id){ const a=ctDB(); for(let i=0;i<a.length;i++){ if(a[i].id===id) return a[i]; } return null; }
+
+/* ---------- 轻量 XLSX / CSV 解析（零依赖：zip + DecompressionStream + XML） ---------- */
+function _xmlUnesc(s){
+  return String(s).replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"')
+    .replace(/&#39;/g,"'").replace(/&amp;/g,"&");
+}
+function _u8str(u8){ try{ return new TextDecoder("utf-8").decode(u8); }catch(e){ return ""; } }
+async function _inflate(u8){
+  if(typeof DecompressionStream==="undefined") throw new Error("当前浏览器不支持解压，请把表格另存为 CSV 再导入");
+  const ds=new DecompressionStream("deflate-raw");
+  const st=new Blob([u8]).stream().pipeThrough(ds);
+  return new Uint8Array(await new Response(st).arrayBuffer());
+}
+function _findEOCD(dv){
+  const min=Math.max(0, dv.byteLength-65558);
+  for(let i=dv.byteLength-22;i>=min;i--){ if(dv.getUint32(i,true)===0x06054b50) return i; }
+  return -1;
+}
+function _colIdx(ref){
+  let n=0;
+  for(let i=0;i<String(ref).length;i++){
+    const c=String(ref).charCodeAt(i);
+    if(c>=65&&c<=90) n=n*26+(c-64); else break;
+  }
+  return n-1;
+}
+function _parseSheetXml(xml, shared){
+  const rows=[];
+  const re=/<row(?:\s[^>]*)?>([\s\S]*?)<\/row>/g; let m;
+  while((m=re.exec(xml))){
+    const inner=m[1]||"", cells=[];
+    const cre=/<c([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g; let cm;
+    while((cm=cre.exec(inner))){
+      const attr=cm[1]||"", body=cm[2]||"";
+      const ref=(attr.match(/r="([A-Z]+)\d+"/)||[])[1];
+      const t=(attr.match(/t="([^"]*)"/)||[])[1]||"";
+      let v="";
+      if(t==="s"){
+        const i=parseInt((body.match(/<v>([\s\S]*?)<\/v>/)||[])[1],10);
+        v=isNaN(i)?"":(shared[i]||"");
+      } else if(t==="inlineStr"){
+        let s="", tr=/<t[^>]*>([\s\S]*?)<\/t>/g, mm;
+        while((mm=tr.exec(body))) s+=mm[1];
+        v=_xmlUnesc(s);
+      } else {
+        v=_xmlUnesc((body.match(/<v>([\s\S]*?)<\/v>/)||[])[1]||"");
+      }
+      const ci=ref?_colIdx(ref):cells.length;
+      while(cells.length<ci) cells.push("");
+      cells[ci]=v;
+    }
+    rows.push(cells);
+  }
+  return rows;
+}
+async function xlsxToRows(buf){
+  const dv=new DataView(buf), u8=new Uint8Array(buf);
+  const eocd=_findEOCD(dv);
+  if(eocd<0) throw new Error("不是有效的 xlsx 文件（未找到 zip 结尾标记）");
+  const cnt=dv.getUint16(eocd+10,true);
+  let off=dv.getUint32(eocd+16,true);
+  const entries={};
+  for(let i=0;i<cnt;i++){
+    if(off+46>dv.byteLength || dv.getUint32(off,true)!==0x02014b50) break;
+    const method=dv.getUint16(off+10,true);
+    const csize=dv.getUint32(off+20,true);
+    const nlen=dv.getUint16(off+28,true), elen=dv.getUint16(off+30,true), clen=dv.getUint16(off+32,true);
+    const lho=dv.getUint32(off+42,true);
+    let name=""; for(let j=0;j<nlen;j++) name+=String.fromCharCode(dv.getUint8(off+46+j));
+    entries[name]={method:method,csize:csize,lho:lho};
+    off+=46+nlen+elen+clen;
+  }
+  async function read(nm){
+    const e=entries[nm]; if(!e) return "";
+    const nlen=dv.getUint16(e.lho+26,true), elen=dv.getUint16(e.lho+28,true);
+    const start=e.lho+30+nlen+elen;
+    const raw=u8.subarray(start, start+e.csize);
+    return e.method===0 ? _u8str(raw) : _u8str(await _inflate(raw));
+  }
+  let sheetName="xl/worksheets/sheet1.xml";
+  if(!entries[sheetName]){
+    const wb=await read("xl/workbook.xml");
+    const rid=(wb.match(/<sheet[^>]*r:id="(rId\d+)"[^>]*>/)||[])[1];
+    if(rid){
+      const rels=await read("xl/_rels/workbook.xml.rels");
+      const mm=rels.match(new RegExp('Id="'+rid+'"[^>]*Target="([^"]+)"'))
+            || rels.match(new RegExp('Target="([^"]+)"[^>]*Id="'+rid+'"'));
+      if(mm){ const t=String(mm[1]).replace(/^\/?xl\//,"").replace(/^\.\//,""); sheetName="xl/"+t; }
+    }
+    if(!entries[sheetName]){
+      const ks=Object.keys(entries).filter(function(k){ return /^xl\/worksheets\/sheet\d+\.xml$/.test(k); }).sort();
+      sheetName=ks[0]||"";
+    }
+  }
+  const shared=[];
+  const ssXml=await read("xl/sharedStrings.xml");
+  if(ssXml){
+    const re=/<si>([\s\S]*?)<\/si>/g; let m;
+    while((m=re.exec(ssXml))){
+      let s="", tr=/<t[^>]*>([\s\S]*?)<\/t>/g, mm;
+      while((mm=tr.exec(m[1]))) s+=mm[1];
+      shared.push(_xmlUnesc(s));
+    }
+  }
+  const sheet=sheetName?await read(sheetName):"";
+  if(!sheet) throw new Error("未找到工作表内容");
+  return _parseSheetXml(sheet, shared);
+}
+function csvToRows(text){
+  text=String(text||"").replace(/^\uFEFF/,"");
+  const rows=[]; let row=[], cur="", q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text.charAt(i);
+    if(q){
+      if(c==='"'){ if(text.charAt(i+1)==='"'){ cur+='"'; i++; } else q=false; }
+      else cur+=c;
+    } else if(c==='"') q=true;
+    else if(c===','){ row.push(cur); cur=""; }
+    else if(c==='\n'){ row.push(cur); rows.push(row); row=[]; cur=""; }
+    else if(c!=='\r') cur+=c;
+  }
+  if(cur!==""||row.length){ row.push(cur); rows.push(row); }
+  return rows.filter(function(r){ return r.some(function(x){ return String(x).trim()!==""; }); });
+}
+
+/* ---------- 导入流程 ---------- */
+let _ctImpId=null, _ctImpRows=[], _ctImpHeader=null, _ctImpStart=0;
+const CT_HEAD_KEYS = { name:["名称","任务","标题","项目","打卡内容","内容名称"],
+  content:["内容","说明","描述","详情","要求","备注"],
+  duration:["时长","时间","用时","分钟"],
+  type:["类型","分类","阶段","类别"] };
+function ctMatchHeader(head){
+  const map={name:-1,content:-1,duration:-1,type:-1};
+  Object.keys(CT_HEAD_KEYS).forEach(function(k){
+    for(let i=0;i<head.length;i++){
+      const v=String(head[i]||"").trim();
+      if(!v) continue;
+      if(CT_HEAD_KEYS[k].some(function(w){ return v.indexOf(w)>=0; })){ map[k]=i; break; }
+    }
+  });
+  return map;
+}
+function ctBuildMapSelects(ncol, map){
+  const opts=function(sel){
+    let h='<option value="-1">（不用）</option>';
+    for(let i=0;i<ncol;i++){
+      const lb="第"+(i+1)+"列"+(CT_HEAD_KEYS.name.indexOf(String(i))>=0?"":"");
+      const hv=_ctImpHeader?String(_ctImpHeader[i]||"").trim():"";
+      h+='<option value="'+i+'">'+escapeHtml(lb+(hv?(" · "+hv):""))+'</option>';
+    }
+    return h;
+  };
+  ["ctMapName","ctMapContent","ctMapDur","ctMapType"].forEach(function(id){
+    const e=document.getElementById(id); if(!e) return;
+    e.innerHTML=opts();
+  });
+  const set=function(id,v){ const e=document.getElementById(id); if(e) e.value=String(v==null?-1:v); };
+  set("ctMapName", map?map.name:0);
+  set("ctMapContent", map?map.content:1);
+  set("ctMapDur", map?map.duration:2);
+  set("ctMapType", map?map.type:3);
+}
+function ctMapVal(id){ const e=document.getElementById(id); return e?parseInt(e.value,10):-1; }
+function ctRenderImportPreview(){
+  const tb=document.getElementById("ctImpPreview"); if(!tb) return;
+  const iN=ctMapVal("ctMapName"), iC=ctMapVal("ctMapContent"), iD=ctMapVal("ctMapDur"), iT=ctMapVal("ctMapType");
+  const cell=function(r,i){ const v=(i<0||r[i]==null)?"":String(r[i]); return escapeHtml(v); };
+  let h='<tr><th>名称</th><th>内容</th><th>时长</th><th>类型</th></tr>';
+  const rows=_ctImpRows.slice(_ctImpStart, _ctImpStart+6);
+  rows.forEach(function(r){ h+='<tr><td>'+cell(r,iN)+'</td><td>'+cell(r,iC)+'</td><td>'+cell(r,iD)+'</td><td>'+cell(r,iT)+'</td></tr>'; });
+  tb.innerHTML=h;
+  const all=_ctImpRows.slice(_ctImpStart);
+  const n=all.filter(function(r){ return String((iN<0?"":r[iN])||"").trim(); }).length;
+  const st=document.getElementById("ctImpStat");
+  if(st) st.textContent="共 "+all.length+" 行 · 名称非空 "+n+" 条 · 预览前 "+rows.length+" 行";
+}
+async function ctReadFile(file){
+  if(!file) return;
+  const fEl=document.getElementById("ctImpFile"); if(fEl) fEl.textContent=file.name;
+  try{
+    let rows;
+    if(/\.xlsx$/i.test(file.name)) rows=await xlsxToRows(await file.arrayBuffer());
+    else rows=csvToRows(await file.text());
+    if(!rows.length) throw new Error("文件为空或没有数据");
+    const ncol=rows.reduce(function(a,r){ return Math.max(a,r.length); },0);
+    _ctImpRows=rows.map(function(r){ const a=r.slice(); while(a.length<ncol) a.push(""); return a; });
+    const head=_ctImpRows[0].map(function(x){ return String(x||"").trim(); });
+    const hasHead=head.some(function(v){ return v && CT_HEAD_KEYS.name.concat(CT_HEAD_KEYS.content).some(function(w){ return v.indexOf(w)>=0; }); });
+    _ctImpHeader=hasHead?head:null;
+    _ctImpStart=hasHead?1:0;
+    ctBuildMapSelects(ncol, hasHead?ctMatchHeader(head):{name:0,content:1,duration:2,type:3});
+    ctRenderImportPreview();
+    const box=document.getElementById("ctImpMap"); if(box) box.style.display="block";
+  }catch(err){
+    alert("读取失败："+((err&&err.message)||err)+"\n\n提示：也可以把 Excel「另存为 CSV」后再导入。");
+  }
+}
+function ctDoImport(){
+  const t=ctFind(_ctImpId); if(!t){ return; }
+  const iN=ctMapVal("ctMapName"), iC=ctMapVal("ctMapContent"), iD=ctMapVal("ctMapDur"), iT=ctMapVal("ctMapType");
+  if(iN<0){ alert("请至少指定「名称」对应的列"); return; }
+  const items=[];
+  _ctImpRows.slice(_ctImpStart).forEach(function(r){
+    const nm=String((r[iN]==null?"":r[iN])).trim();
+    if(!nm) return;
+    items.push({ name:nm,
+      content:String((iC<0||r[iC]==null)?"":r[iC]).trim(),
+      duration:String((iD<0||r[iD]==null)?"":r[iD]).trim(),
+      type:String((iT<0||r[iT]==null)?"":r[iT]).trim() });
+  });
+  if(!items.length){ alert("没有解析到有效行（名称列为空）"); return; }
+  t.items=items;
+  ctForceRefresh(); saveLocal(); cloudSave(); render();
+  const m=document.getElementById("ctImportModal"); if(m) m.classList.remove("show");
+  alert("已导入 "+items.length+" 条内容到「"+t.name+"」，计划已重新生成。");
+}
+
+/* ---------- 类型增删改 ---------- */
+let _ctEditId=null;
+function ctOpenModal(id){
+  _ctEditId=id||null;
+  const t=id?ctFind(id):null;
+  const set=function(eid,v){ const e=document.getElementById(eid); if(e) e.value=v; };
+  const ti=document.getElementById("ctModalTitle"); if(ti) ti.textContent=t?"编辑打卡类型":"新增打卡类型";
+  const nm=document.getElementById("ctName"); if(nm){ nm.value=t?t.name:""; nm.disabled=!!t; }
+  set("ctShort", t?(t.short||""):"");
+  set("ctColor", t?(t.color||"#0ea5e9"):"#0ea5e9");
+  set("ctPerWeek", t?String(((t.rules&&t.rules.perWeek)||5)):"5");
+  set("ctWeeks", t?String(((t.rules&&t.rules.weeks)||26)):"26");
+  set("ctDur", t?((t.rules&&t.rules.duration)||""):"30分钟");
+  const hd=document.getElementById("ctHoliday"); if(hd) hd.checked=t?!!(t.rules&&t.rules.holidayAll):true;
+  const m=document.getElementById("ctModal"); if(m) m.classList.add("show");
+}
+function ctSave(){
+  const nmEl=document.getElementById("ctName");
+  const name=(nmEl&&nmEl.value||"").trim();
+  if(!name){ alert("请填写类型名称"); return; }
+  if(CT_BUILTIN[name]){ alert("「"+name+"」是内置类型，请换一个名称"); return; }
+  if(ctDB().some(function(t){ return t.name===name && t.id!==_ctEditId; })){ alert("已存在同名类型"); return; }
+  const g=function(id,def){ const e=document.getElementById(id); return e?(e.value||def):def; };
+  const rules={ perWeek:parseInt(g("ctPerWeek","5"),10)||5,
+    weeks:parseInt(g("ctWeeks","26"),10)||26,
+    duration:(g("ctDur","")).trim(),
+    holidayAll:!!(document.getElementById("ctHoliday")||{}).checked };
+  const meta={ short:(g("ctShort","")).trim()||name.charAt(0), color:g("ctColor","#0ea5e9") };
+  const t=_ctEditId?ctFind(_ctEditId):null;
+  if(t){ t.short=meta.short; t.color=meta.color; t.rules=rules; }
+  else { ctDB().push({ id:"ct"+Date.now().toString(36)+Math.random().toString(36).slice(2,5),
+    name:name, short:meta.short, color:meta.color, items:[], rules:rules }); }
+  ctForceRefresh(); saveLocal(); cloudSave(); render();
+  const m=document.getElementById("ctModal"); if(m) m.classList.remove("show");
+}
+function ctDel(id){
+  const t=ctFind(id); if(!t) return;
+  if(!confirm("删除打卡类型「"+t.name+"」？\n该类型的计划与打卡记录会一并移除（历史导出备份不受影响）。\n此操作不可撤销，建议先「导出备份」。")) return;
+  const a=ctDB(), i=a.indexOf(t); if(i>=0) a.splice(i,1);
+  delete RECORDS[t.name]; delete SCHEDULE[t.name]; delete SMAP[t.name]; delete META[t.name];
+  const k=ITEMS.indexOf(t.name); if(k>=0) ITEMS.splice(k,1);
+  _ctSig=null; applyCustomTypes();
+  saveLocal(); cloudSave(); render();
+}
+function renderManageTypes(){
+  const body=document.getElementById("ctTableBody"); if(!body) return;
+  let h="";
+  Object.keys(CT_BUILTIN).forEach(function(k){
+    h+='<tr><td><span class="pcv-mini-dot" style="display:inline-block;margin-right:6px;background:'+META[k].color+'"></span>'
+      +'<span class="pcv-row-name">'+escapeHtml(k)+'</span> <span class="pcv-badge pcv-badge-gray">内置</span></td>'
+      +'<td>'+escapeHtml(META[k].short)+'</td><td>Excel 计划生成</td><td>按 Excel 规则</td>'
+      +'<td>'+seqOf(k).length+' 项</td><td><span class="pcv-caption">内置类型不可编辑</span></td></tr>';
+  });
+  const arr=ctDB();
+  if(!arr.length){
+    h+='<tr><td colspan="6"><div class="pcv-empty">还没有自定义类型，点右上角「＋ 新增打卡类型」创建</div></td></tr>';
+  } else {
+    arr.forEach(function(t){
+      const r=t.rules||{};
+      const rule=(parseInt(r.perWeek,10)>=7?"每天":"每周 "+(r.perWeek||5)+" 天")
+        +(r.holidayAll?" · 节假日每天":"")+" · "+(r.weeks||26)+" 周";
+      h+='<tr><td><span class="pcv-mini-dot" style="display:inline-block;margin-right:6px;background:'+(t.color||"#0ea5e9")+'"></span>'
+        +'<span class="pcv-row-name">'+escapeHtml(t.name)+'</span></td>'
+        +'<td>'+escapeHtml(t.short||t.name.charAt(0))+'</td>'
+        +'<td>'+(t.items||[]).length+' 条</td>'
+        +'<td>'+escapeHtml(rule)+'</td>'
+        +'<td>'+(SCHEDULE[t.name]||[]).length+' 项</td>'
+        +'<td><span class="pcv-act" data-act="ct-import" data-id="'+t.id+'">导入</span>'
+        +'<span class="pcv-act" data-act="ct-edit" data-id="'+t.id+'">编辑</span>'
+        +'<span class="pcv-act stop" data-act="ct-del" data-id="'+t.id+'">删除</span></td></tr>';
+    });
+  }
+  body.innerHTML=h;
+  const cap=document.getElementById("ctCaption");
+  if(cap) cap.textContent="内置 "+Object.keys(CT_BUILTIN).length+" 个 · 自定义 "+arr.length+" 个　｜　自定义类型的打卡记录与其它类型一起随云端同步";
+}
 
 function renderManage(){
   try{
-    if(isPcMode()){ try{ renderManageContent(); }catch(e){} }
+    if(isPcMode()){ try{ renderManageContent(); renderManageTypes(); }catch(e){} }
     const el=document.getElementById("dtList"); if(!el) return;
     const o=RECORDS.dayTypes||{}; const ks=Object.keys(o).sort();
     el.innerHTML = ks.length ? ("已覆盖：" + ks.map(function(k){ return k+" → "+DAY_LABEL[o[k]]; }).join("、")) : "暂无手动覆盖，按法定节假日与星期自动判定。";
@@ -3763,6 +4210,16 @@ document.addEventListener("click",function(e){
     renderManageContent();
   }
   else if(act==="mgdetail"){ mgOpenRow = (mgOpenRow===el.dataset.key)?null:el.dataset.key; renderManageContent(); }
+  /* ---- 自定义打卡类型（管理 · 打卡类型） ---- */
+  else if(act==="ct-new"){ ctOpenModal(null); }
+  else if(act==="ct-edit"){ ctOpenModal(el.dataset.id); }
+  else if(act==="ct-save"){ ctSave(); }
+  else if(act==="ct-cancel"){ const m=document.getElementById("ctModal"); if(m) m.classList.remove("show"); }
+  else if(act==="ct-del"){ ctDel(el.dataset.id); }
+  else if(act==="ct-import"){ ctOpenImport(el.dataset.id); }
+  else if(act==="ct-pick"){ const f=document.getElementById("ctFile"); if(f) f.click(); }
+  else if(act==="ct-imp-cancel"){ const m=document.getElementById("ctImportModal"); if(m) m.classList.remove("show"); }
+  else if(act==="ct-imp-ok"){ ctDoImport(); }
   else if(act==="docsel"){ editTarget={kind:"doc",id:el.dataset.id}; curDoc=el.dataset.id; showInsp=false; renderDocs(); }
   else if(act==="doc-new-quick"){
     const d=docsAll(); const t=prompt("新文档标题：","未命名文档"); if(t===null) return;
@@ -4854,7 +5311,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-11b";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-11c";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
