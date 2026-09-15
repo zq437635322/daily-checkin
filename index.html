@@ -976,6 +976,19 @@ body.mode-pc #view-manage #mgPage-settings .pcv-set-grid{display:grid;
 .kb-tools select{padding:6px 10px;border:1px solid var(--line);border-radius:8px;font-size:12.5px;background:#fff;color:var(--fg);max-width:170px;cursor:pointer}
 .kb-status{padding:6px 14px;font-size:11.5px;color:var(--muted);border-top:1px solid var(--line);display:flex;justify-content:space-between}
 @media (max-width:900px){.kb-body{flex-direction:column}.kb-side{width:100%;max-height:200px}}
+/* 手机端知识库：仅查看模式，禁用全部写操作（新建/上传/导出/编辑/置顶/删除） */
+body.mode-mobile #view-wiki #kbNew,
+body.mode-mobile #view-wiki #kbUpload,
+body.mode-mobile #view-wiki #kbExportMd,
+body.mode-mobile #view-wiki #kbExportDoc,
+body.mode-mobile #view-wiki #kbMode,
+body.mode-mobile #view-wiki #kbDel,
+body.mode-mobile #view-wiki #kbPinBtn,
+body.mode-mobile #view-wiki #kbCat,
+body.mode-mobile #view-wiki .kb-pin-mini,
+body.mode-mobile #view-wiki .kb-del-mini,
+body.mode-mobile #view-wiki #kbFmtBar{display:none !important}
+body.mode-mobile #view-wiki #kbDocTitle{background:#f6f7f9;color:var(--muted);cursor:default}
 </style>
 </head>
 <body>
@@ -5869,12 +5882,20 @@ function kbFillCats(){ var db=kbDB(); var cats={}; db.docs.forEach(function(x){ 
   sel.value=(cur && (cur in cats))?cur:""; }
 function kbRefreshMain(){ var d=kbCur();
   var has=!!d;
-  document.getElementById("kbEditor").style.display=(has&&KB.mode==="edit")?"":"none";
-  document.getElementById("kbFmtBar").style.display=(has&&KB.mode==="edit")?"flex":"none";
-  document.getElementById("kbPreview").style.display=(has&&KB.mode==="view")?"":"none";
+  var isMobile=document.body.classList.contains("mode-mobile");
+  if(isMobile) KB.mode="view";
+  var readOnly=isMobile||KB.mode==="view";
+  document.getElementById("kbEditor").style.display=(has&&!readOnly)?"":"none";
+  document.getElementById("kbEditor").contentEditable=isMobile?"false":"true";
+  document.getElementById("kbFmtBar").style.display=(has&&!readOnly)?"flex":"none";
+  document.getElementById("kbPreview").style.display=(has&&readOnly)?"":"none";
   document.getElementById("kbEmpty").style.display=has?"none":"flex";
+  if(!has){ document.getElementById("kbEmpty").innerHTML=isMobile
+    ? '<div style="font-size:30px">📄</div><div>请选择左侧文档查看内容</div>'
+    : '<div style="font-size:30px">📄</div><div>点击「＋ 新建」或「⬆ 上传」开始</div><div style="font-size:12px">支持 .md / .markdown / .txt 上传</div>'; }
   ["kbDocTitle","kbMode","kbPinBtn","kbDel","kbExportMd","kbExportDoc"].forEach(function(id){ document.getElementById(id).disabled=!has; });
   document.getElementById("kbDocTitle").value=has?(d.title||""):"";
+  document.getElementById("kbDocTitle").readOnly=isMobile;
   document.getElementById("kbMode").textContent=(KB.mode==="edit")?"👁 查看":"✏️ 编辑";
   var cs=document.getElementById("kbCat"); if(cs && has) cs.value=d.cat||"";
   document.getElementById("kbPinBtn").textContent=(has&&d.pinned)?"📌 取消置顶":"📌 置顶";
@@ -5882,14 +5903,17 @@ function kbRefreshMain(){ var d=kbCur();
   document.getElementById("kbStatusR").textContent=has?("更新于 "+kbFmtDate(d.updatedAt||d.createdAt)):""; }
 /* ---- 打开 / 保存 ---- */
 function kbOpen(id){ var db=kbDB(); db.sel=id; var d=kbCur();
-  if(d){ document.getElementById("kbEditor").innerHTML=kbMdToHtml(d.md||""); }
-  KB.mode="edit"; kbRefreshList(); kbSave(); }
+  var isMobile=document.body.classList.contains("mode-mobile");
+  if(isMobile) KB.mode="view";
+  if(d){ document.getElementById("kbEditor").innerHTML=kbMdToHtml(d.md||"");
+    if(isMobile) document.getElementById("kbPreview").innerHTML=kbMdToHtml(d.md||""); }
+  kbRefreshList(); kbSave(); }
 function kbFlush(){ var d=kbCur(); if(!d) return;
   d.md=kbHtmlToMd(document.getElementById("kbEditor"));
   d.updatedAt=new Date().toISOString(); kbSave(); kbRefreshList(); }
 function kbQueueSave(){ clearTimeout(KB.timer); KB.timer=setTimeout(kbFlush,500); }
 /* ---- 新建 / 导出 ---- */
-function kbNew(){ var db=kbDB(); var now=new Date().toISOString();
+function kbNew(){ if(document.body.classList.contains("mode-mobile")) return; var db=kbDB(); var now=new Date().toISOString();
   var cs=document.getElementById("kbCat"); var cat=(cs && cs.value && cs.value!=="__new")?cs.value:null;
   var x={id:"kb"+Date.now().toString(36)+Math.random().toString(36).slice(2,6), title:"未命名文档",
     md:"# 未命名文档\n\n开始编写……\n", pinned:false, cat:cat, createdAt:now, updatedAt:now};
@@ -5950,7 +5974,7 @@ document.addEventListener("DOMContentLoaded",function(){
   $("kbExportDoc").onclick=function(){ var d=kbCur(); if(!d) return; kbFlush();
     var html='<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office"><head><meta charset="utf-8"><title>'+kbEsc(d.title)+'</title></head><body style="font-family:SimSun,serif;line-height:1.8">'+kbMdToHtml(d.md||"")+'</body></html>';
     kbDownload((d.title||"未命名文档")+".doc", html, "application/msword"); };
-  $("kbUpload").onclick=function(){ $("kbFile").click(); };
+  $("kbUpload").onclick=function(){ if(document.body.classList.contains("mode-mobile")) return; $("kbFile").click(); };
   $("kbFile").onchange=function(){ var f=this.files[0]; if(!f) return; var r=new FileReader();
     r.onload=function(){ var txt=String(r.result||"");
       if(/\.txt$/i.test(f.name)){ txt=txt.split(/\n{2,}/).map(function(p){ return p.trim(); }).filter(Boolean).join("\n\n"); }
