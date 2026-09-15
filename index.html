@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-09-15a</title>
+<title>每日打卡 · 构建2026-09-15b</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -325,11 +325,11 @@ body.mode-pc .tf-side-icon{width:18px;height:18px;opacity:.9;stroke:currentColor
 body.mode-mobile #view-habit .tf-topbar-right button[onclick="tfOpenGoalModal()"]{display:none !important}
 body.mode-mobile #view-habit [data-tfpage="dashboard"],
 body.mode-mobile #view-habit [data-tfpage="goals"],
-body.mode-mobile #view-habit [data-tfpage="trash"],
+body.mode-mobile #view-habit [data-tfpage="done"],
 body.mode-mobile #view-habit [data-tfpage="logs"]{display:none !important}
 body.mode-mobile #view-habit #tfPage-dashboard,
 body.mode-mobile #view-habit #tfPage-goals,
-body.mode-mobile #view-habit #tfPage-trash,
+body.mode-mobile #view-habit #tfPage-done,
 body.mode-mobile #view-habit #tfPage-logs{display:none !important}
 /* 顶部 chip 导航仅保留「待办清单」入口，其余隐藏 */
 body.mode-mobile #view-habit .tf-nav{display:flex !important}
@@ -777,6 +777,26 @@ body.mode-pc #view-docs.active .wg-topline{display:flex;align-items:center;justi
   #view-habit .todo-toolbar select{width:100%}
   #view-habit .trash-item{flex-wrap:wrap}
 }
+
+/* ---------- 已完成（原「已删除」页）：按 年 / 月 / 周 / 日 归档 ---------- */
+#view-habit .done-bar{display:flex;align-items:center;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+#view-habit .seg{display:inline-flex;background:var(--tf-surface3);border:1px solid var(--tf-border-soft);border-radius:10px;padding:3px;gap:2px}
+#view-habit .seg-item{padding:6px 16px;border-radius:8px;font-size:13px;font-weight:600;color:var(--tf-text2);cursor:pointer;user-select:none;transition:all .15s}
+#view-habit .seg-item:hover{color:var(--tf-text)}
+#view-habit .seg-item.active{background:#fff;color:var(--mint);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+#view-habit .done-sum{font-size:13px;color:var(--tf-text2)}
+#view-habit .done-sum b{color:var(--tf-text);font-size:15px}
+#view-habit .done-group{margin-bottom:18px}
+#view-habit .done-group-hd{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;background:var(--tf-surface);border:1px solid var(--tf-border-soft);border-radius:10px 10px 0 0}
+#view-habit .done-group-title{font-weight:700;font-size:14px;color:var(--tf-text)}
+#view-habit .done-group-n{font-size:12px;color:var(--tf-text2);background:#fff;border:1px solid var(--tf-border-soft);padding:1px 9px;border-radius:999px}
+#view-habit .done-group-body{border:1px solid var(--tf-border-soft);border-top:none;border-radius:0 0 10px 10px;overflow:hidden}
+#view-habit .done-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:#fff;border-bottom:1px solid var(--tf-border-soft)}
+#view-habit .done-item:last-child{border-bottom:none}
+#view-habit .done-check{flex-shrink:0;width:24px;height:24px;border-radius:50%;background:var(--mint-dim);color:var(--mint);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+#view-habit .done-info{flex:1;min-width:0}
+#view-habit .done-title{font-size:14px;font-weight:600;color:var(--tf-text);margin-bottom:4px}
+#view-habit .done-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--tf-text2)}
 </style>
 <style id="pcProtoCss">
 /* ==================================================================
@@ -1075,10 +1095,10 @@ body.mode-mobile #view-wiki #kbDocTitle{background:#f6f7f9;color:var(--muted);cu
           <span>待办清单</span>
           <span class="tf-badge red" id="tfSideOverdue" style="display:none">0</span>
         </div>
-        <div class="tf-side-item" data-tfpage="trash">
-          <svg class="tf-side-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path></svg>
-          <span>已删除</span>
-          <span class="tf-badge gray" id="tfSideTrashCount">0</span>
+        <div class="tf-side-item" data-tfpage="done">
+          <svg class="tf-side-icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          <span>已完成</span>
+          <span class="tf-badge gray" id="tfSideDoneCount">0</span>
         </div>
         <div class="tf-side-item" data-tfpage="logs">
           <svg class="tf-side-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg>
@@ -1104,7 +1124,7 @@ body.mode-mobile #view-wiki #kbDocTitle{background:#f6f7f9;color:var(--muted);cu
       <div class="tf-chip active" data-tfpage="dashboard">仪表盘</div>
       <div class="tf-chip" data-tfpage="goals">年度目标 <span class="tf-badge gray" id="tfNavGoalCount">0</span></div>
       <div class="tf-chip" data-tfpage="todos">待办清单 <span class="tf-badge red" id="tfNavOverdue" style="display:none">0</span></div>
-      <div class="tf-chip" data-tfpage="trash">已删除 <span class="tf-badge gray" id="tfNavTrashCount">0</span></div>
+      <div class="tf-chip" data-tfpage="done">已完成 <span class="tf-badge gray" id="tfNavDoneCount">0</span></div>
       <div class="tf-chip" data-tfpage="logs">操作日志</div>
     </div>
 
@@ -1165,12 +1185,18 @@ body.mode-mobile #view-wiki #kbDocTitle{background:#f6f7f9;color:var(--muted);cu
       <div class="todo-list" id="tfTodoList"></div>
     </section>
 
-    <!-- ===== 已删除 ===== -->
-    <section class="page" id="tfPage-trash">
-      <div class="section-label">已删除的年度目标（可恢复）</div>
-      <div id="tfTrashGoals"></div>
-      <div class="section-label" style="margin-top:26px">已删除的待办任务</div>
-      <div id="tfTrashTodos"></div>
+    <!-- ===== 已完成 ===== -->
+    <section class="page" id="tfPage-done">
+      <div class="done-bar">
+        <div class="seg">
+          <div class="seg-item active" data-doneview="day">按日</div>
+          <div class="seg-item" data-doneview="week">按周</div>
+          <div class="seg-item" data-doneview="month">按月</div>
+          <div class="seg-item" data-doneview="year">按年</div>
+        </div>
+        <span class="done-sum">已完成 <b id="tfDoneCount">0</b> 项</span>
+      </div>
+      <div id="tfDoneList"></div>
     </section>
 
     <!-- ===== 操作日志 ===== -->
@@ -4998,7 +5024,7 @@ const TF_PAGE_META = {
   dashboard:['仪表盘','整体进度与风险监控一览'],
   goals:['年度目标','目标拆分：年度 → 季度 → 月度，进度逐级汇总'],
   todos:['待办清单','零散任务 · 截止时间 · 优先级管理'],
-  trash:['已删除','删除记录可追溯，支持恢复'],
+  done:['已完成','按 年 / 月 / 周 / 日 回顾已完成的任务'],
   logs:['操作日志','每一次操作都有迹可循'],
   settings:['数据维护','备份、恢复与初始化']
 };
@@ -5062,13 +5088,13 @@ function tfSaveGoal(){
 }
 function tfDeleteGoal(id){
   const g = TFDB().goals.find(x=>x.id===id);
-  tfConfirm('删除年度目标', `确定删除「${g.title}」吗？其下属季度与月度任务将一并移入已删除区，可随时恢复。`, ()=>{
+  tfConfirm('删除年度目标', `确定删除「${g.title}」吗？其下属季度与月度任务将一并删除。可在「操作日志」查看记录。`, ()=>{
     g.deleted = true; g.deletedAt = tfNow();
     TFDB().quarters.filter(q=>q.goalId===id).forEach(q=>{ q.deleted=true; });
     const qids = TFDB().quarters.filter(q=>q.goalId===id).map(q=>q.id);
     TFDB().months.filter(m=>qids.includes(m.quarterId)).forEach(m=>{ m.deleted=true; });
     tfLog('del','删除年度目标', `「${g.title}」及其全部子任务移入已删除区`);
-    tfSave(); tfRenderAll(); tfToast('已删除，可在「已删除」页恢复');
+    tfSave(); tfRenderAll(); tfToast('已删除');
   });
 }
 function tfRestoreGoal(id){
@@ -5381,7 +5407,7 @@ function tfDeleteTodo(id){
   const t = TFDB().todos.find(x=>x.id===id);
   t.deleted = true; t.deletedAt = tfNow();
   tfLog('del','删除待办任务', `「${t.title}」移入已删除区`);
-  tfSave(); tfRenderAll(); tfToast('已删除，可在「已删除」页恢复');
+  tfSave(); tfRenderAll(); tfToast('已删除');
 }
 function tfRestoreTodo(id){
   const t = TFDB().todos.find(x=>x.id===id);
@@ -5609,34 +5635,72 @@ function tfRenderTodos(){
 }
 
 /* =====================================================
-   渲染：已删除
+   渲染：已完成（按 年 / 月 / 周 / 日 归档）
 ===================================================== */
-function tfRenderTrash(){
-  const dg = TFDB().goals.filter(g=>g.deleted).sort((a,b)=>(b.deletedAt||'').localeCompare(a.deletedAt||''));
-  const dt = TFDB().todos.filter(t=>t.deleted).sort((a,b)=>(b.deletedAt||'').localeCompare(a.deletedAt||''));
-  document.getElementById('tfTrashGoals').innerHTML = dg.length ? dg.map(g=>{
-    const qn = TFDB().quarters.filter(q=>q.goalId===g.id).length;
-    return `<div class="trash-item">
-      <div class="info">
-        <div class="name">${tfEsc(g.title)} <span class="tag blue" style="text-decoration:none">${g.year} 年</span></div>
-        <div class="meta">含 ${qn} 个季度任务 · 删除于 ${tfFmtDT(g.deletedAt)}</div>
-      </div>
-      <span class="tag red">已删除</span>
-      <button class="btn ghost sm" onclick="tfRestoreGoal('${g.id}')">恢复</button>
-      <button class="btn danger sm" onclick="tfPurgeGoal('${g.id}')">彻底删除</button>
-    </div>`;
-  }).join('') : `<div class="empty" style="padding:24px">没有被删除的年度目标</div>`;
-
-  document.getElementById('tfTrashTodos').innerHTML = dt.length ? dt.map(t=>`
-    <div class="trash-item">
-      <div class="info">
-        <div class="name">${tfEsc(t.title)}</div>
-        <div class="meta">截止 ${tfFmtDT(t.deadline)} · 删除于 ${tfFmtDT(t.deletedAt)}</div>
-      </div>
-      <span class="tag red">已删除</span>
-      <button class="btn ghost sm" onclick="tfRestoreTodo('${t.id}')">恢复</button>
-      <button class="btn danger sm" onclick="tfPurgeTodo('${t.id}')">彻底删除</button>
-    </div>`).join('') : `<div class="empty" style="padding:24px">没有被删除的待办任务</div>`;
+var TF_DONE_VIEW = 'day';
+function tfIsoWeek(iso){
+  const d = new Date(iso);
+  if(isNaN(d.getTime())) return '未知';
+  const dt = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dayNum = dt.getUTCDay() || 7;
+  dt.setUTCDate(dt.getUTCDate() + 4 - dayNum);
+  const yStart = new Date(Date.UTC(dt.getUTCFullYear(), 0, 1));
+  const week = Math.ceil((((dt - yStart) / 86400000) + 1) / 7);
+  return dt.getUTCFullYear() + '-W' + String(week).padStart(2, '0');
+}
+function tfDoneBucket(iso, view){
+  const d = (iso || '').slice(0, 10);
+  if(view === 'year') return d.slice(0, 4) || '未知';
+  if(view === 'month') return d.slice(0, 7) || '未知';
+  if(view === 'week') return tfIsoWeek(iso) || '未知';
+  return d || '未知';
+}
+function tfDoneLabel(k, view){
+  if(view === 'week'){ const m = k.match(/^(\d{4})-W(\d{2})$/); return m ? (m[1] + ' 年 第 ' + parseInt(m[2], 10) + ' 周') : k; }
+  if(view === 'month'){ const m = k.match(/^(\d{4})-(\d{2})$/); return m ? (m[1] + ' 年 ' + parseInt(m[2], 10) + ' 月') : k; }
+  if(view === 'year') return k + ' 年';
+  const m = k.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return m ? (m[1] + ' 年 ' + parseInt(m[2], 10) + ' 月 ' + parseInt(m[3], 10) + ' 日') : k;
+}
+function tfDoneItem(t){
+  return '<div class="done-item">'
+    + '<div class="done-check">✓</div>'
+    + '<div class="done-info">'
+      + '<div class="done-title">' + tfEsc(t.title) + '</div>'
+      + '<div class="done-meta">'
+        + (t.category ? '<span class="tag blue">' + tfEsc(t.category) + '</span>' : '')
+        + '<span class="tag ' + tfPriTag(t.priority) + '">' + tfPriLabel(t.priority) + '优先</span>'
+        + '<span>完成于 ' + tfFmtDT(t.completedAt) + '</span>'
+      + '</div>'
+    + '</div>'
+  + '</div>';
+}
+function tfRenderDone(){
+  const db = TFDB();
+  const done = db.todos.filter(function(t){ return t.done && t.completedAt; })
+    .sort(function(a, b){ return (b.completedAt || '').localeCompare(a.completedAt || ''); });
+  const cnt = document.getElementById('tfDoneCount');
+  if(cnt) cnt.textContent = done.length;
+  const list = document.getElementById('tfDoneList');
+  if(!list) return;
+  if(!done.length){
+    list.innerHTML = '<div class="empty">还没有已完成的任务。在「待办清单」中勾选完成，这里会按 年 / 月 / 周 / 日 自动归档。</div>';
+    return;
+  }
+  const map = new Map();
+  done.forEach(function(t){
+    const key = tfDoneBucket(t.completedAt, TF_DONE_VIEW);
+    if(!map.has(key)) map.set(key, []);
+    map.get(key).push(t);
+  });
+  const keys = Array.from(map.keys()).sort(function(a, b){ return b.localeCompare(a); });
+  list.innerHTML = keys.map(function(k){
+    const arr = map.get(k);
+    return '<div class="done-group">'
+      + '<div class="done-group-hd"><span class="done-group-title">' + tfDoneLabel(k, TF_DONE_VIEW) + '</span><span class="done-group-n">' + arr.length + ' 项</span></div>'
+      + '<div class="done-group-body">' + arr.map(tfDoneItem).join('') + '</div>'
+    + '</div>';
+  }).join('');
 }
 
 /* =====================================================
@@ -5663,16 +5727,16 @@ function tfRenderLogs(){
 ===================================================== */
 function tfRenderBadges(){
   const goalCount = TFDB().goals.filter(g=>!g.deleted).length;
-  const trashN = TFDB().goals.filter(g=>g.deleted).length + TFDB().todos.filter(t=>t.deleted).length;
+  const doneN = TFDB().todos.filter(t=>t.done && t.completedAt).length;
   const odN = TFDB().todos.filter(t=>!t.deleted && tfIsOverdue(t)).length;
   const logN = TFDB().logs.length;
   ['tfNavGoalCount','tfSideGoalCount'].forEach(function(id){ const el=document.getElementById(id); if(el) el.textContent=goalCount; });
-  ['tfNavTrashCount','tfSideTrashCount'].forEach(function(id){ const el=document.getElementById(id); if(el) el.textContent=trashN; });
+  ['tfNavDoneCount','tfSideDoneCount'].forEach(function(id){ const el=document.getElementById(id); if(el) el.textContent=doneN; });
   ['tfNavOverdue','tfSideOverdue'].forEach(function(id){ const el=document.getElementById(id); if(el){ el.style.display = odN ? 'flex' : 'none'; el.textContent = odN; } });
   ['tfFootLogCount','tfSideLogCount'].forEach(function(id){ const el=document.getElementById(id); if(el) el.textContent=logN; });
 }
 function tfRenderAll(){
-  tfRenderDashboard(); tfRenderGoals(); tfRenderTodos(); tfRenderTrash(); tfRenderLogs(); tfRenderBadges();
+  tfRenderDashboard(); tfRenderGoals(); tfRenderTodos(); tfRenderDone(); tfRenderLogs(); tfRenderBadges();
 }
 
 /* =====================================================
@@ -5712,6 +5776,16 @@ document.addEventListener("click",function(e){
 document.addEventListener("keydown",function(e){
   if(e.key==="Escape") document.querySelectorAll(".tf-mask.show").forEach(function(m){ m.classList.remove("show"); });
 });
+/* 「已完成」页：年 / 月 / 周 / 日 切换 */
+document.addEventListener("click",function(e){
+  const dv = e.target && e.target.closest ? e.target.closest("[data-doneview]") : null;
+  if(dv){
+    document.querySelectorAll("[data-doneview]").forEach(function(c){ c.classList.remove("active"); });
+    dv.classList.add("active");
+    TF_DONE_VIEW = dv.dataset.doneview;
+    tfRenderDone();
+  }
+});
 function tfTick(){
   const d=new Date(), p=function(n){ return String(n).padStart(2,"0"); };
   const week=["日","一","二","三","四","五","六"][d.getDay()];
@@ -5723,7 +5797,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-11m";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-15b";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
