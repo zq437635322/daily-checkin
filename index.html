@@ -954,6 +954,8 @@ body.mode-pc #view-manage #mgPage-settings .pcv-set-grid{display:grid;
 .kb-item .kb-i-m{font-size:11px;color:var(--muted);margin-top:3px;display:flex;gap:6px;align-items:center}
 .kb-pin-mini{border:none;background:none;cursor:pointer;font-size:12px;padding:0;opacity:.45}
 .kb-pin-mini.on{opacity:1}
+.kb-del-mini{border:none;background:none;cursor:pointer;font-size:12px;padding:0;opacity:.45}
+.kb-del-mini:hover{opacity:1;color:#ef4444}
 .kb-main{flex:1;min-width:0;background:#fff;border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;overflow:hidden}
 #kbDocTitle{border:none;outline:none;font-size:20px;font-weight:800;padding:14px 18px 8px;font-family:inherit}
 .kb-fmtbar{display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:6px 12px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#fafbfc}
@@ -5834,7 +5836,8 @@ function kbFmtDate(iso){ var d=new Date(iso); return (d.getMonth()+1)+"/"+d.getD
 /* ---- 列表渲染 ---- */
 function kbItem(x,db){ return '<div class="kb-item'+(x.id===db.sel?' active':'')+'" data-kid="'+x.id+'">'
     +'<div style="display:flex;gap:6px;align-items:center"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;font-size:13.5px">'+kbEsc(x.title||"未命名文档")+'</span>'
-    +'<button class="kb-pin-mini'+(x.pinned?' on':'')+'" data-kpin="'+x.id+'" title="置顶/取消置顶">'+(x.pinned?'📌':'📍')+'</button></div>'
+    +'<button class="kb-pin-mini'+(x.pinned?' on':'')+'" data-kpin="'+x.id+'" title="置顶/取消置顶">'+(x.pinned?'📌':'📍')+'</button>'
+    +'<button class="kb-del-mini" data-kdel="'+x.id+'" title="删除">🗑</button></div>'
     +'<div class="kb-i-m"><span>'+kbFmtDate(x.updatedAt||x.createdAt)+'</span><span>'+String(x.md||"").length+' 字</span>'
     +(x.pinned?'<span style="color:var(--primary,#2f7d5d)">已置顶</span>':'')
     +(x.cat?'<span style="color:#7a6ff0">📁 '+kbEsc(x.cat)+'</span>':'')+'</div></div>'; }
@@ -5912,6 +5915,14 @@ document.addEventListener("DOMContentLoaded",function(){
     if(p){ var d1=kbCur(); var t=null;
       for(var i=0;i<db.docs.length;i++){ if(db.docs[i].id===p.dataset.kpin) t=db.docs[i]; }
       if(t){ t.pinned=!t.pinned; t.updatedAt=new Date().toISOString(); kbSave(); kbRefreshList(); } return; }
+    var kdel=e.target.closest ? e.target.closest("[data-kdel]") : null;
+    if(kdel){ var id=kdel.dataset.kdel; var t=null;
+      for(var i=0;i<db.docs.length;i++){ if(db.docs[i].id===id) t=db.docs[i]; }
+      if(t && confirm("确定删除《"+(t.title||"未命名文档")+"》？不可恢复。")){
+        var db2=kbDB(); db2.docs=db2.docs.filter(function(x){ return x.id!==id; });
+        if(db2.sel===id){ db2.sel=db2.docs.length?db2.docs[0].id:null; kbOpen(db2.sel); }
+        else { kbSave(); kbRefreshList(); }
+      } return; }
     var it=e.target.closest ? e.target.closest("[data-kid]") : null;
     if(it){ kbOpen(it.dataset.kid); } };
   $("kbDocTitle").oninput=function(){ var d=kbCur(); if(d){ d.title=this.value; kbQueueSave(); } };
