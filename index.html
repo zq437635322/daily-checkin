@@ -9,6 +9,7 @@
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
   --primary:#10b981; --primary-d:#059669; --accent:#0ea5e9;
   --red:#ef4444; --red-bg:#fee2e2; --line:#e8ebf0; --soft:#eef1f5;
+  --fg:#1f2937;
   --orange:#f59e0b; --orange-bg:#fef3c7;
   --radius:16px; --shadow:0 1px 3px rgba(16,24,40,.06),0 10px 30px rgba(16,24,40,.05);
 }
@@ -935,6 +936,45 @@ body.mode-pc #view-manage #mgPage-settings .pcv-set-grid{display:grid;
   body.mode-pc #view-manage #mgPage-settings .pcv-set-grid{grid-template-columns:1fr}
 }
 </style>
+<style id="kbCss">
+/* ---------- 知识库：Word 式编辑 · Markdown 存储 ---------- */
+#view-wiki.active{padding:14px 18px 20px}
+.kb-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.kb-top .kb-tt{font-size:18px;font-weight:800}
+.kb-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-left:auto}
+.kb-body{display:flex;gap:14px;align-items:stretch;min-height:calc(100vh - 220px)}
+.kb-side{width:250px;flex-shrink:0;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;overflow-y:auto;max-height:calc(100vh - 220px)}
+.kb-side input{width:100%;box-sizing:border-box;padding:7px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px;margin-bottom:8px}
+.kb-searchrow{display:flex;gap:6px;align-items:center}
+.kb-searchrow input{flex:1;min-width:0}
+.kb-searchrow .btn{flex-shrink:0;padding:6px 10px;font-size:12px;white-space:nowrap}
+.kb-item{padding:9px 10px;border-radius:8px;cursor:pointer;margin-bottom:2px;border:1px solid transparent}
+.kb-item:hover{background:#f6f7f9}
+.kb-item.active{background:#eef4ff;border-color:#c4d7ff}
+.kb-item .kb-i-m{font-size:11px;color:var(--muted);margin-top:3px;display:flex;gap:6px;align-items:center}
+.kb-pin-mini{border:none;background:none;cursor:pointer;font-size:12px;padding:0;opacity:.45}
+.kb-pin-mini.on{opacity:1}
+.kb-main{flex:1;min-width:0;background:#fff;border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;overflow:hidden}
+#kbDocTitle{border:none;outline:none;font-size:20px;font-weight:800;padding:14px 18px 8px;font-family:inherit}
+.kb-fmtbar{display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:6px 12px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#fafbfc}
+.kb-fmtbar button{border:1px solid var(--line);background:#fff;border-radius:6px;padding:4px 9px;font-size:12.5px;cursor:pointer;color:var(--fg)}
+.kb-fmtbar button:hover{background:#eef4ff}
+#kbEditor{flex:1;min-height:320px;outline:none;padding:16px 20px;font-size:14.5px;line-height:1.85;overflow-y:auto}
+#kbEditor:empty::before{content:attr(data-ph);color:#b0b6bf}
+.kb-preview{flex:1;min-height:320px;padding:16px 20px;font-size:14.5px;line-height:1.85;overflow-y:auto}
+.kb-preview pre{background:#f6f8fa;border:1px solid var(--line);border-radius:8px;padding:10px;overflow:auto}
+.kb-preview blockquote{margin:8px 0;padding:4px 12px;border-left:3px solid var(--primary,#2f7d5d);background:#f6f8fa;color:#555}
+.kb-preview img{max-width:100%}
+.kb-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);gap:6px}
+.kb-cat-h{display:flex;align-items:center;gap:6px;padding:9px 8px 4px;font-size:12px;font-weight:800;color:var(--muted);cursor:pointer;user-select:none}
+.kb-cat-h:hover{color:var(--fg)}
+.kb-cat-h .kb-caret{font-size:9px;transition:transform .15s;display:inline-block}
+.kb-cat-h.open .kb-caret{transform:rotate(90deg)}
+.kb-cat-h .kb-cnt{margin-left:auto;font-weight:400;font-size:11px;background:#eef1f5;border-radius:8px;padding:1px 7px}
+.kb-tools select{padding:6px 10px;border:1px solid var(--line);border-radius:8px;font-size:12.5px;background:#fff;color:var(--fg);max-width:170px;cursor:pointer}
+.kb-status{padding:6px 14px;font-size:11.5px;color:var(--muted);border-top:1px solid var(--line);display:flex;justify-content:space-between}
+@media (max-width:900px){.kb-body{flex-direction:column}.kb-side{width:100%;max-height:200px}}
+</style>
 </head>
 <body>
 <div class="topbar">
@@ -1521,6 +1561,52 @@ body.mode-pc #view-manage #mgPage-settings .pcv-set-grid{display:grid;
     </div>
      </div>
     </div>
+  </section>
+
+  <section class="view" id="view-wiki">
+    <div class="kb-top">
+      <span class="kb-tt">📚 知识库</span><span class="tag">Word 式排版 · 底层存 Markdown · 随云端同步</span>
+      <div class="kb-tools">
+        <select id="kbCat" title="当前文档所属系列（归类）"></select>
+        <button class="btn primary" id="kbNew" type="button">＋ 新建</button>
+        <button class="btn" id="kbUpload" type="button">⬆ 上传</button>
+        <button class="btn" id="kbExportMd" type="button">导出 .md</button>
+        <button class="btn" id="kbExportDoc" type="button">导出 Word</button>
+        <span style="width:1px;height:22px;background:var(--line)"></span>
+        <button class="btn" id="kbMode" type="button">👁 查看</button>
+        <button class="btn" id="kbDel" type="button">🗑 删除</button>
+      </div>
+    </div>
+    <div class="kb-body">
+      <aside class="kb-side">
+        <div class="kb-searchrow">
+          <input id="kbSearch" type="search" placeholder="搜索文档…" autocomplete="off">
+          <button class="btn" id="kbPinBtn" type="button" title="置顶/取消置顶当前文档">📌 置顶</button>
+        </div>
+        <div id="kbList"></div>
+      </aside>
+      <div class="kb-main">
+        <input id="kbDocTitle" placeholder="未命名文档" autocomplete="off">
+        <div class="kb-fmtbar" id="kbFmtBar">
+          <button data-kfmt="bold" title="加粗"><b>B</b></button>
+          <button data-kfmt="italic" title="斜体"><i>I</i></button>
+          <button data-kfmt="underline" title="下划线"><u>U</u></button>
+          <span style="width:1px;height:18px;background:var(--line)"></span>
+          <button data-kfmt="h1">H1</button><button data-kfmt="h2">H2</button><button data-kfmt="h3">H3</button>
+          <button data-kfmt="p">正文</button>
+          <span style="width:1px;height:18px;background:var(--line)"></span>
+          <button data-kfmt="ul">• 列表</button><button data-kfmt="ol">1. 列表</button>
+          <button data-kfmt="quote">❝ 引用</button><button data-kfmt="link">🔗 链接</button>
+          <button data-kfmt="hr">— 分割线</button>
+          <button data-kfmt="clear">⌫ 清除格式</button>
+        </div>
+        <div id="kbEditor" contenteditable="true" data-ph="开始编写，像在 Word 里一样排版…（底层自动存为 Markdown）"></div>
+        <div id="kbPreview" class="kb-preview" style="display:none"></div>
+        <div id="kbEmpty" class="kb-empty"><div style="font-size:30px">📄</div><div>点击「＋ 新建」或「⬆ 上传」开始</div><div style="font-size:12px">支持 .md / .markdown / .txt 上传</div></div>
+        <div class="kb-status"><span id="kbStatusL"></span><span id="kbStatusR"></span></div>
+      </div>
+    </div>
+    <input type="file" id="kbFile" accept=".md,.markdown,.txt" hidden>
   </section>
 
   <div class="bottom">每日打卡 · 单文件离线可用 · 数据存 Supabase 云端</div>
@@ -5673,6 +5759,198 @@ function applyMode(m){
   window.addEventListener("online", function(){ if(SYNC!=="synced") retryNow(); });
   document.addEventListener("visibilitychange", function(){ if(!document.hidden && SYNC==="pending") retryNow(); });
 })();
+
+/* ---------- 知识库：Word 式编辑，底层 Markdown 存储 ---------- */
+function kbDB(){ if(!RECORDS.wiki || !Array.isArray(RECORDS.wiki.docs)) RECORDS.wiki={docs:[],sel:null}; return RECORDS.wiki; }
+function kbSave(){ saveLocal(); if(typeof SYNC!=="undefined" && SYNC!=="nocfg") cloudSave(); }
+function kbEsc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+/* Markdown → HTML（查看 / 导出用） */
+function kbInline(s){ s=kbEsc(s);
+  s=s.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g,'<img alt="$1" src="$2">');
+  s=s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+  s=s.replace(/`([^`]+)`/g,"<code>$1</code>");
+  s=s.replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>");
+  s=s.replace(/(^|[^*])\*([^*\n]+)\*/g,"$1<em>$2</em>");
+  s=s.replace(/~~([^~]+)~~/g,"<del>$1</del>");
+  return s; }
+function kbMdToHtml(md){ md=String(md||"").replace(/\r\n?/g,"\n");
+  var out=[],L=md.split("\n"),i=0,m;
+  while(i<L.length){ var ln=L[i];
+    if(/^```/.test(ln.trim())){ var cb=[]; i++;
+      while(i<L.length && !/^```/.test(L[i].trim())){ cb.push(L[i]); i++; } i++;
+      out.push("<pre><code>"+kbEsc(cb.join("\n"))+"</code></pre>"); continue; }
+    if(m=ln.match(/^(#{1,6})\s+(.*)$/)){ out.push("<h"+m[1].length+">"+kbInline(m[2])+"</h"+m[1].length+">"); i++; continue; }
+    if(/^\s*(-{3,}|\*{3,})\s*$/.test(ln)){ out.push("<hr>"); i++; continue; }
+    if(/^\s*>/.test(ln)){ var q=[];
+      while(i<L.length && /^\s*>/.test(L[i])){ q.push(kbInline(L[i].replace(/^\s*>\s?/,""))); i++; }
+      out.push("<blockquote>"+q.map(function(x){return "<p>"+x+"</p>";}).join("")+"</blockquote>"); continue; }
+    if(/^\s*[-*]\s+/.test(ln)){ var u=[];
+      while(i<L.length && /^\s*[-*]\s+/.test(L[i])){ u.push("<li>"+kbInline(L[i].replace(/^\s*[-*]\s+/,""))+"</li>"); i++; }
+      out.push("<ul>"+u.join("")+"</ul>"); continue; }
+    if(/^\s*\d+\.\s+/.test(ln)){ var o=[];
+      while(i<L.length && /^\s*\d+\.\s+/.test(L[i])){ o.push("<li>"+kbInline(L[i].replace(/^\s*\d+\.\s+/,""))+"</li>"); i++; }
+      out.push("<ol>"+o.join("")+"</ol>"); continue; }
+    if(ln.trim()===""){ i++; continue; }
+    var p=[ln]; i++;
+    while(i<L.length && L[i].trim()!=="" && !/^(#{1,6}\s|>|```|\s*[-*]\s|\s*\d+\.\s)/.test(L[i])){ p.push(L[i]); i++; }
+    out.push("<p>"+kbInline(p.join(" "))+"</p>");
+  }
+  return out.join("\n"); }
+/* HTML → Markdown（存储用） */
+function kbInlineMd(n){ var s="";
+  Array.prototype.forEach.call(n.childNodes,function(c){
+    if(c.nodeType===3){ s+=c.textContent; return; }
+    var t=c.tagName, inr=kbInlineMd(c);
+    if(t==="BR"){ s+="\n"; }
+    else if(t==="B"||t==="STRONG"){ s+="**"+inr+"**"; }
+    else if(t==="EM"||t==="I"){ s+="*"+inr+"*"; }
+    else if(t==="S"||t==="STRIKE"||t==="DEL"){ s+="~~"+inr+"~~"; }
+    else if(t==="U"){ s+="<u>"+inr+"</u>"; }
+    else if(t==="CODE"){ s+="`"+inr+"`"; }
+    else if(t==="A"){ s+="["+inr+"]("+(c.getAttribute("href")||"")+")"; }
+    else if(t==="IMG"){ s+="!["+(c.getAttribute("alt")||"")+"]("+(c.getAttribute("src")||"")+")"; }
+    else { s+=inr; } });
+  return s; }
+function kbHtmlToMd(root){ var md=[]; var inlineBuf="";
+  function flushInline(){ if(inlineBuf.trim()){ md.push(inlineBuf.trim()); md.push(""); } inlineBuf=""; }
+  Array.prototype.forEach.call(root.childNodes,function(n){
+    if(n.nodeType===3){ inlineBuf+=n.textContent; return; }
+    if(n.nodeName==="BR"){ inlineBuf+="\n"; return; }
+    var t=n.tagName;
+    if(/^H[1-6]$/.test(t)){ flushInline(); md.push("#".repeat(parseInt(t[1]))+" "+kbInlineMd(n).trim()); md.push(""); }
+    else if(t==="UL"||t==="OL"){ flushInline(); Array.prototype.forEach.call(n.children,function(li){
+      md.push((t==="UL"?"* ":"1. ")+kbInlineMd(li).trim()); }); md.push(""); }
+    else if(t==="BLOCKQUOTE"){ flushInline(); md.push(kbInlineMd(n).trim().split("\n").map(function(x){return "> "+x;}).join("\n")); md.push(""); }
+    else if(t==="PRE"){ flushInline(); md.push("```\n"+n.textContent.replace(/\n+$/,"")+"\n```"); md.push(""); }
+    else if(t==="HR"){ flushInline(); md.push("---"); md.push(""); }
+    else if(t==="DIV"||t==="P"){ flushInline(); var s=kbInlineMd(n).trim(); if(s){ md.push(s); md.push(""); } }
+    else { inlineBuf+=kbInlineMd(n); } });
+  flushInline();
+  return md.join("\n").replace(/\n{3,}/g,"\n\n").trim(); }
+/* ---- 状态 ---- */
+var KB={mode:"edit",timer:null,collapsed:{}};
+function kbCur(){ var db=kbDB(); for(var i=0;i<db.docs.length;i++){ if(db.docs[i].id===db.sel) return db.docs[i]; } return null; }
+function kbFmtDate(iso){ var d=new Date(iso); return (d.getMonth()+1)+"/"+d.getDate()+" "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"); }
+/* ---- 列表渲染 ---- */
+function kbItem(x,db){ return '<div class="kb-item'+(x.id===db.sel?' active':'')+'" data-kid="'+x.id+'">'
+    +'<div style="display:flex;gap:6px;align-items:center"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;font-size:13.5px">'+kbEsc(x.title||"未命名文档")+'</span>'
+    +'<button class="kb-pin-mini'+(x.pinned?' on':'')+'" data-kpin="'+x.id+'" title="置顶/取消置顶">'+(x.pinned?'📌':'📍')+'</button></div>'
+    +'<div class="kb-i-m"><span>'+kbFmtDate(x.updatedAt||x.createdAt)+'</span><span>'+String(x.md||"").length+' 字</span>'
+    +(x.pinned?'<span style="color:var(--primary,#2f7d5d)">已置顶</span>':'')
+    +(x.cat?'<span style="color:#7a6ff0">📁 '+kbEsc(x.cat)+'</span>':'')+'</div></div>'; }
+function kbCatLatest(arr){ var m=""; arr.forEach(function(x){ if(String(x.updatedAt||"")>m) m=String(x.updatedAt||""); }); return m; }
+function kbRefreshList(){ var db=kbDB();
+  var se=document.getElementById("kbSearch"); if(!se) return;
+  kbFillCats();
+  var q=(se.value||"").trim().toLowerCase();
+  var byU=function(a,b){ return String(b.updatedAt||"").localeCompare(String(a.updatedAt||"")); };
+  if(q){ var list=db.docs.slice().sort(function(a,b){ return ((b.pinned?1:0)-(a.pinned?1:0)) || byU(a,b); })
+      .filter(function(x){ return (x.title||"").toLowerCase().indexOf(q)>=0 || (x.md||"").toLowerCase().indexOf(q)>=0 || (x.cat||"").toLowerCase().indexOf(q)>=0; });
+    document.getElementById("kbList").innerHTML=list.length? list.map(function(x){ return kbItem(x,db); }).join("")
+      : '<div style="padding:20px;text-align:center;color:var(--muted);font-size:12.5px">无匹配文档</div>';
+    kbRefreshMain(); return; }
+  var pinned=db.docs.filter(function(x){ return x.pinned; }).sort(byU);
+  var groups={}; db.docs.forEach(function(x){ if(x.pinned) return; var c=x.cat||""; (groups[c]=groups[c]||[]).push(x); });
+  var cats=Object.keys(groups).sort(function(a,b){ if(a==="") return 1; if(b==="") return -1; return kbCatLatest(groups[b]).localeCompare(kbCatLatest(groups[a])); });
+  var html="";
+  var sect=function(key,name,arr){ var open=!KB.collapsed[key];
+    html+='<div class="kb-cat-h'+(open?' open':'')+'" data-kh="'+kbEsc(key)+'"><span class="kb-caret">▶</span>'+kbEsc(name)+'<span class="kb-cnt">'+arr.length+'</span></div>';
+    if(open) html+='<div data-kbody="'+kbEsc(key)+'">'+arr.map(function(x){ return kbItem(x,db); }).join('')+'</div>'; };
+  if(pinned.length) sect("__pin","📌 置顶",pinned);
+  cats.forEach(function(c){ sect(c,c===""?"未分类":"📁 "+c,groups[c].sort(byU)); });
+  document.getElementById("kbList").innerHTML=html||'<div style="padding:20px;text-align:center;color:var(--muted);font-size:12.5px">暂无文档，点「＋ 新建」开始</div>'; kbRefreshMain(); }
+function kbFillCats(){ var db=kbDB(); var cats={}; db.docs.forEach(function(x){ if(x.cat) cats[x.cat]=1; });
+  var sel=document.getElementById("kbCat"); if(!sel) return; var cur=sel.value;
+  sel.innerHTML='<option value="">未分类</option>'+Object.keys(cats).sort().map(function(c){ return '<option value="'+kbEsc(c)+'">📁 '+kbEsc(c)+'</option>'; }).join("")
+    +'<option value="__new">＋ 新建系列…</option>';
+  sel.value=(cur && (cur in cats))?cur:""; }
+function kbRefreshMain(){ var d=kbCur();
+  var has=!!d;
+  document.getElementById("kbEditor").style.display=(has&&KB.mode==="edit")?"":"none";
+  document.getElementById("kbFmtBar").style.display=(has&&KB.mode==="edit")?"flex":"none";
+  document.getElementById("kbPreview").style.display=(has&&KB.mode==="view")?"":"none";
+  document.getElementById("kbEmpty").style.display=has?"none":"flex";
+  ["kbDocTitle","kbMode","kbPinBtn","kbDel","kbExportMd","kbExportDoc"].forEach(function(id){ document.getElementById(id).disabled=!has; });
+  document.getElementById("kbDocTitle").value=has?(d.title||""):"";
+  document.getElementById("kbMode").textContent=(KB.mode==="edit")?"👁 查看":"✏️ 编辑";
+  var cs=document.getElementById("kbCat"); if(cs && has) cs.value=d.cat||"";
+  document.getElementById("kbPinBtn").textContent=(has&&d.pinned)?"📌 取消置顶":"📌 置顶";
+  document.getElementById("kbStatusL").textContent=has?"底层存储：Markdown · 随主数据云端同步":"";
+  document.getElementById("kbStatusR").textContent=has?("更新于 "+kbFmtDate(d.updatedAt||d.createdAt)):""; }
+/* ---- 打开 / 保存 ---- */
+function kbOpen(id){ var db=kbDB(); db.sel=id; var d=kbCur();
+  if(d){ document.getElementById("kbEditor").innerHTML=kbMdToHtml(d.md||""); }
+  KB.mode="edit"; kbRefreshList(); kbSave(); }
+function kbFlush(){ var d=kbCur(); if(!d) return;
+  d.md=kbHtmlToMd(document.getElementById("kbEditor"));
+  d.updatedAt=new Date().toISOString(); kbSave(); kbRefreshList(); }
+function kbQueueSave(){ clearTimeout(KB.timer); KB.timer=setTimeout(kbFlush,500); }
+/* ---- 新建 / 导出 ---- */
+function kbNew(){ var db=kbDB(); var now=new Date().toISOString();
+  var cs=document.getElementById("kbCat"); var cat=(cs && cs.value && cs.value!=="__new")?cs.value:null;
+  var x={id:"kb"+Date.now().toString(36)+Math.random().toString(36).slice(2,6), title:"未命名文档",
+    md:"# 未命名文档\n\n开始编写……\n", pinned:false, cat:cat, createdAt:now, updatedAt:now};
+  db.docs.unshift(x); kbOpen(x.id);
+  var ti=document.getElementById("kbDocTitle"); ti.focus(); ti.select(); }
+function kbDownload(name,content,mime){ var b=new Blob([content],{type:mime||"text/plain;charset=utf-8"});
+  var a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=name; document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },1000); }
+/* ---- 事件绑定 ---- */
+document.addEventListener("DOMContentLoaded",function(){
+  var $=function(id){ return document.getElementById(id); };
+  var db=kbDB(); if(db.docs.length && !kbCur()){ db.sel=db.docs[0].id; }
+  kbRefreshList();
+  $("kbNew").onclick=kbNew;
+  $("kbSearch").oninput=kbRefreshList;
+  $("kbCat").onchange=function(){ var d=kbCur(); if(!d){ this.value=""; return; }
+    if(this.value==="__new"){ var n=prompt("新系列名称：",""); if(n&&n.trim()){ d.cat=n.trim(); d.updatedAt=new Date().toISOString(); kbSave(); kbRefreshList(); } else { this.value=d.cat||""; } return; }
+    d.cat=this.value||null; d.updatedAt=new Date().toISOString(); kbSave(); kbRefreshList(); };
+  $("kbList").addEventListener("click",function(e){ var h=e.target.closest?e.target.closest("[data-kh]"):null;
+    if(h){ KB.collapsed[h.dataset.kh]=!KB.collapsed[h.dataset.kh]; kbRefreshList(); } });
+  $("kbList").onclick=function(e){
+    var p=e.target.closest ? e.target.closest("[data-kpin]") : null;
+    if(p){ var d1=kbCur(); var t=null;
+      for(var i=0;i<db.docs.length;i++){ if(db.docs[i].id===p.dataset.kpin) t=db.docs[i]; }
+      if(t){ t.pinned=!t.pinned; t.updatedAt=new Date().toISOString(); kbSave(); kbRefreshList(); } return; }
+    var it=e.target.closest ? e.target.closest("[data-kid]") : null;
+    if(it){ kbOpen(it.dataset.kid); } };
+  $("kbDocTitle").oninput=function(){ var d=kbCur(); if(d){ d.title=this.value; kbQueueSave(); } };
+  $("kbEditor").addEventListener("input",kbQueueSave);
+  $("kbFmtBar").onclick=function(e){ var b=e.target.closest ? e.target.closest("[data-kfmt]") : null; if(!b||!kbCur()) return;
+    var f=b.dataset.kfmt; $("kbEditor").focus();
+    if(f==="h1"||f==="h2"||f==="h3"||f==="p"||f==="quote"){ document.execCommand("formatBlock",false,(f==="quote")?"<blockquote>":"<"+f+">"); }
+    else if(f==="ul"||f==="ol"){ document.execCommand((f==="ul")?"insertUnorderedList":"insertOrderedList"); }
+    else if(f==="link"){ var u=prompt("链接地址：","https://"); if(u){ document.execCommand("createLink",false,u); } }
+    else if(f==="hr"){ document.execCommand("insertHorizontalRule"); }
+    else if(f==="clear"){ document.execCommand("removeFormat"); }
+    else { document.execCommand(f,false,null); }
+    kbQueueSave(); };
+  $("kbMode").onclick=function(){ var d=kbCur(); if(!d) return;
+    if(KB.mode==="edit"){ kbFlush(); $("kbPreview").innerHTML=kbMdToHtml(d.md||""); KB.mode="view"; }
+    else { $("kbEditor").innerHTML=kbMdToHtml(d.md||""); KB.mode="edit"; }
+    kbRefreshMain(); };
+  $("kbPinBtn").onclick=function(){ var d=kbCur(); if(!d) return; d.pinned=!d.pinned; kbSave(); kbRefreshList(); };
+  $("kbDel").onclick=function(){ var d=kbCur(); if(!d) return;
+    if(!confirm("确定删除《" +(d.title||"未命名文档")+"》？不可恢复。")) return;
+    var db2=kbDB(); db2.docs=db2.docs.filter(function(x){ return x.id!==d.id; });
+    db2.sel=db2.docs.length?db2.docs[0].id:null; kbOpen(db2.sel); };
+  $("kbExportMd").onclick=function(){ var d=kbCur(); if(!d) return; kbFlush();
+    kbDownload((d.title||"未命名文档")+".md", d.md||"", "text/markdown;charset=utf-8"); };
+  $("kbExportDoc").onclick=function(){ var d=kbCur(); if(!d) return; kbFlush();
+    var html='<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office"><head><meta charset="utf-8"><title>'+kbEsc(d.title)+'</title></head><body style="font-family:SimSun,serif;line-height:1.8">'+kbMdToHtml(d.md||"")+'</body></html>';
+    kbDownload((d.title||"未命名文档")+".doc", html, "application/msword"); };
+  $("kbUpload").onclick=function(){ $("kbFile").click(); };
+  $("kbFile").onchange=function(){ var f=this.files[0]; if(!f) return; var r=new FileReader();
+    r.onload=function(){ var txt=String(r.result||"");
+      if(/\.txt$/i.test(f.name)){ txt=txt.split(/\n{2,}/).map(function(p){ return p.trim(); }).filter(Boolean).join("\n\n"); }
+      var now=new Date().toISOString();
+      var x={id:"kb"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+        title:f.name.replace(/\.(md|markdown|txt)$/i,""), md:txt, pinned:false, createdAt:now, updatedAt:now};
+      kbDB().docs.unshift(x); kbOpen(x.id); };
+    r.readAsText(f); this.value=""; };
+});
+/* 切入任意视图时刷新知识库列表 */
+(function(){ var _old=render; render=function(){ _old.apply(this, arguments); try{ kbRefreshList(); }catch(e){ console.error("kb render",e); } }; })();
 </script>
 <nav class="tabbar" id="tabbar">
   <button class="tab active" data-view="home">
@@ -5690,6 +5968,10 @@ function applyMode(m){
   <button class="tab" data-view="stats">
     <svg viewBox="0 0 24 24"><path d="M4 20V11M10 20V4M16 20v-8M21 20H3"/></svg>
     <span>统计</span>
+  </button>
+  <button class="tab" data-view="wiki">
+    <svg viewBox="0 0 24 24"><path d="M4 5.5C6 4 9 4 12 5.5c3-1.5 6-1.5 8 0v13c-2-1.5-5-1.5-8 0-3-1.5-6-1.5-8 0z"/><path d="M12 5.5v13"/></svg>
+    <span>知识库</span>
   </button>
   <button class="tab" data-view="manage">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.5 4.5l2 2M17.5 17.5l2 2M19.5 4.5l-2 2M6.5 17.5l-2 2"/></svg>
