@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-09-16c</title>
+<title>每日打卡 · 构建2026-09-16d</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -86,7 +86,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
 .linkbtn.sm{padding:6px 2px;font-size:12px}
 .wd-count{margin-left:auto;font-size:12px;font-weight:700;color:var(--primary-d);background:var(--soft);padding:2px 9px;border-radius:999px}
 .wd-list{display:flex;flex-direction:column;gap:6px;margin-top:4px}
-.wd-item{display:flex;align-items:flex-start;gap:10px;padding:9px 10px;border:1px solid var(--line);border-radius:12px;cursor:pointer;transition:.15s;background:var(--card)}
+.wd-item{display:flex;align-items:flex-start;gap:10px;padding:9px 10px;border:1px solid var(--line);border-radius:12px;cursor:default;transition:.15s;background:var(--card)}
 .wd-item:hover{border-color:var(--primary)}
 .wd-item.on{background:var(--soft);border-color:var(--primary)}
 .wd-item input[type=checkbox]{margin-top:3px;width:18px;height:18px;accent-color:var(--primary);flex:none;cursor:pointer}
@@ -95,6 +95,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
 .wd-item.on .wd-name{color:var(--primary-d);text-decoration:line-through}
 .wd-meta{font-size:12px;color:var(--muted)}
 .wd-detail{font-size:12px;color:var(--muted);line-height:1.45;margin-top:2px}
+.wd-check{display:flex;align-items:flex-start;flex-shrink:0;cursor:pointer;margin-top:2px}
+.wd-check input{width:18px;height:18px;accent-color:var(--primary);cursor:pointer}
+.wd-item .wd-detail-btn{margin-left:auto;flex-shrink:0;border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:8px;padding:5px 11px;font-size:12px;cursor:pointer;transition:.15s;align-self:center}
+.wd-item .wd-detail-btn:hover{border-color:var(--primary);color:var(--primary-d)}
+.wd-detail-status{display:inline-block;font-size:12px;font-weight:700;padding:2px 10px;border-radius:999px;margin-bottom:10px}
+.wd-detail-status.done{background:var(--soft);color:var(--primary-d)}
+.wd-detail-status:not(.done){background:#fef2f2;color:#ef4444}
+.wd-detail-row{font-size:13px;line-height:1.7;margin:8px 0;color:var(--text)}
+.wd-detail-row b{display:inline-block;min-width:42px;color:var(--muted);font-weight:600}
+.wd-detail-body{background:var(--soft);border-radius:10px;padding:12px;font-size:13.5px;line-height:1.7;color:var(--text);white-space:pre-wrap;word-break:break-word}
 .todo-list{display:flex;flex-direction:column;gap:8px}
 .todo-item{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 12px;cursor:pointer;transition:.15s}
 .todo-item:hover{border-color:#cdd5df}
@@ -1326,6 +1336,21 @@ body.mode-mobile #view-wiki #kbDocTitle{background:#f6f7f9;color:var(--muted);cu
 
     <div class="toast-wrap" id="tfToastWrap"></div>
 
+    <!-- ===== 工作日作息·在司运动 详情 ===== -->
+    <div class="modal" id="wdDetailModal" onclick="if(event.target===this)tfCloseModal('wdDetailModal')">
+      <div class="modal-box">
+        <div class="modal-title" id="wdDetailName"></div>
+        <div class="wd-detail-status" id="wdDetailStatus"></div>
+        <div class="wd-detail-row"><b>时间</b><span id="wdDetailTime"></span></div>
+        <div class="wd-detail-row"><b>目的</b><span id="wdDetailPurpose"></span></div>
+        <div class="wd-detail-row" style="display:block"><b>详细内容</b></div>
+        <div class="wd-detail-body" id="wdDetailBody"></div>
+        <div class="modal-actions">
+          <button class="btn ghost sm" onclick="tfCloseModal('wdDetailModal')">关闭</button>
+        </div>
+      </div>
+    </div>
+
     <!-- ===== 自定义日期时间选择器 ===== -->
     <div class="tf-dtp-mask hidden" id="tfDTpMask" onclick="tfDtpCancel()">
       <div class="tf-dtp" onclick="event.stopPropagation()">
@@ -1936,11 +1961,12 @@ function renderWorkdayCard(){
   const total=WORKDAY_ROUTINE.length, done=WORKDAY_ROUTINE.filter(function(x){return isWdDone(t,x.key);}).length;
   const items=WORKDAY_ROUTINE.map(function(x){
     const on=isWdDone(t,x.key);
-    return '<label class="wd-item'+(on?" on":"")+'">'
-      +'<input type="checkbox" data-act="wd-toggle" data-key="'+x.key+'" data-ds="'+t+'" '+(on?"checked":"")+'/>'
+    return '<div class="wd-item'+(on?" on":"")+'">'
+      +'<label class="wd-check"><input type="checkbox" data-act="wd-toggle" data-key="'+escapeHtml(x.key)+'" data-ds="'+t+'" '+(on?"checked":"")+'/></label>'
       +'<span class="wd-main"><span class="wd-name">'+escapeHtml(x.key)+'</span>'
-      +'<span class="wd-meta">'+escapeHtml(x.time)+' · '+escapeHtml(x.purpose)+'</span>'
-      +'<span class="wd-detail">'+escapeHtml(x.detail)+'</span></span></label>';
+      +'<span class="wd-meta">'+escapeHtml(x.time)+' · '+escapeHtml(x.purpose)+'</span></span>'
+      +'<button type="button" class="wd-detail-btn" data-act="wd-detail" data-key="'+escapeHtml(x.key)+'">详情</button>'
+      +'</div>';
   }).join("");
   return '<div class="tcard wd-card">'
     +'<div class="tcard-h"><span class="badge" style="background:#16a34a">作</span><span class="tname">工作日作息 · 在司运动</span>'
@@ -1954,6 +1980,18 @@ function renderWorkdaySection(){
   const t=today(), show=isWorkday(t);
   if(sw) sw.style.display = show ? "" : "none";
   box.innerHTML = show ? renderWorkdayCard() : "";
+}
+function wdShowDetail(key){
+  const x=WORKDAY_ROUTINE.find(function(o){return o.key===key;}); if(!x) return;
+  document.getElementById('wdDetailName').textContent=x.key;
+  const done=isWdDone(today(),key);
+  const st=document.getElementById('wdDetailStatus');
+  st.textContent=done?'已完成 ✓':'未完成';
+  st.className='wd-detail-status '+(done?'done':'');
+  document.getElementById('wdDetailTime').textContent=x.time||'—';
+  document.getElementById('wdDetailPurpose').textContent=x.purpose||'—';
+  document.getElementById('wdDetailBody').textContent=x.detail||'—';
+  tfOpenModal('wdDetailModal');
 }
 // 首屏排班已推迟到 SMAP 定义之后执行（见下方）
 
@@ -2708,6 +2746,10 @@ document.addEventListener("change",function(e){
   const el=e.target.closest('[data-act="wd-toggle"]'); if(!el) return;
   setWd(el.dataset.key, el.dataset.ds, el.checked);
   renderWorkdaySection();
+});
+document.addEventListener("click",function(e){
+  const el=e.target.closest('[data-act="wd-detail"]'); if(!el) return;
+  wdShowDetail(el.dataset.key);
 });
 document.getElementById("btnRetry").addEventListener("click",function(){ retryNow(); });
 document.getElementById("btnDiag").addEventListener("click",function(){ cloudSelfTest(); });
@@ -5939,7 +5981,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-16c";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-16d";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
