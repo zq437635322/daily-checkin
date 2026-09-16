@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-09-15d</title>
+<title>每日打卡 · 构建2026-09-16a</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -723,6 +723,20 @@ body.mode-pc #view-docs.active .wg-topline{display:flex;align-items:center;justi
 #view-habit .todo-sub .ddl{font-family:var(--tf-mono)}
 #view-habit .todo-sub .ddl.overdue{color:var(--red)}
 #view-habit .todo-sub .ddl.soon{color:var(--amber)}
+
+/* ---------- PC端待办：按日期分组 ---------- */
+body.mode-pc #view-habit .todo-list{display:block;max-width:920px;margin:0 auto;padding:0 4px}
+body.mode-pc #view-habit .todo-group{margin-bottom:18px;background:var(--tf-surface);border:1px solid var(--tf-border-soft);border-radius:var(--tf-radius);box-shadow:var(--tf-shadow);overflow:hidden}
+body.mode-pc #view-habit .todo-group-hd{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;background:#f8fafb;border-bottom:1px solid var(--tf-border-soft)}
+body.mode-pc #view-habit .todo-group-title{font-size:14px;font-weight:700;color:var(--tf-text)}
+body.mode-pc #view-habit .todo-group-count{font-size:12px;color:var(--tf-text2);background:#fff;border:1px solid var(--tf-border-soft);padding:1px 9px;border-radius:999px}
+body.mode-pc #view-habit .todo-group-body{padding:8px}
+body.mode-pc #view-habit .todo-group .todo-item{padding:11px 14px;margin-bottom:6px;border-radius:10px;background:#fff;box-shadow:none;gap:12px}
+body.mode-pc #view-habit .todo-group .todo-item:last-child{margin-bottom:0}
+body.mode-pc #view-habit .todo-title-row{display:flex;align-items:center;gap:10px;justify-content:space-between}
+body.mode-pc #view-habit .todo-title-row .todo-title{flex:1;min-width:0}
+body.mode-pc #view-habit .todo-group .todo-sub{gap:10px}
+body.mode-pc #view-habit .todo-group .todo-sub .tag{margin-left:0}
 
 /* ---------- 回收站 ---------- */
 #view-habit .trash-item{display:flex;align-items:center;gap:14px;background:var(--tf-surface);border:1px solid var(--tf-border-soft);border-radius:var(--tf-radius);padding:14px 18px;margin-bottom:8px;box-shadow:var(--tf-shadow);flex-wrap:wrap}
@@ -5610,26 +5624,77 @@ function tfRenderTodos(){
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3 8-8"/><path d="M21 12v6a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2h11"/></svg>
     <div>没有符合条件的待办</div></div>`; return; }
 
-  box.innerHTML = list.map(t=>{
-    const od = tfIsOverdue(t), soon = tfIsSoon(t);
+  // PC 端按日期分组；手机端保持原列表
+  if(document.body.classList.contains('mode-pc')){
+    const groups=[];
+    const map={};
+    list.forEach(t=>{
+      const d = t.deadline ? t.deadline.slice(0,10) : '无截止日期';
+      if(!map[d]){ map[d]=[]; groups.push({date:d, items:map[d]}); }
+      map[d].push(t);
+    });
+    groups.sort((a,b)=>{
+      if(a.date==='无截止日期') return 1;
+      if(b.date==='无截止日期') return -1;
+      return a.date.localeCompare(b.date);
+    });
+    box.innerHTML = groups.map(g=>{
+      const label = g.date==='无截止日期' ? '无截止日期' : (g.date===today() ? '今天' : g.date);
+      return `<div class="todo-group">
+        <div class="todo-group-hd">
+          <span class="todo-group-title">${label}</span>
+          <span class="todo-group-count">${g.items.length}项</span>
+        </div>
+        <div class="todo-group-body">
+          ${g.items.map(t=>tfTodoItemHTML(t,'pc')).join('')}
+        </div>
+      </div>`;
+    }).join('');
+    return;
+  }
+
+  box.innerHTML = list.map(t=>tfTodoItemHTML(t,'mobile')).join('');
+}
+
+function tfTodoItemHTML(t,mode){
+  const od = tfIsOverdue(t), soon = tfIsSoon(t);
+  const statusTag = od ? '<span class="tag red">已逾期</span>' : (soon ? '<span class="tag amber">即将到期</span>' : '');
+  if(mode==='pc'){
     return `<div class="todo-item ${t.done?'done':''} ${od?'overdue':''}">
       <button class="todo-check ${t.done?'on':''}" onclick="tfToggleTodo('${t.id}')" title="${t.done?'标记未完成':'标记完成'}">
         ${t.done?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>':''}
       </button>
       <div class="todo-main">
-        <div class="todo-title">${tfEsc(t.title)}</div>
+        <div class="todo-title-row"><div class="todo-title">${tfEsc(t.title)}</div>${statusTag}</div>
         <div class="todo-sub">
           <span class="ddl ${od?'overdue':soon?'soon':''}">⏱ ${tfFmtDT(t.deadline)}${od?' · 已逾期':soon?' · 即将到期':''}</span>
+          ${t.priority?`<span class="tag ${tfPriTag(t.priority)}">${tfPriLabel(t.priority)}优先</span>`:''}
           ${t.category?`<span>#${tfEsc(t.category)}</span>`:''}
           ${t.note?`<span title="${tfEsc(t.note)}">${tfEsc(t.note.length>24?t.note.slice(0,24)+'…':t.note)}</span>`:''}
           ${t.done&&t.completedAt?`<span>完成于 ${tfFmtDT(t.completedAt)}</span>`:''}
         </div>
       </div>
-      <span class="tag ${tfPriTag(t.priority)}">${tfPriLabel(t.priority)}优先</span>
       <button class="icon-btn" title="编辑" onclick="tfOpenTodoModal('${t.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.8 2.8 0 114 4L7.5 20.5 2 22l1.5-5.5z"/></svg></button>
       <button class="icon-btn" title="删除" onclick="tfDeleteTodo('${t.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>
     </div>`;
-  }).join('');
+  }
+  return `<div class="todo-item ${t.done?'done':''} ${od?'overdue':''}">
+    <button class="todo-check ${t.done?'on':''}" onclick="tfToggleTodo('${t.id}')" title="${t.done?'标记未完成':'标记完成'}">
+      ${t.done?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>':''}
+    </button>
+    <div class="todo-main">
+      <div class="todo-title">${tfEsc(t.title)}</div>
+      <div class="todo-sub">
+        <span class="ddl ${od?'overdue':soon?'soon':''}">⏱ ${tfFmtDT(t.deadline)}${od?' · 已逾期':soon?' · 即将到期':''}</span>
+        ${t.category?`<span>#${tfEsc(t.category)}</span>`:''}
+        ${t.note?`<span title="${tfEsc(t.note)}">${tfEsc(t.note.length>24?t.note.slice(0,24)+'…':t.note)}</span>`:''}
+        ${t.done&&t.completedAt?`<span>完成于 ${tfFmtDT(t.completedAt)}</span>`:''}
+      </div>
+    </div>
+    <span class="tag ${tfPriTag(t.priority)}">${tfPriLabel(t.priority)}优先</span>
+    <button class="icon-btn" title="编辑" onclick="tfOpenTodoModal('${t.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.8 2.8 0 114 4L7.5 20.5 2 22l1.5-5.5z"/></svg></button>
+    <button class="icon-btn" title="删除" onclick="tfDeleteTodo('${t.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>
+  </div>`;
 }
 
 /* =====================================================
@@ -5795,7 +5860,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-15d";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-16a";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
