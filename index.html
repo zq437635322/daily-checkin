@@ -107,6 +107,12 @@ body.mode-pc #view-home .workday-in-task{margin-top:18px}
 .wd-detail-row{font-size:13px;line-height:1.7;margin:8px 0;color:var(--text)}
 .wd-detail-row b{display:inline-block;min-width:42px;color:var(--muted);font-weight:600}
 .wd-detail-body{background:var(--soft);border-radius:10px;padding:12px;font-size:13.5px;line-height:1.7;color:var(--text);white-space:pre-wrap;word-break:break-word}
+.wd-embedded{margin-top:12px;border:1px dashed var(--primary);border-radius:12px;padding:10px;background:var(--soft)}
+.wd-embedded-h{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--text)}
+.wd-embedded-h .badge{padding:2px 8px;border-radius:999px;font-size:12px;color:#fff}
+body.mode-pc #view-home .wd-embedded{margin-top:14px;padding:12px}
+.wd-video-link{display:inline-flex;align-items:center;gap:4px;color:var(--primary-d);font-weight:600;text-decoration:none;border:1px solid var(--primary);border-radius:8px;padding:4px 12px;font-size:13px;transition:.15s}
+.wd-video-link:hover{background:var(--primary);color:#fff}
 .todo-list{display:flex;flex-direction:column;gap:8px}
 .todo-item{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 12px;cursor:pointer;transition:.15s}
 .todo-item:hover{border-color:#cdd5df}
@@ -1091,12 +1097,6 @@ body.mode-mobile #view-wiki #kbDocTitle{background:#f6f7f9;color:var(--muted);cu
     <div class="section pcv-sec-task">
       <div class="sec-title">今日打卡 <span class="tag" id="homeStreak"></span></div>
       <div id="homeToday"></div>
-
-      <!-- 工作日作息 · 在司运动：归入健身打卡模块，与锻炼打卡归到一起 -->
-      <div class="workday-in-task" id="secWorkday" style="display:none">
-        <div class="sec-title">工作日作息 · 在司运动 <span class="tag" style="background:#16a34a;color:#fff">工作日必做</span></div>
-        <div id="homeWorkday"></div>
-      </div>
     </div>
     <div class="section pcv-sec-week">
       <div class="sec-title">本周待办 <span class="tag" style="background:#eef2f7;color:var(--muted)">今天±3天</span></div>
@@ -1359,6 +1359,7 @@ body.mode-mobile #view-wiki #kbDocTitle{background:#f6f7f9;color:var(--muted);cu
         <div class="wd-detail-row"><b>目的</b><span id="wdDetailPurpose"></span></div>
         <div class="wd-detail-row" style="display:block"><b>详细内容</b></div>
         <div class="wd-detail-body" id="wdDetailBody"></div>
+        <div class="wd-detail-row" id="wdDetailVideoRow" style="display:block"><b>跟练视频</b><a id="wdDetailVideo" class="wd-video-link" target="_blank" rel="noopener noreferrer">点此跟练 ▶</a></div>
         <div class="modal-actions">
           <button class="btn ghost sm" onclick="tfCloseModal('wdDetailModal')">关闭</button>
         </div>
@@ -1946,13 +1947,13 @@ function syncFitness(allowSave){
 /* ================= 工作日作息 · 在司运动（数据源：每日锻炼打卡计划_新.xlsx「训练计划」行 2,3,4,5,6,7,9） =================
    规则：无论「锻炼」当天是否排了训练，只要是工作日（周一~周五，含调休补班；不含法定假日），这 7 项都必须执行。 */
 const WORKDAY_ROUTINE = [
-  {key:"晨间激活", time:"6:40-6:50", purpose:"唤醒身体、改善肩颈硬、矫正头前伸", detail:"喝温水；颈部侧屈拉伸(每侧20s×2)、耸肩沉肩(8-10次)、收下巴(10次)、胸椎旋转(每侧10次)"},
-  {key:"公司楼梯通勤(上班)", time:"7:10-8:00", purpose:"爬楼增活动量(NEAT)、健康早餐", detail:"上班走公司楼梯(不乘电梯)，能早下楼就多走一层；目标通勤1500-2000步；路上吃健康早餐：水煮蛋2+无糖豆浆/牛奶+坚果10g"},
-  {key:"工作上午碎片", time:"8:00-12:00", purpose:"打破久坐、治拜拜肉", detail:"每坐60分钟起身2分钟(接水/颈部侧屈/踏步)；约10:30 颈后臂屈伸(用水瓶)每侧12×2"},
-  {key:"午间散步", time:"12:00-13:00", purpose:"助消化、减内脏脂肪", detail:"午餐杂粮饭半碗+鸡胸/鱼/豆腐+蔬菜1拳(外食少油少糖、主食减半、不喝甜饮料/酒)；饭后散步10分钟；加餐无糖酸奶100g+圣女果"},
-  {key:"工作下午碎片", time:"13:00-19:40", purpose:"打破久坐、练核心", detail:"继续每60分钟起身2分钟；约16:00 鸟狗式(四足位)每侧10×2"},
-  {key:"公司楼梯通勤(下班)", time:"19:40", purpose:"爬楼累积步数", detail:"下班走公司楼梯(不乘电梯)，全天目标6000-8000步"},
-  {key:"睡前放松", time:"22:00-22:15", purpose:"助眠、放松", detail:"颈部侧屈+收下巴+猫牛式(脊柱放松)；睡前1小时不刷手机"}
+  {key:"晨间激活", time:"6:40-6:50", purpose:"唤醒身体、改善肩颈硬、矫正头前伸", detail:"喝温水；颈部侧屈拉伸(每侧20s×2)、耸肩沉肩(8-10次)、收下巴(10次)、胸椎旋转(每侧10次)", video:"https://search.bilibili.com/all?keyword=肩颈拉伸跟练"},
+  {key:"公司楼梯通勤(上班)", time:"7:10-8:00", purpose:"爬楼增活动量(NEAT)、健康早餐", detail:"上班走公司楼梯(不乘电梯)，能早下楼就多走一层；目标通勤1500-2000步；路上吃健康早餐：水煮蛋2+无糖豆浆/牛奶+坚果10g", video:"https://search.bilibili.com/all?keyword=爬楼梯减脂跟练"},
+  {key:"工作上午碎片", time:"8:00-12:00", purpose:"打破久坐、治拜拜肉", detail:"每坐60分钟起身2分钟(接水/颈部侧屈/踏步)；约10:30 颈后臂屈伸(用水瓶)每侧12×2", video:"https://search.bilibili.com/all?keyword=办公室手臂拜拜肉训练"},
+  {key:"午间散步", time:"12:00-13:00", purpose:"助消化、减内脏脂肪", detail:"午餐杂粮饭半碗+鸡胸/鱼/豆腐+蔬菜1拳(外食少油少糖、主食减半、不喝甜饮料/酒)；饭后散步10分钟；加餐无糖酸奶100g+圣女果", video:"https://search.bilibili.com/all?keyword=饭后散步助消化"},
+  {key:"工作下午碎片", time:"13:00-19:40", purpose:"打破久坐、练核心", detail:"继续每60分钟起身2分钟；约16:00 鸟狗式(四足位)每侧10×2", video:"https://search.bilibili.com/all?keyword=鸟狗式核心训练跟练"},
+  {key:"公司楼梯通勤(下班)", time:"19:40", purpose:"爬楼累积步数", detail:"下班走公司楼梯(不乘电梯)，全天目标6000-8000步", video:"https://search.bilibili.com/all?keyword=爬楼梯减脂跟练"},
+  {key:"睡前放松", time:"22:00-22:15", purpose:"助眠、放松", detail:"颈部侧屈+收下巴+猫牛式(脊柱放松)；睡前1小时不刷手机", video:"https://search.bilibili.com/all?keyword=睡前拉伸助眠跟练"}
 ];
 function isWorkday(ds){
   if(isHolidayDate(ds)) return false;                 // 法定假日休息
@@ -1969,31 +1970,43 @@ function setWd(key,ds,val){
   if(Object.keys(o).length===0) delete RECORDS["workday"][ds];
   if(SYNC!=="nocfg") cloudSave();
 }
-function renderWorkdayCard(){
-  const t=today();
-  if(!isWorkday(t)) return "";                         // 仅工作日显示
-  const total=WORKDAY_ROUTINE.length, done=WORKDAY_ROUTINE.filter(function(x){return isWdDone(t,x.key);}).length;
-  const items=WORKDAY_ROUTINE.map(function(x){
-    const on=isWdDone(t,x.key);
+function renderWorkdayItemsHTML(ds){
+  if(!ds) ds=today();
+  return WORKDAY_ROUTINE.map(function(x){
+    const on=isWdDone(ds,x.key);
     return '<div class="wd-item'+(on?" on":"")+'">'
-      +'<label class="wd-check"><input type="checkbox" data-act="wd-toggle" data-key="'+escapeHtml(x.key)+'" data-ds="'+t+'" '+(on?"checked":"")+'/></label>'
+      +'<label class="wd-check"><input type="checkbox" data-act="wd-toggle" data-key="'+escapeHtml(x.key)+'" data-ds="'+ds+'" '+(on?"checked":"")+'/></label>'
       +'<span class="wd-main"><span class="wd-name">'+escapeHtml(x.key)+'</span>'
       +'<span class="wd-meta">'+escapeHtml(x.time)+' · '+escapeHtml(x.purpose)+'</span></span>'
       +'<button type="button" class="wd-detail-btn" data-act="wd-detail" data-key="'+escapeHtml(x.key)+'">详情</button>'
       +'</div>';
   }).join("");
+}
+function renderWorkdayCard(){
+  const t=today();
+  if(!isWorkday(t)) return "";                         // 仅工作日显示（独立区块时仍可用）
+  const total=WORKDAY_ROUTINE.length, done=WORKDAY_ROUTINE.filter(function(x){return isWdDone(t,x.key);}).length;
   return '<div class="tcard wd-card">'
     +'<div class="tcard-h"><span class="badge" style="background:#16a34a">作</span><span class="tname">工作日作息 · 在司运动</span>'
     +'<span class="wd-count">'+done+' / '+total+'</span></div>'
     +'<div class="tcard-b" style="font-size:12px;color:var(--muted)">健身打卡 · 工作日必做（无论当天是否安排训练，工作日都要执行）</div>'
-    +'<div class="wd-list">'+items+'</div></div>';
+    +'<div class="wd-list">'+renderWorkdayItemsHTML(t)+'</div></div>';
 }
-function renderWorkdaySection(){
-  const sw=document.getElementById("secWorkday"), box=document.getElementById("homeWorkday");
-  if(!box) return;
-  const t=today(), show=isWorkday(t);
-  if(sw) sw.style.display = show ? "" : "none";
-  box.innerHTML = show ? renderWorkdayCard() : "";
+function renderWorkdayItemsBlock(it,ds){
+  const t=ds||today();
+  const total=WORKDAY_ROUTINE.length, done=WORKDAY_ROUTINE.filter(function(x){return isWdDone(t,x.key);}).length;
+  return '<div class="wd-embedded">'
+    +'<div class="wd-embedded-h"><span class="badge" style="background:'+META[it].color+'">'+META[it].short+'</span>工作日作息 · 在司运动 <span class="wd-count">'+done+' / '+total+'</span></div>'
+    +'<div class="wd-list" style="margin-top:8px">'+renderWorkdayItemsHTML(t)+'</div></div>';
+}
+function renderWorkdayCardForItem(it,ds){
+  const t=ds||today();
+  const total=WORKDAY_ROUTINE.length, done=WORKDAY_ROUTINE.filter(function(x){return isWdDone(t,x.key);}).length;
+  return '<div class="tcard wd-card">'
+    +'<div class="tcard-h"><span class="badge" style="background:'+META[it].color+'">'+META[it].short+'</span><span class="tname">工作日作息 · 在司运动</span>'
+    +'<span class="wd-count">'+done+' / '+total+'</span></div>'
+    +'<div class="tcard-b" style="font-size:12px;color:var(--muted)">健身打卡 · 工作日必做（无论当天是否安排训练，工作日都要执行）</div>'
+    +'<div class="wd-list">'+renderWorkdayItemsHTML(t)+'</div></div>';
 }
 function wdShowDetail(key){
   const x=WORKDAY_ROUTINE.find(function(o){return o.key===key;}); if(!x) return;
@@ -2005,6 +2018,9 @@ function wdShowDetail(key){
   document.getElementById('wdDetailTime').textContent=x.time||'—';
   document.getElementById('wdDetailPurpose').textContent=x.purpose||'—';
   document.getElementById('wdDetailBody').textContent=x.detail||'—';
+  const vRow=document.getElementById('wdDetailVideoRow'), vEl=document.getElementById('wdDetailVideo');
+  if(x.video){ vRow.style.display='block'; vEl.href=x.video; vEl.textContent='点此跟练 ▶'; }
+  else { vRow.style.display='none'; }
   tfOpenModal('wdDetailModal');
 }
 // 首屏排班已推迟到 SMAP 定义之后执行（见下方）
@@ -2759,7 +2775,7 @@ document.getElementById("homeTodos").addEventListener("change",function(e){
 document.addEventListener("change",function(e){
   const el=e.target.closest('[data-act="wd-toggle"]'); if(!el) return;
   setWd(el.dataset.key, el.dataset.ds, el.checked);
-  renderWorkdaySection();
+  render();
 });
 document.addEventListener("click",function(e){
   const el=e.target.closest('[data-act="wd-detail"]'); if(!el) return;
@@ -2921,6 +2937,7 @@ function renderHome(){
       a+=doneCount(it); b+=seqOf(it).length;
       const te=seqOf(it).find(function(x){ return x.date===t; });   // 今日打卡：只显示今天安排的任务，不展示未来/补卡卡片
       const hk="h-"+it;                                   // 首页详情区的唯一 key
+      const isWd=(it==="锻炼" && isWorkday(t));            // 工作日运动归到锻炼卡片
       if(te){
         const ok=isChecked(it,t);
         if(ok) todayDone++;
@@ -2937,6 +2954,8 @@ function renderHome(){
           + "<button class=\"btn "+(ok?"":"primary")+"\" data-act=\"homecheck\" data-it=\""+it+"\" data-ds=\""+t+"\">"+(ok?"已完成 ✓（点击撤销）":"完成打卡")+"</button>"
           + "<button class=\"linkbtn sm\" data-act=\"home-toggle\" data-it=\""+hk+"\" data-home-lbl=\""+hk+"\">"+(open?"收起内容":"展开内容")+"</button>"
           + "</div>";
+      } else if(isWd){
+        html+=renderWorkdayCardForItem(it,t);
       } else {
         html+="<div class=\"tcard\">"
           + "<div class=\"tcard-h\">"
@@ -2946,7 +2965,7 @@ function renderHome(){
           + "<div class=\"tcard-b\" style=\"font-size:12px;color:var(--muted)\">今天没有「"+it+"」的计划</div>"
           + "</div>";
       }
-      html+="</div>";
+      html+=(te && isWd ? renderWorkdayItemsBlock(it,t) : "")+"</div>";
     });
     let ovHtml="";
     if(PLAN_START && t < PLAN_START){
@@ -2960,7 +2979,6 @@ function renderHome(){
     if(ht) ht.innerHTML="<div class=\"grid\">"+html+"</div>";
     renderWeekTable(0,"homeWeek", true);
     renderHomeTodos();
-    renderWorkdaySection();
   }catch(e){}
 }
 function renderHomeTodos(){
@@ -4020,13 +4038,15 @@ function renderHomePC(){
   ITEMS.forEach(function(it){
     const e=seqOf(it).find(function(x){ return x.date===t; }), hk="h-"+it, open=e?homeOpen(hk):false;   // 今日打卡：只显示今天安排的任务
     const ok=e?isChecked(it,t):false;
+    const isWd=(it==="锻炼" && isWorkday(t));                // 工作日运动归到锻炼卡片
     let badge='<span class="pcv-badge pcv-badge-gray">今日无安排</span>';
     if(e && ok) badge='<span class="pcv-badge pcv-badge-green">已完成</span>';
     else if(e) badge='<span class="pcv-badge pcv-badge-blue">今日待打卡</span>';
+    else if(isWd) badge='<span class="pcv-badge pcv-badge-green">工作日必做</span>';
     html+='<div class="pcv-card">'
       +'<div class="pcv-task-head">'
       +'<span class="pcv-dot" style="background:'+META[it].color+'">'+META[it].short+'</span>'
-      +'<span class="pcv-task-name">'+(e?escapeHtml(summaryOf(it,e)):'今日无安排')+'</span>'
+      +'<span class="pcv-task-name">'+(e?escapeHtml(summaryOf(it,e)):(isWd?'工作日作息 · 在司运动':'今日无安排'))+'</span>'
       +badge
       +(e?'<span class="pcv-expand" data-act="home-toggle" data-it="'+hk+'">'+(open?'收起 ⌃':'展开 ⌄')+'</span>':'')
       +'</div>';
@@ -4045,6 +4065,10 @@ function renderHomePC(){
         +'<button class="'+cls+'" data-act="homecheck" data-it="'+it+'" data-ds="'+t+'">'+lbl+'</button>'
         +'<button class="pcv-linkbtn" data-act="home-toggle" data-it="'+hk+'" data-home-lbl="'+hk+'">'+(open?'收起内容':'展开内容')+'</button>'
         +'</div>';
+      if(isWd) html+=renderWorkdayItemsBlock(it,t);
+    } else if(isWd){
+      html+='<div class="pcv-task-meta">健身打卡 · 工作日必做（无论当天是否安排训练，工作日都要执行）</div>'
+        +renderWorkdayItemsBlock(it,t);
     } else {
       html+='<div class="pcv-task-meta">今天没有「'+escapeHtml(it)+'」的计划</div>';
     }
@@ -4055,7 +4079,6 @@ function renderHomePC(){
 
   renderWeekPC();
   renderHomeTodos();
-  renderWorkdaySection();
   // 提醒条（已去掉「建议导出备份」提示；仅在无任何记录时给新手一句引导）
   const wn=document.getElementById("homeWarn");
   if(wn){
@@ -6022,7 +6045,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-17a";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-17c";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
