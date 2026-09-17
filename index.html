@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-09-16e</title>
+<title>每日打卡 · 构建2026-09-17a</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -113,6 +113,11 @@ body.mode-pc #view-home .workday-in-task{margin-top:18px}
 .todo-item input[type="checkbox"]{width:18px;height:18px;accent-color:var(--primary);flex:none;cursor:pointer}
 .todo-item .todo-text{flex:1;font-size:14px;font-weight:600;line-height:1.35;min-width:0}
 .todo-item .todo-meta{font-size:12px;color:var(--muted);margin-top:2px}
+.todo-day{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;margin-right:6px;line-height:1.5}
+.todo-day.today{background:#dcfce7;color:#16a34a}
+.todo-day.tomorrow{background:#dbeafe;color:#1d4ed8}
+.todo-day.dafter{background:#fef3c7;color:#b45309}
+.todo-day.over{background:#fee2e2;color:#dc2626}
 .todo-item.done .todo-text{text-decoration:line-through;color:var(--muted)}
 .todo-empty{font-size:13.5px;color:var(--muted);padding:6px 2px}
 .drow{display:flex;gap:8px;padding:5px 0;font-size:13px}
@@ -912,6 +917,11 @@ body.mode-pc #view-home .sec-title .tag{margin-left:0;font-size:12px;font-weight
 .pcv-todo-text{font-size:13px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pcv-todo-text.done{color:var(--muted,#7b8794);text-decoration:line-through}
 .pcv-todo-time{margin-left:auto;font-size:11px;color:var(--muted,#7b8794);white-space:nowrap}
+.pcv-todo-day{font-size:11px;font-weight:600;padding:1px 8px;border-radius:999px;white-space:nowrap;flex:0 0 auto}
+.pcv-todo-day.today{background:#dcfce7;color:#16a34a}
+.pcv-todo-day.tomorrow{background:#dbeafe;color:#1d4ed8}
+.pcv-todo-day.dafter{background:#fef3c7;color:#b45309}
+.pcv-todo-day.over{background:#fee2e2;color:#dc2626}
 .pcv-todo-time.warn{color:#92600a;font-weight:600}
 
 /* ---------- 本周待办：事项 × 7 天 ---------- */
@@ -2957,26 +2967,33 @@ function renderHomeTodos(){
   if(isPcMode()){ renderHomeTodosPC(); return; }        // PC 端：原型布局
   const db=TFDB(); const t=today();
   const all=db.todos.filter(function(x){ return !x.deleted; });
-  const open=all.filter(function(x){ return !x.done; }).sort(function(a,b){
-    const da=a.deadline?new Date(a.deadline).getTime():9e15;
-    const dbv=b.deadline?new Date(b.deadline).getTime():9e15;
-    return da-dbv;
-  });
+  const open=all.filter(function(x){ return !x.done; });
+  // 仅近三天（今天/明天/后天）+ 逾期；按 逾期→今天→明天→后天 排序，再按截止时间
+  const vis=open.map(function(x){ return {x:x, b:tfHomeBucket(x.deadline)}; })
+    .filter(function(o){ return o.b; })
+    .sort(function(a,b){
+      if(TF_HOME_ORDER[a.b.key]!==TF_HOME_ORDER[b.b.key]) return TF_HOME_ORDER[a.b.key]-TF_HOME_ORDER[b.b.key];
+      const da=a.x.deadline?new Date(a.x.deadline).getTime():9e15;
+      const dbv=b.x.deadline?new Date(b.x.deadline).getTime():9e15;
+      return da-dbv;
+    });
   const doneToday=all.filter(function(x){ return x.done && x.completedAt && String(x.completedAt).slice(0,10)===t; }).length;
   let html="";
-  open.slice(0,6).forEach(function(x){
+  vis.forEach(function(o){
+    const x=o.x, b=o.b, od=b.overdue;
     const dt=tfFmtDT(x.deadline).slice(5,16);
     html+='<label class="todo-item">'
       +'<input type="checkbox" data-act="todo-check" data-id="'+x.id+'">'
       +'<div style="flex:1;min-width:0">'
       +'<div class="todo-text">'+escapeHtml(x.title)+'</div>'
-      +'<div class="todo-meta">'+(dt?('截止 '+escapeHtml(dt)):'无截止时间')+(tfIsOverdue(x)?' · 已逾期':'')+'</div>'
+      +'<div class="todo-meta"><span class="todo-day '+b.key+'">'+b.label+'</span>'
+      +(dt?('截止 '+escapeHtml(dt)):'无截止时间')+(od?' · 已逾期':'')+'</div>'
       +'</div></label>';
   });
   if(!all.length) html='<div class="todo-empty">还没有待办，到「待办」页点击「+ 待办」添加。</div>';
-  else if(!open.length) html='<div class="todo-empty done-all">今天待办已全部完成 ✓</div>';
+  else if(!vis.length) html='<div class="todo-empty done-all">近三天待办都已处理 ✓</div>';
   const box=document.getElementById("homeTodos"); if(box) box.innerHTML=html;
-  const c=document.getElementById("homeTodoCount"); if(c) c.textContent=doneToday+" / "+(doneToday+open.length);
+  const c=document.getElementById("homeTodoCount"); if(c) c.textContent=vis.length+" 项";
 }
 
 /* ---------- 统计（PRD F2：周/月 + 日历热力图 + 法定节假日标记） ---------- */
@@ -4084,31 +4101,36 @@ function renderWeekPC(){
 function renderHomeTodosPC(){
   const db=TFDB(), t=today();
   const all=db.todos.filter(function(x){ return !x.deleted; });
-  const open=all.filter(function(x){ return !x.done; }).sort(function(a,b){
-    const da=a.deadline?new Date(a.deadline).getTime():9e15;
-    const dv=b.deadline?new Date(b.deadline).getTime():9e15;
-    return da-dv;
-  });
+  const open=all.filter(function(x){ return !x.done; });
+  const vis=open.map(function(x){ return {x:x, b:tfHomeBucket(x.deadline)}; })
+    .filter(function(o){ return o.b; })
+    .sort(function(a,b){
+      if(TF_HOME_ORDER[a.b.key]!==TF_HOME_ORDER[b.b.key]) return TF_HOME_ORDER[a.b.key]-TF_HOME_ORDER[b.b.key];
+      const da=a.x.deadline?new Date(a.x.deadline).getTime():9e15;
+      const dv=b.x.deadline?new Date(b.x.deadline).getTime():9e15;
+      return da-dv;
+    });
   const doneToday=all.filter(function(x){ return x.done && x.completedAt && String(x.completedAt).slice(0,10)===t; }).length;
   let h='<div class="pcv-card pcv-todo-card">';
   if(!all.length){
     h+='<div class="pcv-todo-empty">◎ 还没有待办，到「待办」页点击「+ 待办」添加。</div>';
-  } else if(!open.length){
-    h+='<div class="pcv-todo-empty">◎ 今天待办已全部完成 ✓</div>';
+  } else if(!vis.length){
+    h+='<div class="pcv-todo-empty">◎ 近三天待办都已处理 ✓</div>';
   } else {
-    open.slice(0,8).forEach(function(x){
-      const od=tfIsOverdue(x);
+    vis.forEach(function(o){
+      const x=o.x, b=o.b, od=b.overdue;
       const tm=tfFmtDT(x.deadline).slice(5,16);
       h+='<div class="pcv-todo-row" data-act="todo-check" data-id="'+x.id+'">'
         +'<span class="pcv-checkbox"></span>'
         +'<span class="pcv-todo-text">'+escapeHtml(x.title)+'</span>'
+        +'<span class="pcv-todo-day '+b.key+'">'+b.label+'</span>'
         +'<span class="pcv-todo-time'+(od?' warn':'')+'">'+(od?'已逾期 · ':'')+(tm?('截止 '+escapeHtml(tm)):'无截止时间')+'</span>'
         +'</div>';
     });
   }
   h+='</div>';
   const box=document.getElementById("homeTodos"); if(box) box.innerHTML=h;
-  const c=document.getElementById("homeTodoCount"); if(c) c.textContent=doneToday+" / "+(doneToday+open.length);
+  const c=document.getElementById("homeTodoCount"); if(c) c.textContent=vis.length+" 项";
 }
 
 /* ==================================================================
@@ -5563,6 +5585,21 @@ function tfPurgeTodo(id){
 function tfPriLabel(p){ return {high:'高',mid:'中',low:'低'}[p]||p; }
 function tfPriTag(p){ return {high:'red',mid:'amber',low:'gray'}[p]; }
 function tfIsOverdue(t){ return !t.done && t.deadline && new Date(t.deadline) < new Date(); }
+// 首页待办分桶：仅近三天（今天/明天/后天）+ 逾期归入「逾期」；超三天隐藏；无截止日期隐藏
+// 日期基准与 tfFmtDT 一致，统一用「本地日期」，避免 UTC 与本地差一天导致标签错位
+var TF_HOME_ORDER={over:0,today:1,tomorrow:2,dafter:3};
+function tfHomeBucket(deadline){
+  if(!deadline) return null;
+  var T=String(today());                        // 本地 YYYY-MM-DD
+  var dd=new Date(deadline); if(isNaN(dd.getTime())) return null;
+  var d=dd.getFullYear()+"-"+pad(dd.getMonth()+1)+"-"+pad(dd.getDate());   // 本地日期
+  if(d<T) return {key:"over",label:"逾期",overdue:true};
+  if(d===T) return {key:"today",label:"今天",overdue:false};
+  var diff=Math.round((new Date(d+"T00:00:00")-new Date(T+"T00:00:00"))/86400000);
+  if(diff===1) return {key:"tomorrow",label:"明天",overdue:false};
+  if(diff===2) return {key:"dafter",label:"后天",overdue:false};
+  return null;                                  // 超过三天 → 默认不显示
+}
 function tfIsSoon(t){
   if(t.done || !t.deadline) return false;
   const diff = new Date(t.deadline) - new Date();
@@ -5985,7 +6022,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-16e";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-17a";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
