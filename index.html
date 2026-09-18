@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-09-17f</title>
+<title>每日打卡 · 构建2026-09-17g</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -87,10 +87,10 @@ body.mode-pc #view-home .workday-in-task{margin-top:18px}
 .tcard-a.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .linkbtn.sm{padding:6px 2px;font-size:12px}
 .wd-count{margin-left:auto;font-size:12px;font-weight:700;color:var(--primary-d);background:var(--soft);padding:2px 9px;border-radius:999px}
-.wd-list{display:flex;flex-direction:column;gap:6px;margin-top:4px}
-.wd-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border:1px solid var(--line);border-radius:12px;cursor:default;transition:.15s;background:var(--card)}
-.wd-item:hover{border-color:var(--primary)}
-.wd-item.on{background:var(--soft);border-color:var(--primary)}
+.wd-list{display:flex;flex-direction:column;gap:2px;margin-top:2px}
+.wd-item{display:flex;align-items:center;gap:8px;padding:5px 2px;border:none;border-radius:0;cursor:default;transition:.15s;background:transparent}
+.wd-item:hover{background:var(--soft)}
+.wd-item.on{opacity:.85}
 .wd-item input[type=checkbox]{width:18px;height:18px;accent-color:var(--primary);flex:none;cursor:pointer}
 .wd-main{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
 .wd-name{font-weight:700;font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;max-width:45%}
@@ -99,8 +99,8 @@ body.mode-pc #view-home .workday-in-task{margin-top:18px}
 .wd-detail{font-size:12px;color:var(--muted);line-height:1.45;margin-top:2px}
 .wd-check{display:flex;align-items:center;flex-shrink:0;cursor:pointer}
 .wd-check input{width:18px;height:18px;accent-color:var(--primary);cursor:pointer}
-.wd-item .wd-detail-btn{margin-left:auto;flex-shrink:0;border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:8px;padding:5px 11px;font-size:12px;cursor:pointer;transition:.15s;align-self:center}
-.wd-item .wd-detail-btn:hover{border-color:var(--primary);color:var(--primary-d)}
+.wd-item .wd-detail-btn{margin-left:auto;flex-shrink:0;border:none;background:transparent;color:var(--muted);border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer;transition:.15s;align-self:center}
+.wd-item .wd-detail-btn:hover{color:var(--primary-d);background:var(--soft)}
 .wd-detail-status{display:inline-block;font-size:12px;font-weight:700;padding:2px 10px;border-radius:999px;margin-bottom:10px}
 .wd-detail-status.done{background:var(--soft);color:var(--primary-d)}
 .wd-detail-status:not(.done){background:#fef2f2;color:#ef4444}
@@ -112,14 +112,15 @@ body.mode-pc #view-home .workday-in-task{margin-top:18px}
 .wd-embedded-h .badge{padding:2px 8px;border-radius:999px;font-size:12px;color:#fff}
 body.mode-pc #view-home .wd-embedded{margin-top:8px;padding-top:6px}
 body.mode-pc #view-home .wd-embedded-h{font-size:12px}
-body.mode-pc #view-home .wd-list{gap:3px;margin-top:2px}
-body.mode-pc #view-home .wd-item{padding:5px 8px;gap:8px;border-radius:8px;align-items:center}
+body.mode-pc #view-home .wd-list{gap:1px;margin-top:1px}
+body.mode-pc #view-home .wd-item{padding:3px 2px;gap:8px;border:none;border-radius:0;align-items:center;background:transparent}
+body.mode-pc #view-home .wd-item:hover{background:var(--soft)}
 body.mode-pc #view-home .wd-check{margin-top:0}
 body.mode-pc #view-home .wd-check input{width:15px;height:15px}
 body.mode-pc #view-home .wd-main{gap:6px}
 body.mode-pc #view-home .wd-name{font-size:12.5px;max-width:38%}
 body.mode-pc #view-home .wd-meta{font-size:11px}
-body.mode-pc #view-home .wd-item .wd-detail-btn{padding:3px 8px;font-size:11px;border-radius:6px}
+body.mode-pc #view-home .wd-item .wd-detail-btn{padding:2px 6px;font-size:11px;border-radius:4px}
 .wd-video-link{display:inline-flex;align-items:center;gap:4px;color:var(--primary-d);font-weight:600;text-decoration:none;border:1px solid var(--primary);border-radius:8px;padding:4px 12px;font-size:13px;transition:.15s}
 .wd-video-link:hover{background:var(--primary);color:#fff}
 .todo-list{display:flex;flex-direction:column;gap:8px}
@@ -6054,7 +6055,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-17f";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-17g";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
