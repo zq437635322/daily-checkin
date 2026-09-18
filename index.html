@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-09-18b</title>
+<title>每日打卡 · 构建2026-09-18c</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -102,6 +102,16 @@ body.mode-pc #view-home .workday-in-task{margin-top:18px}
 .wd-item .wd-detail-btn{margin-left:auto;flex-shrink:0;border:none;background:transparent;color:var(--muted);border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer;transition:.15s;align-self:center;pointer-events:auto;touch-action:manipulation;user-select:none}
 .wd-item .wd-detail-btn:hover{color:var(--primary-d);background:var(--soft)}
 .wd-item .wd-detail-btn:active{color:#fff;background:var(--primary)}
+/* 工作日运动：详情内联展开（替代全屏弹窗，避免遮罩盖住整页） */
+.wd-detail{width:100%;margin:0 0 4px}
+.wd-detail-inner{background:var(--soft,#eef1f5);border-left:3px solid var(--primary,#10b981);border-radius:8px;padding:10px 12px;font-size:12.5px;color:var(--ink,#1f2937);line-height:1.65;margin:2px 0 6px}
+.wd-dr{display:flex;gap:8px;margin:3px 0}
+.wd-dr b{flex:none;width:58px;color:var(--muted,#7b8794);font-weight:600}
+.wd-dr span{flex:1;word-break:break-word}
+.wd-dr-block{margin:7px 0}
+.wd-dr-block b{display:block;color:var(--muted,#7b8794);font-weight:600;margin-bottom:3px}
+.wd-dr-block p{margin:0;white-space:pre-wrap;word-break:break-word}
+.wd-video-link{color:var(--primary,#10b981);text-decoration:underline;word-break:break-all;font-size:12px}
 .wd-detail-status{display:inline-block;font-size:12px;font-weight:700;padding:2px 10px;border-radius:999px;margin-bottom:10px}
 .wd-detail-status.done{background:var(--soft);color:var(--primary-d)}
 .wd-detail-status:not(.done){background:#fef2f2;color:#ef4444}
@@ -1361,21 +1371,7 @@ body.mode-mobile #view-wiki #kbDocTitle{background:#f6f7f9;color:var(--muted);cu
 
     <div class="toast-wrap" id="tfToastWrap"></div>
 
-    <!-- ===== 工作日作息·在司运动 详情 ===== -->
-    <div class="modal" id="wdDetailModal" onclick="if(event.target===this)tfCloseModal('wdDetailModal')">
-      <div class="modal-box">
-        <div class="modal-title" id="wdDetailName"></div>
-        <div class="wd-detail-status" id="wdDetailStatus"></div>
-        <div class="wd-detail-row"><b>时间</b><span id="wdDetailTime"></span></div>
-        <div class="wd-detail-row"><b>目的</b><span id="wdDetailPurpose"></span></div>
-        <div class="wd-detail-row" style="display:block"><b>详细内容</b></div>
-        <div class="wd-detail-body" id="wdDetailBody"></div>
-        <div class="wd-detail-row" id="wdDetailVideoRow" style="display:block"><b>跟练视频</b><a id="wdDetailVideo" class="wd-video-link" target="_blank" rel="noopener noreferrer">点此跟练 ▶</a></div>
-        <div class="modal-actions">
-          <button class="btn ghost sm" onclick="tfCloseModal('wdDetailModal')">关闭</button>
-        </div>
-      </div>
-    </div>
+    <!-- ===== 工作日作息·在司运动 详情（已改为卡片内联展开，见 wdToggleDetail） ===== -->
 
     <!-- ===== 自定义日期时间选择器 ===== -->
     <div class="tf-dtp-mask hidden" id="tfDTpMask" onclick="tfDtpCancel()">
@@ -1989,8 +1985,9 @@ function renderWorkdayItemsHTML(ds){
       +'<label class="wd-check"><input type="checkbox" data-act="wd-toggle" data-key="'+escapeHtml(x.key)+'" data-ds="'+ds+'" '+(on?"checked":"")+'/></label>'
       +'<span class="wd-main"><span class="wd-name">'+escapeHtml(x.key)+'</span>'
       +'<span class="wd-meta">'+escapeHtml(x.time)+' · '+escapeHtml(x.purpose)+'</span></span>'
-      +'<button type="button" class="wd-detail-btn" data-act="wd-detail" data-key="'+escapeHtml(x.key)+'" onclick="wdShowDetail(\''+escapeHtml(x.key)+'\');event.stopPropagation();return false;">详情</button>'
-      +'</div>';
+      +'<button type="button" class="wd-detail-btn" data-act="wd-detail" data-key="'+escapeHtml(x.key)+'">详情</button>'
+      +'</div>'
+      +'<div class="wd-detail" data-detail="'+escapeHtml(x.key)+'" hidden></div>';
   }).join("");
 }
 function renderWorkdayCard(){
@@ -2019,20 +2016,23 @@ function renderWorkdayCardForItem(it,ds){
     +'<div class="tcard-b" style="font-size:12px;color:var(--muted)">健身打卡 · 工作日必做（无论当天是否安排训练，工作日都要执行）</div>'
     +'<div class="wd-list">'+renderWorkdayItemsHTML(t)+'</div></div>';
 }
-function wdShowDetail(key){
-  const x=WORKDAY_ROUTINE.find(function(o){return o.key===key;}); if(!x) return;
-  document.getElementById('wdDetailName').textContent=x.key;
-  const done=isWdDone(today(),key);
-  const st=document.getElementById('wdDetailStatus');
-  st.textContent=done?'已完成 ✓':'未完成';
-  st.className='wd-detail-status '+(done?'done':'');
-  document.getElementById('wdDetailTime').textContent=x.time||'—';
-  document.getElementById('wdDetailPurpose').textContent=x.purpose||'—';
-  document.getElementById('wdDetailBody').textContent=x.detail||'—';
-  const vRow=document.getElementById('wdDetailVideoRow'), vEl=document.getElementById('wdDetailVideo');
-  if(x.video){ vRow.style.display='block'; vEl.href=x.video; vEl.textContent='点此跟练 ▶'; }
-  else { vRow.style.display='none'; }
-  tfOpenModal('wdDetailModal');
+function wdToggleDetail(key){
+  let box=null, btn=null;
+  document.querySelectorAll('.wd-detail').forEach(function(n){ if(n.dataset.detail===key) box=n; });
+  document.querySelectorAll('.wd-detail-btn').forEach(function(b){ if(b.dataset.key===key) btn=b; });
+  if(!box) return;
+  if(box.hidden){
+    const x=WORKDAY_ROUTINE.find(function(o){return o.key===key;}); if(!x) return;
+    let html='<div class="wd-detail-inner">'
+      +'<div class="wd-dr"><b>时间</b><span>'+(x.time||'—')+'</span></div>'
+      +'<div class="wd-dr"><b>目的</b><span>'+(x.purpose||'—')+'</span></div>'
+      +'<div class="wd-dr-block"><b>详细内容</b><p>'+escapeHtml(x.detail||'—')+'</p></div>';
+    if(x.video){ html+='<div class="wd-dr-block"><b>跟练视频</b><p><a class="wd-video-link" href="'+escapeHtml(x.video)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(x.video)+'</a></p></div>'; }
+    html+='</div>';
+    box.innerHTML=html; box.hidden=false; if(btn) btn.textContent='收起';
+  } else {
+    box.hidden=true; if(btn) btn.textContent='详情';
+  }
 }
 // 首屏排班已推迟到 SMAP 定义之后执行（见下方）
 
@@ -2790,7 +2790,7 @@ document.addEventListener("change",function(e){
 });
 document.addEventListener("click",function(e){
   const el=e.target.closest('[data-act="wd-detail"]'); if(!el) return;
-  wdShowDetail(el.dataset.key);
+  wdToggleDetail(el.dataset.key);
 });
 document.getElementById("btnRetry").addEventListener("click",function(){ retryNow(); });
 document.getElementById("btnDiag").addEventListener("click",function(){ cloudSelfTest(); });
@@ -6056,7 +6056,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-18b";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-18c";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
