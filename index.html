@@ -277,6 +277,9 @@ body.mode-pc #view-home .wd-item .wd-detail-btn{padding:2px 6px;font-size:11px;b
 .cal-grid .whd.we{color:#ef4444}
 .cal-cell{position:relative;min-height:58px;padding:4px 3px;border-radius:6px;background:transparent;cursor:default;border:2px solid transparent;box-sizing:border-box}
 .cal-cell.out{opacity:.35}
+.cal-cell.past{background:rgba(100,116,139,.18)}
+.cal-cell.past .num{color:#475569}
+.cal-cell.future{background:#fff}
 .cal-cell .num{font-size:15px;font-weight:700;line-height:1.1}
 .cal-cell .sub{font-size:10px;color:var(--muted);line-height:1.1;margin-top:2px;height:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cal-cell.we .num{color:#ef4444}
@@ -3182,6 +3185,7 @@ function renderStats(){
       ["holiday","makeup","weekend","work"].forEach(function(k){
         s+="<span><span style=\"display:inline-block;width:8px;height:8px;border-radius:2px;background:"+DAY_COLOR[k]+";margin-right:4px\"></span>"+DAY_LABEL[k]+"</span>";
       });
+      s+="<span><span style=\"display:inline-block;width:8px;height:8px;border-radius:2px;background:#94a3b8;margin-right:4px\"></span>已过</span>";
       s+="<span><span style=\"display:inline-block;width:8px;height:8px;border-radius:2px;background:#0F9D6E;margin-right:4px\"></span>已打卡</span>";
       lg.innerHTML=s;
     }
@@ -3294,6 +3298,7 @@ function renderCal(){
     else if(typ==="makeup") cls.push("makeup");
     if(cnt>0) cls.push("done");
     if(isToday) cls.push("today");
+    if(ds<td) cls.push("past"); else if(ds>td) cls.push("future");
     if(isWE) cls.push("we");
     let badge="";
     if(isToday) badge='<span class="badge jin">今</span>';
@@ -6175,7 +6180,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-21a";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-21b";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
