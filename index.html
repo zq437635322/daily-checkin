@@ -83,6 +83,26 @@ body.mode-pc #view-home .workday-in-task{margin-top:18px}
 .tdetail.show{display:block}
 .tcard-h.toggle{cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
 .tcard-h.toggle:active{opacity:.6}
+/* 生理期模式切换控件 */
+.mens-bar{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;
+  background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.mens-lbl{font-size:12.5px;font-weight:700;color:var(--fg)}
+.mens-state{font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;background:#eef2f7;color:var(--muted)}
+.mens-state.on{background:#fde7ef;color:#db2777}
+.mens-btn{margin-left:auto;border:1px solid var(--line);background:#fff;color:var(--primary);
+  font-size:12.5px;font-weight:700;border-radius:8px;padding:5px 10px;cursor:pointer}
+.mens-btn.is-on{background:#db2777;color:#fff;border-color:#db2777}
+.mens-tip{margin-top:8px;font-size:11.5px;color:var(--muted);line-height:1.5;
+  background:#fff0f6;border:1px solid #fbcfe8;border-radius:8px;padding:6px 8px}
+.mens-badge{background:#db2777!important;font-size:10px;width:auto!important;height:auto!important;
+  padding:2px 6px;border-radius:999px;flex:none}
+.tt-mens{display:inline-block;font-size:9px;font-weight:700;color:#db2777;background:#fde7ef;
+  border-radius:4px;padding:0 4px;margin-right:4px;vertical-align:middle}
+.tt-mens-cell{background:#fff0f6}
+.pcv-badge-pink{background:#db2777;color:#fff!important}
+.pcv-mens{display:inline-block;font-size:9px;font-weight:700;color:#db2777;background:#fde7ef;
+  border-radius:4px;padding:0 3px;margin-right:3px}
+.pcv-week-mens{background:#fff0f6}
 .chev{margin-left:auto;flex:none;font-size:11px;color:var(--muted)}
 .tcard-a.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .linkbtn.sm{padding:6px 2px;font-size:12px}
@@ -1881,6 +1901,61 @@ const FITNESS_RULES = {
   freeThemes: ["自由安排1","自由安排2"],
   seed: 20260911                           // 固定随机种子：所有设备算出同一份排班
 };
+
+/* ================= 生理期运动库（源自用户资料「8周·体态×塑形计划」生理期周） =================
+   规则：在打卡页把「本周」切换为生理期模式后，本周所有常规训练主题替换为下方舒缓/轻量主题；
+        训练日数量不变（仍为 3-4 天），但强度降到生理期安全范围。
+        安全：头 3 天避免 HIIT / 跳跃 / 大重量深蹲硬拉 / 倒立 / 压迫腹部。
+        每日舒缓：猫牛式、婴儿式、仰卧束角式、骨盆钟摆、90/90 呼吸。 */
+const MENSTRUAL_LIB = [
+  {theme:"生理期·低强度有氧", time:"生理期专属 · 约25分钟", purpose:"促进循环、缓解不适（避免剧烈运动）", effect:"舒适燃脂、改善水肿",
+   detail:"【生理期·低强度有氧】约25分钟\n① 快走 / 散步 20-30 分钟（心率控制在能正常说话）\n② 下背 & 髋部拉伸 10 分钟（婴儿式、仰卧束角式各 1 分钟×2）\n\n【收尾松解】5 分钟\n③ 猫牛式 10 次（缓慢呼吸）\n④ 仰卧束角式 1 分钟\n⑤ 90/90 呼吸 5 次\n\n⚠️ 忌：跑步、跳绳、HIIT、跳跃类动作",
+   video:"生理期舒缓有氧跟练\n搜索：生理期 低强度有氧 散步 跟练", free:false},
+  {theme:"生理期·舒缓恢复", time:"生理期专属 · 约20分钟", purpose:"放松骨盆与脊柱、缓解经痛", effect:"舒缓紧绷、身心放松",
+   detail:"【生理期·舒缓瑜伽】约20分钟\n① 蝴蝶式（坐姿脚心相对）1 分钟，身体微微前倾\n② 猫牛式 10 次（配合呼吸）\n③ 骨盆钟摆 10 次（仰卧，骨盆缓慢画圈）\n④ 仰卧扭转 每侧 30 秒×2（放松下背）\n⑤ 婴儿式 1 分钟×2（额头贴地、手臂前伸）\n\n【收尾】\n⑥ 90/90 呼吸 5 次（坐姿，双膝打开呈 90°）\n\n⚠️ 全程不压迫腹部、不倒立",
+   video:"生理期舒缓瑜伽跟练\n搜索：生理期 舒缓瑜伽 蝴蝶式 猫牛式", free:false},
+  {theme:"生理期·上肢轻塑形", time:"生理期专属 · 约20分钟", purpose:"轻量雕塑手臂/背部（避开核心压迫）", effect:"手臂紧致、体态舒展",
+   detail:"【生理期·上肢轻塑形】约20分钟\n① 面拉（弹力带）2 组×15 次（开肩、改善圆肩）\n② 单臂划船（水瓶/弹力带）每侧 2 组×12 次（练背）\n③ 凳上反屈伸（扶椅）2 组×10 次（肱三头）\n④ 散步 15 分钟（促循环）\n\n【收尾松解】5 分钟\n⑤ 猫牛式 10 次 + 婴儿式 1 分钟\n\n⚠️ 不做卷腹 / 平板等腹部压迫动作",
+   video:"生理期上肢轻训练\n搜索：生理期 上肢 轻力量 面拉 划船", free:false},
+  {theme:"生理期·臀激活", time:"生理期专属 · 约20分钟", purpose:"温和激活臀部、不压迫腹部", effect:"臀线饱满、改善凹陷",
+   detail:"【生理期·臀激活】约20分钟\n① 臀桥 3 组×15 次（顶峰停顿 1 秒）\n② 蚌式开合 每侧 3 组×15 次（侧卧）\n③ 弹力带侧向行走 2 组×15 步/侧（站姿）\n④ 猫牛式 + 骨盆钟摆 各 10 次（放松下背）\n\n【收尾】\n⑤ 婴儿式 1 分钟 + 仰卧束角式 1 分钟\n\n⚠️ 不做大重量深蹲 / 硬拉",
+   video:"生理期臀激活跟练\n搜索：生理期 臀桥 蚌式 弹力带 侧向行走", free:false},
+  {theme:"生理期·完全休息", time:"生理期专属 · 约10分钟", purpose:"深度放松、恢复（不安排训练）", effect:"缓解不适、储备精力",
+   detail:"【生理期·完全休息日】约10分钟\n① 90/90 呼吸 5 次（坐姿，双膝打开 90°）\n② 猫牛式 10 次（缓慢）\n③ 婴儿式 1 分钟×2\n④ 仰卧束角式 1 分钟（放松盆底）\n\n今日不加任何训练强度，可热敷小腹、补充温水和含铁食物。",
+   video:"", free:false}
+];
+const MENSTRUAL_MAP = {}; MENSTRUAL_LIB.forEach(function(x){ MENSTRUAL_MAP[x.theme]=x; });
+const MENSTRUAL_CYCLE = ["生理期·低强度有氧","生理期·舒缓恢复","生理期·上肢轻塑形","生理期·臀激活","生理期·完全休息"];
+
+/* 本周序号（与 buildFitnessSeq 的 weekIdx 对齐：以 PLAN_START 所在周一为第1周起点） */
+function currentFitnessWeek(){
+  const p=parse(today()), m=parse(fmt(mondayOf(new Date(PLAN_START+"T00:00:00"))));
+  return Math.floor((p-m)/604800000)+1;
+}
+function getMenstrualWeeks(){ return (RECORDS.fitness && RECORDS.fitness.menstrualWeeks) || []; }
+function isMenstrualWeek(wk){ return getMenstrualWeeks().indexOf(wk)>=0; }
+function setMenstrualWeek(wk, on){
+  if(!RECORDS.fitness) RECORDS.fitness={};
+  if(!RECORDS.fitness.menstrualWeeks) RECORDS.fitness.menstrualWeeks=[];
+  const arr=RECORDS.fitness.menstrualWeeks, idx=arr.indexOf(wk);
+  if(on && idx<0) arr.push(wk);
+  if(!on && idx>=0) arr.splice(idx,1);
+  syncFitness(false);                 // 重新 apply（含生理期主题替换）
+  if(SYNC!=="nocfg"){ bumpVersion(); cloudSave(); }
+  saveLocal();
+  try{ render(); }catch(e){ try{ renderHome(); }catch(_){} }
+}
+/* 打卡页「本周运动模式」切换控件（仅在 锻炼 卡片出现，始终可点） */
+function menstrualCtrlHtml(){
+  const wk=currentFitnessWeek(), on=isMenstrualWeek(wk);
+  return '<div class="mens-bar">'
+    +'<span class="mens-lbl">本周运动模式</span>'
+    +'<span class="mens-state'+(on?' on':'')+'">'+(on?'生理期 · 舒缓':'常规 · 正常')+'</span>'
+    +'<button class="mens-btn '+(on?'is-on':'')+'" data-act="mens-toggle" data-wk="'+wk+'">'+(on?'退出生理期模式':'切换为生理期运动')+'</button>'
+    +'</div>'
+    + (on?'<div class="mens-tip">已切换为生理期模式：本周训练以舒缓/轻量为主，头3天避免HIIT、跳跃、大重量；每日可做猫牛式、婴儿式、骨盆钟摆放松。</div>':'');
+}
+
 function _mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
 function isHolidayDate(ds){ return !!(HOLIDAY_2026 && HOLIDAY_2026.name && HOLIDAY_2026.name[ds]); }
 function buildFitnessSeq(start, rules){
@@ -1918,13 +1993,25 @@ const FITNESS_FALLBACK = buildFitnessSeq(PLAN_START, FITNESS_RULES);   // Excel 
 function applyFitnessPlan(fit){
   const lib=(fit&&fit.lib)||EXERCISE_LIB;
   const seq=(fit&&fit.seq)||FITNESS_FALLBACK;
+  const mw=(fit&&fit.menstrualWeeks)||[];
   const map={}; lib.forEach(function(x){ map[x.theme]=x; });
+  const wkCount={};
   const arr=seq.map(function(e,i){
-    const m=map[e.theme]||{};
     const d=new Date(e.date+"T00:00:00");
-    return {date:e.date, theme:e.theme, time:e.time, week:e.week, day:"第"+(i+1)+"天", stage:"1-4",
+    let theme=e.theme, time=e.time, purpose="", effect="", detail="", video="", menstrual=false;
+    const wkNum=parseInt((e.week||"").replace(/[^0-9]/g,""),10);
+    if(mw.indexOf(wkNum)>=0){
+      wkCount[wkNum]=(wkCount[wkNum]||0);
+      const mt=MENSTRUAL_MAP[MENSTRUAL_CYCLE[wkCount[wkNum]%MENSTRUAL_CYCLE.length]]||{};
+      wkCount[wkNum]++;
+      theme=mt.theme||theme; time=mt.time||time; purpose=mt.purpose||""; effect=mt.effect||""; detail=mt.detail||""; video=mt.video||""; menstrual=true;
+    } else {
+      const m=map[e.theme]||{};
+      purpose=m.purpose||""; effect=m.effect||""; detail=m.detail||""; video=m.video||"";
+    }
+    return {date:e.date, theme:theme, time:time, week:e.week, day:"第"+(i+1)+"天", stage:"1-4",
       星期:["日","一","二","三","四","五","六"][d.getDay()],
-      purpose:m.purpose||"", effect:m.effect||"", detail:m.detail||"", video:m.video||""};
+      purpose:purpose, effect:effect, detail:detail, video:video, menstrual:menstrual};
   });
   SCHEDULE["锻炼"]=arr;
   SMAP["锻炼"]={}; arr.forEach(function(e){ SMAP["锻炼"][e.date]=e; });
@@ -1934,6 +2021,7 @@ function syncFitness(allowSave){
   if(!RECORDS.fitness || !RECORDS.fitness.seq || !RECORDS.fitness.lib || !RECORDS.fitness.rules){
     RECORDS.fitness={ v:FITNESS_RULES.v, generated:today(), source:FITNESS_RULES.source,
       rules:FITNESS_RULES, lib:EXERCISE_LIB, seq:FITNESS_FALLBACK.map(function(e){return Object.assign({},e);}) };
+    if(!RECORDS.fitness.menstrualWeeks) RECORDS.fitness.menstrualWeeks=[];
     need=true;
   } else {
     // 自愈：云端/本地排班早于计划起点 → 用当前 PLAN_START 重建，避免 seqOf 过滤后首页空白
@@ -2777,6 +2865,10 @@ document.addEventListener("click",function(e){
     const ex=document.querySelector('.pcv-expand[data-it="'+it+'"]'); if(ex) ex.textContent = now?"收起 ⌃":"展开 ⌄";
     document.querySelectorAll('[data-home-lbl="'+it+'"]').forEach(function(b){ b.textContent = now?"收起内容":"展开内容"; });
   }
+  else if(act==="mens-toggle"){
+    const wk=parseInt(el.dataset.wk,10); if(isNaN(wk)) return;
+    setMenstrualWeek(wk, !isMenstrualWeek(wk));   // 切换本周生理期模式并重渲染
+  }
 });
 document.getElementById("homeTodos").addEventListener("change",function(e){
   const el=e.target.closest('[data-act="todo-check"]'); if(!el) return;
@@ -2917,10 +3009,11 @@ function renderWeekTable(offset, elId, center){
       let ent=null; const s=seqOf(it); for(let k=0;k<s.length;k++){ if(s[k].date===ds){ ent=s[k]; break; } }
       if(!ent){ h+='<div class="tt-cell tt-none">—</div>'; return; }
       const done=isChecked(it,ds);
+      const mtag=(ent.menstrual?'<span class="tt-mens">生理期</span>':'');
       const txt=escapeHtml(summaryOf(it,ent));
-      if(done){ h+='<div class="tt-cell tt-done" data-act="ttcheck" data-it="'+it+'" data-ds="'+ds+'"><span class="tt-st">✓</span><span class="tt-tx">'+txt+'</span></div>'; }
-      else if(ds<=td){ h+='<div class="tt-cell tt-undo" data-act="ttcheck" data-it="'+it+'" data-ds="'+ds+'"><span class="tt-tx">'+txt+'</span></div>'; }
-      else { h+='<div class="tt-cell tt-plan" title="计划日 '+ds+' · 当天才能打卡"><span class="tt-tx">'+txt+'</span></div>'; }   // 未到当天：不给打卡入口
+      if(done){ h+='<div class="tt-cell tt-done'+(ent.menstrual?' tt-mens-cell':'')+'" data-act="ttcheck" data-it="'+it+'" data-ds="'+ds+'"><span class="tt-st">✓</span><span class="tt-tx">'+mtag+txt+'</span></div>'; }
+      else if(ds<=td){ h+='<div class="tt-cell tt-undo'+(ent.menstrual?' tt-mens-cell':'')+'" data-act="ttcheck" data-it="'+it+'" data-ds="'+ds+'"><span class="tt-tx">'+mtag+txt+'</span></div>'; }
+      else { h+='<div class="tt-cell tt-plan'+(ent.menstrual?' tt-mens-cell':'')+'" title="计划日 '+ds+' · 当天才能打卡"><span class="tt-tx">'+mtag+txt+'</span></div>'; }   // 未到当天：不给打卡入口
     });
     h+='</div>';
   });
@@ -2949,13 +3042,15 @@ function renderHome(){
       const te=seqOf(it).find(function(x){ return x.date===t; });   // 今日打卡：只显示今天安排的任务，不展示未来/补卡卡片
       const hk="h-"+it;                                   // 首页详情区的唯一 key
       const isWd=(it==="锻炼" && isWorkday(t));            // 工作日运动归到锻炼卡片
+      const mctrl=(it==="锻炼"?menstrualCtrlHtml():"");    // 生理期模式切换控件（始终可点）
       if(te){
         const ok=isChecked(it,t);
         if(ok) todayDone++;
         const open=homeOpen(hk);
-        html+="<div class=\"tcard"+(ok?" done":"")+"\">"
+        let card="<div class=\"tcard"+(ok?" done":"")+"\">"
           + "<div class=\"tcard-h toggle\" data-act=\"home-toggle\" data-it=\""+hk+"\">"
           + "<span class=\"badge\" style=\"background:"+META[it].color+"\">"+META[it].short+"</span>"
+          + (te.menstrual?"<span class=\"badge mens-badge\">生理期</span>":"")
           + "<span class=\"tname\">"+escapeHtml(summaryOf(it,te))+"</span>"
           + "<span class=\"chev\" data-home-chev=\""+hk+"\">"+(open?"▾ 收起":"▸ 展开")+"</span>"
           + "</div>"
@@ -2964,9 +3059,22 @@ function renderHome(){
           + "<div class=\"tcard-a row\">"
           + "<button class=\"btn "+(ok?"":"primary")+"\" data-act=\"homecheck\" data-it=\""+it+"\" data-ds=\""+t+"\">"+(ok?"已完成 ✓（点击撤销）":"完成打卡")+"</button>"
           + "<button class=\"linkbtn sm\" data-act=\"home-toggle\" data-it=\""+hk+"\" data-home-lbl=\""+hk+"\">"+(open?"收起内容":"展开内容")+"</button>"
-          + "</div>";
+          + "</div>"
+          + mctrl;
+        if(te && isWd) card+=renderWorkdayItemsBlock(it,t);   // 工作日：在锻炼计划卡内嵌入在司运动
+        card+="</div>";
+        html+=card;
       } else if(isWd){
-        html+=renderWorkdayCardForItem(it,t);
+        html+=renderWorkdayCardForItem(it,t)+mctrl;           // 工作日但无锻炼计划：整卡为在司运动 + 生理期切换
+      } else if(it==="锻炼"){
+        html+="<div class=\"tcard\">"
+          + "<div class=\"tcard-h\">"
+          + "<span class=\"badge\" style=\"background:"+META[it].color+"\">"+META[it].short+"</span>"
+          + "<span class=\"tname\">本周运动模式</span>"
+          + "</div>"
+          + "<div class=\"tcard-b\" style=\"font-size:12px;color:var(--muted)\">今日无训练安排 · 可在此切换本周为生理期运动</div>"
+          + mctrl
+          + "</div>";
       } else {
         html+="<div class=\"tcard\">"
           + "<div class=\"tcard-h\">"
@@ -2976,7 +3084,6 @@ function renderHome(){
           + "<div class=\"tcard-b\" style=\"font-size:12px;color:var(--muted)\">今天没有「"+it+"」的计划</div>"
           + "</div>";
       }
-      html+=(te && isWd ? renderWorkdayItemsBlock(it,t) : "")+"</div>";
     });
     let ovHtml="";
     if(PLAN_START && t < PLAN_START){
@@ -4050,6 +4157,7 @@ function renderHomePC(){
     const e=seqOf(it).find(function(x){ return x.date===t; }), hk="h-"+it, open=e?homeOpen(hk):false;   // 今日打卡：只显示今天安排的任务
     const ok=e?isChecked(it,t):false;
     const isWd=(it==="锻炼" && isWorkday(t));                // 工作日运动归到锻炼卡片
+    const mctrl=(it==="锻炼"?menstrualCtrlHtml():"");        // 生理期模式切换控件（始终可点）
     let badge='<span class="pcv-badge pcv-badge-gray">今日无安排</span>';
     if(e && ok) badge='<span class="pcv-badge pcv-badge-green">已完成</span>';
     else if(e) badge='<span class="pcv-badge pcv-badge-blue">今日待打卡</span>';
@@ -4057,7 +4165,8 @@ function renderHomePC(){
     html+='<div class="pcv-card">'
       +'<div class="pcv-task-head">'
       +'<span class="pcv-dot" style="background:'+META[it].color+'">'+META[it].short+'</span>'
-      +'<span class="pcv-task-name">'+(e?escapeHtml(summaryOf(it,e)):(isWd?'工作日作息 · 在司运动':'今日无安排'))+'</span>'
+      +'<span class="pcv-task-name">'+(e?escapeHtml(summaryOf(it,e)):(isWd?'工作日作息 · 在司运动':(it==="锻炼"?'本周运动模式':'今日无安排')))+'</span>'
+      +(e&&e.menstrual?'<span class="pcv-badge pcv-badge-pink">生理期</span>':'')
       +badge
       +(e?'<span class="pcv-expand" data-act="home-toggle" data-it="'+hk+'">'+(open?'收起 ⌃':'展开 ⌄')+'</span>':'')
       +'</div>';
@@ -4080,10 +4189,12 @@ function renderHomePC(){
     } else if(isWd){
       html+='<div class="pcv-task-meta">健身打卡 · 工作日必做（无论当天是否安排训练，工作日都要执行）</div>'
         +renderWorkdayItemsBlock(it,t);
+    } else if(it==="锻炼"){
+      html+='<div class="pcv-task-meta">今日无训练安排 · 可在此切换本周为生理期运动</div>';
     } else {
       html+='<div class="pcv-task-meta">今天没有「'+escapeHtml(it)+'」的计划</div>';
     }
-    html+='</div>';
+    html+=mctrl+'</div>';
   });
   html+='</div>';
   const ht=document.getElementById("homeToday"); if(ht) ht.innerHTML=html;
@@ -4120,11 +4231,12 @@ function renderWeekPC(){
       if(!ent){ h+='<div class="pcv-week-cell">—</div>'; return; }
       const done=isChecked(it,ds), txt=escapeHtml(summaryOf(it,ent));
       const cls = done ? "pcv-chip-gray" : (it==="锻炼"?"pcv-chip-green":"pcv-chip-orange");
+      const mtag=(ent.menstrual?'<span class="pcv-mens">生理期</span>':'');
       const fut = ds>td;                                  // 未到当天：不给打卡入口
-      h+='<div class="pcv-week-cell"'+(fut
+      h+='<div class="pcv-week-cell'+(ent.menstrual?' pcv-week-mens':'')+'"'+(fut
           ? ' style="opacity:.7" title="'+txt+'（计划日 '+ds+' · 当天才能打卡）"'
           : ' data-act="ttcheck" data-it="'+it+'" data-ds="'+ds+'" title="'+txt+(done?'（已完成 · 点击撤销）':'（点击打卡）')+'"')+'>'
-        +'<span class="pcv-chip '+cls+'">'+(done?'✓ ':'')+txt+'</span></div>';
+        +'<span class="pcv-chip '+cls+'">'+(done?'✓ ':'')+mtag+txt+'</span></div>';
     });
   });
   h+='</div></div>';
@@ -4670,7 +4782,14 @@ function pmSnapshot(it){ if(!ORIG_SCHEDULE[it]) ORIG_SCHEDULE[it]=(SCHEDULE[it]|
 function applyPlanMods(){
   ITEMS.forEach(function(it){
     pmSnapshot(it);
-    const base=ORIG_SCHEDULE[it]||[];
+    let base;
+    if(it==="锻炼"){
+      // 锻炼：以云端排班(含生理期覆盖)为唯一真相重建，再叠加 planMod 差异，避免静态快照抹掉生理期主题
+      applyFitnessPlan(RECORDS.fitness);
+      base=SCHEDULE[it]||[];
+    } else {
+      base=ORIG_SCHEDULE[it]||[];
+    }
     const mod=(RECORDS.planMod&&RECORDS.planMod[it])||null;
     if(!mod || (!mod.order && !mod.edits)){
       if(SCHEDULE[it]!==base){
@@ -6056,7 +6175,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-20a";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-21a";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
