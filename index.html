@@ -104,6 +104,20 @@ body.mode-pc #view-home .workday-in-task{margin-top:18px}
   border-radius:4px;padding:0 3px;margin-right:3px}
 .pcv-week-mens{background:#fff0f6}
 .chev{margin-left:auto;flex:none;font-size:11px;color:var(--muted)}
+/* 首页「今天待办」卡片 */
+.tcard-todo{cursor:pointer}
+.tcard-todo:hover{border-color:var(--primary-l)}
+.todo-card-list{margin-top:8px;display:flex;flex-direction:column;gap:5px}
+.todo-card-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--fg)}
+.todo-card-dot{width:7px;height:7px;border-radius:50%;flex:none;background:#94a3b8}
+.todo-card-dot.today{background:#f59e0b}
+.todo-card-dot.tomorrow{background:#3b82f6}
+.todo-card-dot.later{background:#94a3b8}
+.todo-card-dot.overdue{background:#ef4444}
+.todo-card-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.todo-card-more{font-size:12px;color:var(--muted);padding-left:15px}
+.todo-card-empty{font-size:12px;color:var(--muted);padding:4px 0}
+.todo-card-empty.done-all{color:var(--primary-d)}
 .tcard-a.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .linkbtn.sm{padding:6px 2px;font-size:12px}
 .wd-count{margin-left:auto;font-size:12px;font-weight:700;color:var(--primary-d);background:var(--soft);padding:2px 9px;border-radius:999px}
@@ -949,6 +963,19 @@ body.mode-pc #view-home .sec-title .tag{margin-left:0;font-size:12px;font-weight
   max-height:240px;overflow:auto;white-space:pre-wrap;word-break:break-word}
 .pcv-task-detail .dk{font-weight:700;color:var(--text,#1f2937);margin-top:8px}
 .pcv-task-actions{display:flex;align-items:center;gap:12px;padding-left:42px;flex-wrap:wrap}
+/* PC 首页「今天待办」卡片 */
+.pcv-card-todo{cursor:pointer}
+.pcv-card-todo:hover{border-color:var(--primary-l)}
+.pcv-todo-card-list{margin-top:6px;display:flex;flex-direction:column;gap:6px;padding-left:42px}
+.pcv-todo-card-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text)}
+.pcv-todo-dot{width:7px;height:7px;border-radius:50%;flex:none;background:#94a3b8}
+.pcv-todo-dot.today{background:#f59e0b}
+.pcv-todo-dot.tomorrow{background:#3b82f6}
+.pcv-todo-dot.later{background:#94a3b8}
+.pcv-todo-dot.overdue{background:#ef4444}
+.pcv-todo-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pcv-todo-card-more{font-size:12px;color:var(--muted);padding-left:15px}
+.pcv-todo-card-empty{font-size:12.5px;color:var(--muted);padding:4px 0}
 .pcv-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 16px;
   border-radius:6px;font-size:12.5px;border:1px solid #d1d5db;background:#fff;color:#1f2937;cursor:pointer}
 .pcv-btn:hover{background:#f8f9fa}
@@ -2864,6 +2891,9 @@ document.addEventListener("click",function(e){
     const wk=parseInt(el.dataset.wk,10); if(isNaN(wk)) return;
     setMenstrualWeek(wk, !isMenstrualWeek(wk));   // 切换本周生理期模式并重渲染
   }
+  else if(act==="nav-todo"){
+    switchView("habit");                             // 点击「今天待办」卡片跳转到待办视图
+  }
 });
 document.getElementById("homeTodos").addEventListener("change",function(e){
   const el=e.target.closest('[data-act="todo-check"]'); if(!el) return;
@@ -3125,6 +3155,71 @@ function renderHomeTodos(){
   else if(!vis.length) html='<div class="todo-empty done-all">近三天待办都已处理 ✓</div>';
   const box=document.getElementById("homeTodos"); if(box) box.innerHTML=html;
   const c=document.getElementById("homeTodoCount"); if(c) c.textContent=vis.length+" 项";
+}
+
+/* 首页「今天待办」卡片（放在打卡卡片流里） */
+function homeTodoCardItems(t){
+  const db=TFDB();
+  const all=db.todos.filter(function(x){ return !x.deleted && !x.done; });
+  const vis=all.map(function(x){ return {x:x, b:tfHomeBucket(x.deadline)}; })
+    .filter(function(o){ return o.b; })
+    .sort(function(a,b){
+      if(TF_HOME_ORDER[a.b.key]!==TF_HOME_ORDER[b.b.key]) return TF_HOME_ORDER[a.b.key]-TF_HOME_ORDER[b.b.key];
+      const da=a.x.deadline?new Date(a.x.deadline).getTime():9e15;
+      const dbv=b.x.deadline?new Date(b.x.deadline).getTime():9e15;
+      return da-dbv;
+    });
+  return {list:vis, count:vis.length, all:all.length};
+}
+function renderHomeTodoCard(t){
+  const o=homeTodoCardItems(t), vis=o.list;
+  const max=3; let items="";
+  if(!o.all) items='<div class="todo-card-empty">还没有待办</div>';
+  else if(!vis.length) items='<div class="todo-card-empty done-all">近三天待办都已处理 ✓</div>';
+  else {
+    vis.slice(0,max).forEach(function(o2){
+      const x=o2.x, b=o2.b;
+      items+='<div class="todo-card-item">'
+        +'<span class="todo-card-dot '+b.key+'"></span>'
+        +'<span class="todo-card-title">'+escapeHtml(x.title)+'</span>'
+        +'</div>';
+    });
+    if(vis.length>max) items+='<div class="todo-card-more">+'+(vis.length-max)+' 项</div>';
+  }
+  return '<div class="tcard tcard-todo" data-act="nav-todo">'
+    +'<div class="tcard-h">'
+    +'<span class="badge" style="background:#3b82f6">待</span>'
+    +'<span class="tname">今天待办</span>'
+    +'<span class="chev">去待办 →</span>'
+    +'</div>'
+    +'<div class="tcard-b" style="font-size:12px;color:var(--muted)">近三天 '+o.count+' 项待处理</div>'
+    +'<div class="todo-card-list">'+items+'</div>'
+    +'</div>';
+}
+function renderHomeTodoCardPC(t){
+  const o=homeTodoCardItems(t), vis=o.list;
+  const max=4; let items="";
+  if(!o.all) items='<div class="pcv-todo-card-empty">还没有待办</div>';
+  else if(!vis.length) items='<div class="pcv-todo-card-empty">近三天待办都已处理 ✓</div>';
+  else {
+    vis.slice(0,max).forEach(function(o2){
+      const x=o2.x, b=o2.b;
+      items+='<div class="pcv-todo-card-item">'
+        +'<span class="pcv-todo-dot '+b.key+'"></span>'
+        +'<span class="pcv-todo-title">'+escapeHtml(x.title)+'</span>'
+        +'</div>';
+    });
+    if(vis.length>max) items+='<div class="pcv-todo-card-more">+'+(vis.length-max)+' 项</div>';
+  }
+  return '<div class="pcv-card pcv-card-todo" data-act="nav-todo">'
+    +'<div class="pcv-task-head">'
+    +'<span class="pcv-dot" style="background:#3b82f6">待</span>'
+    +'<span class="pcv-task-name">今天待办</span>'
+    +'<span class="pcv-badge pcv-badge-blue">'+o.count+' 项</span>'
+    +'</div>'
+    +'<div class="pcv-task-meta">近三天待办 · 点击跳转到待办清单</div>'
+    +'<div class="pcv-todo-card-list">'+items+'</div>'
+    +'</div>';
 }
 
 /* ---------- 统计（PRD F2：周/月 + 日历热力图 + 法定节假日标记） ---------- */
@@ -4150,7 +4245,9 @@ function renderHomePC(){
   if(stEl) stEl.textContent = st>0 ? ("已连续 "+st+" 天") : "今天重新开始";
 
   let html='<div class="pcv-grid">';
-  ITEMS.forEach(function(it){
+  const HOME_ORDER_PC=["锻炼","写作练习","待办","视频创作"];
+  HOME_ORDER_PC.forEach(function(it){
+    if(it==="待办"){ html+=renderHomeTodoCardPC(t); return; }
     const e=seqOf(it).find(function(x){ return x.date===t; }), hk="h-"+it, open=e?homeOpen(hk):false;   // 今日打卡：只显示今天安排的任务
     const ok=e?isChecked(it,t):false;
     const isWd=(it==="锻炼" && isWorkday(t));                // 工作日运动归到锻炼卡片
@@ -6198,7 +6295,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-28a";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-28b";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
