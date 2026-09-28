@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-09-28a</title>
+<title>每日打卡 · 构建2026-09-28e</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -976,6 +976,14 @@ body.mode-pc #view-home .sec-title .tag{margin-left:0;font-size:12px;font-weight
 .pcv-todo-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pcv-todo-card-more{font-size:12px;color:var(--muted);padding-left:15px}
 .pcv-todo-card-empty{font-size:12.5px;color:var(--muted);padding:4px 0}
+.pcv-todo-card-dt{margin-left:auto;font-size:11px;color:var(--muted,#7b8794);white-space:nowrap}
+/* PC 端隐藏独立「今日待办」区块（已并入首页网格卡片） */
+body.mode-pc #view-home .pcv-sec-todo{display:none}
+.pcv-todo-card-item{cursor:pointer;padding:6px 8px;margin:0 -8px;border-radius:8px;transition:.15s}
+.pcv-todo-card-item:hover{background:var(--soft)}
+.pcv-todo-card-item::before{content:"";width:16px;height:16px;border:2px solid #cbd5e1;border-radius:5px;flex:none;background:#fff;transition:.15s}
+.pcv-todo-card-item:hover::before{border-color:var(--primary)}
+/* 点击完成后的视觉反馈由 renderHome 重绘实现，不依赖静态 class */
 .pcv-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 16px;
   border-radius:6px;font-size:12.5px;border:1px solid #d1d5db;background:#fff;color:#1f2937;cursor:pointer}
 .pcv-btn:hover{background:#f8f9fa}
@@ -3204,9 +3212,11 @@ function renderHomeTodoCardPC(t){
   else {
     vis.slice(0,max).forEach(function(o2){
       const x=o2.x, b=o2.b;
-      items+='<div class="pcv-todo-card-item">'
-        +'<span class="pcv-todo-dot '+b.key+'"></span>'
+      const dt=x.deadline?tfFmtDT(x.deadline).slice(5,16):'';
+      items+='<div class="pcv-todo-card-item" data-act="todo-check" data-id="'+escapeHtml(x.id)+'">'
         +'<span class="pcv-todo-title">'+escapeHtml(x.title)+'</span>'
+        +'<span class="pcv-todo-card-dt">'+(dt?'截止 '+dt:'')+'</span>'
+        +'<span class="pcv-todo-day '+b.key+'">'+b.label+'</span>'
         +'</div>';
     });
     if(vis.length>max) items+='<div class="pcv-todo-card-more">+'+(vis.length-max)+' 项</div>';
@@ -3217,7 +3227,7 @@ function renderHomeTodoCardPC(t){
     +'<span class="pcv-task-name">今天待办</span>'
     +'<span class="pcv-badge pcv-badge-blue">'+o.count+' 项</span>'
     +'</div>'
-    +'<div class="pcv-task-meta">近三天待办 · 点击跳转到待办清单</div>'
+    +'<div class="pcv-task-meta">近三天待办 · 点条目勾选完成，点卡片去清单</div>'
     +'<div class="pcv-todo-card-list">'+items+'</div>'
     +'</div>';
 }
@@ -5057,7 +5067,7 @@ document.addEventListener("click",function(e){
     toggle(it, ds);
   }
   /* ---- PC 端原型布局：待办勾选 / 管理端子标签与筛选 ---- */
-  else if(act==="todo-check"){ if(el.dataset.id){ tfToggleTodo(el.dataset.id); renderHomeTodos(); } }
+  else if(act==="todo-check"){ if(el.dataset.id){ tfToggleTodo(el.dataset.id); renderHome(); } }
   else if(act==="mgsub"){ mgSwitch(el.getAttribute("data-p")||"content"); }
   else if(act==="mgfilter"){
     mgCat=el.getAttribute("data-cat")||"all";
@@ -6295,7 +6305,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-28b";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-28e";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
