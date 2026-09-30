@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-09-28e</title>
+<title>每日打卡 · 构建2026-09-30a</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -2463,6 +2463,11 @@ function isChecked(it,ds){return !!(RECORDS[it]&&RECORDS[it][ds]);}
 function seqOf(it){ return (SCHEDULE[it]||[]).filter(e=>e.date >= PLAN_START); }   // 有效序列：仅 PLAN_START 起
 function currentIdx(it){ const s=seqOf(it); for(let i=0;i<s.length;i++){ if(!isChecked(it,s[i].date)) return i; } return s.length; }
 function activeEntry(it){ const s=seqOf(it); const i=currentIdx(it); return i<s.length ? s[i] : null; }   // 当前待办（第一项未完成则一直是它）
+/* 今日卡片专用：完成制顺延——
+   返回「第一项未完成、且日期<=今天」的条目；昨天没完成的任务今天仍显示它，完成才顺延下一项。
+   若该类型全部完成或下一项在未来（date>today），返回 null（今日无安排）。 */
+function activeEntryToday(it){ const s=seqOf(it), t=today(); for(let i=0;i<s.length;i++){ if(!isChecked(it,s[i].date) && s[i].date<=t) return s[i]; } return null; }
+function nextScheduled(it){ const s=seqOf(it), t=today(); for(let i=0;i<s.length;i++){ if(s[i].date>t && !isChecked(it,s[i].date)) return s[i]; } return null; }   // 今日无安排时，给出最近一次未来计划日
 function nextEntry(it){ const s=seqOf(it); const i=currentIdx(it)+1; return i<s.length ? s[i] : null; }
 function doneCount(it){ const s=seqOf(it); let n=0; s.forEach(e=>{ if(isChecked(it,e.date)) n++; }); return n; }
 
@@ -3072,25 +3077,27 @@ function renderHome(){
     let html="", a=0, b=0, todayDone=0;
     ITEMS.forEach(function(it){
       a+=doneCount(it); b+=seqOf(it).length;
-      const te=seqOf(it).find(function(x){ return x.date===t; });   // 今日打卡：只显示今天安排的任务，不展示未来/补卡卡片
+      const te=activeEntryToday(it);   // 完成制顺延：显示第一项未完成（日期<=今天）的任务，昨天没完成则今天仍显示它
       const hk="h-"+it;                                   // 首页详情区的唯一 key
       const isWd=(it==="锻炼" && isWorkday(t));            // 工作日运动归到锻炼卡片
       const mctrl=(it==="锻炼"?menstrualCtrlHtml():"");    // 生理期模式切换控件（始终可点）
       if(te){
-        const ok=isChecked(it,t);
+        const ok=isChecked(it,te.date);
         if(ok) todayDone++;
         const open=homeOpen(hk);
+        const catchup=(te.date<t);   // 补打卡：原计划日早于今天
         let card="<div class=\"tcard"+(ok?" done":"")+"\">"
           + "<div class=\"tcard-h toggle\" data-act=\"home-toggle\" data-it=\""+hk+"\">"
           + "<span class=\"badge\" style=\"background:"+META[it].color+"\">"+META[it].short+"</span>"
           + (te.menstrual?"<span class=\"badge mens-badge\">生理期</span>":"")
+          + (catchup?"<span class=\"badge\" style=\"background:#f59e0b;color:#fff\">补打卡</span>":"")
           + "<span class=\"tname\">"+escapeHtml(summaryOf(it,te))+"</span>"
           + "<span class=\"chev\" data-home-chev=\""+hk+"\">"+(open?"▾ 收起":"▸ 展开")+"</span>"
           + "</div>"
-          + "<div class=\"tcard-b\" style=\"font-size:12px;color:var(--muted)\">"+escapeHtml(subOf(it,te))+"</div>"
+          + "<div class=\"tcard-b\" style=\"font-size:12px;color:var(--muted)\">"+(catchup?("原计划 "+te.date+" · 近 3 天可补 · "):"")+escapeHtml(subOf(it,te))+"</div>"
           + "<div class=\"tdetail"+(open?" show":"")+"\" id=\"det-"+hk+"\">"+homeDetailHtml(it,te)+"</div>"
           + "<div class=\"tcard-a row\">"
-          + "<button class=\"btn "+(ok?"":"primary")+"\" data-act=\"homecheck\" data-it=\""+it+"\" data-ds=\""+t+"\">"+(ok?"已完成 ✓（点击撤销）":"完成打卡")+"</button>"
+          + '<button class="btn '+(ok?"":"primary")+'" data-act="homecheck" data-it="'+it+'" data-ds="'+te.date+'">'+(ok?"已完成 ✓（点击撤销）":"完成打卡")+'</button>'
           + "<button class=\"linkbtn sm\" data-act=\"home-toggle\" data-it=\""+hk+"\" data-home-lbl=\""+hk+"\">"+(open?"收起内容":"展开内容")+"</button>"
           + "</div>"
           + mctrl;
@@ -3109,12 +3116,13 @@ function renderHome(){
           + mctrl
           + "</div>";
       } else {
+        const nx=nextScheduled(it);
         html+="<div class=\"tcard\">"
           + "<div class=\"tcard-h\">"
           + "<span class=\"badge\" style=\"background:"+META[it].color+"\">"+META[it].short+"</span>"
           + "<span class=\"tname\">今日无安排</span>"
           + "</div>"
-          + "<div class=\"tcard-b\" style=\"font-size:12px;color:var(--muted)\">今天没有「"+it+"」的计划</div>"
+          + "<div class=\"tcard-b\" style=\"font-size:12px;color:var(--muted)\">"+(nx?("本类型已追上计划 · 下次安排 "+nx.date):("今天没有「"+it+"」的计划"))+"</div>"
           + "</div>";
       }
     });
@@ -4230,8 +4238,8 @@ function renderHomePC(){
   let todayDone=0, a=0, b=0;
   ITEMS.forEach(function(it){
     a+=doneCount(it); b+=seqOf(it).length;
-    const e=seqOf(it).find(function(x){ return x.date===t; });   // 今日打卡：只显示今天安排的任务
-    if(e && isChecked(it,t)) todayDone++;
+    const e=activeEntryToday(it);   // 完成制顺延：显示第一项未完成（日期<=今天）的任务
+    if(e && isChecked(it,e.date)) todayDone++;
   });
   const total=ITEMS.length, st=curStreak();
   const ov=document.getElementById("homeOverview");
@@ -4258,13 +4266,14 @@ function renderHomePC(){
   const HOME_ORDER_PC=["锻炼","写作练习","待办","视频创作"];
   HOME_ORDER_PC.forEach(function(it){
     if(it==="待办"){ html+=renderHomeTodoCardPC(t); return; }
-    const e=seqOf(it).find(function(x){ return x.date===t; }), hk="h-"+it, open=e?homeOpen(hk):false;   // 今日打卡：只显示今天安排的任务
-    const ok=e?isChecked(it,t):false;
+    const e=activeEntryToday(it), hk="h-"+it, open=e?homeOpen(hk):false;   // 完成制顺延：显示第一项未完成（日期<=今天）的任务
+    const ok=e?isChecked(it,e.date):false;
     const isWd=(it==="锻炼" && isWorkday(t));                // 工作日运动归到锻炼卡片
     const mctrl=(it==="锻炼"?menstrualCtrlHtml():"");        // 生理期模式切换控件（始终可点）
+    const catchup=(e && e.date<t);   // 补打卡：原计划日早于今天
     let badge='<span class="pcv-badge pcv-badge-gray">今日无安排</span>';
     if(e && ok) badge='<span class="pcv-badge pcv-badge-green">已完成</span>';
-    else if(e) badge='<span class="pcv-badge pcv-badge-blue">今日待打卡</span>';
+    else if(e) badge= catchup ? '<span class="pcv-badge" style="background:#f59e0b;color:#fff">待补打卡</span>' : '<span class="pcv-badge pcv-badge-blue">今日待打卡</span>';
     else if(isWd) badge='<span class="pcv-badge pcv-badge-green">工作日必做</span>';
     html+='<div class="pcv-card">'
       +'<div class="pcv-task-head">'
@@ -4275,18 +4284,18 @@ function renderHomePC(){
       +(e?'<span class="pcv-expand" data-act="home-toggle" data-it="'+hk+'">'+(open?'收起 ⌃':'展开 ⌄')+'</span>':'')
       +'</div>';
     if(e){
-      html+='<div class="pcv-task-meta">'+escapeHtml([e.date+" "+weekdayOf(e.date), subOf(it,e)].filter(Boolean).join(" · "))+'</div>';
+      html+='<div class="pcv-task-meta">'+escapeHtml([e.date+" "+weekdayOf(e.date)+(catchup?"（补打卡）":""), subOf(it,e)].filter(Boolean).join(" · "))+'</div>';
       if(ok){
-        const rec=(RECORDS[it]||{})[t]||{};
+        const rec=(RECORDS[it]||{})[e.date]||{};
         html+='<div class="pcv-strip pcv-strip-done">✔ 已完成 · '+(pcvHHMM(rec.ts)?(pcvHHMM(rec.ts)+' 打卡 · '):'')+'已同步云端</div>';
       } else {
-        html+='<div class="pcv-strip pcv-strip-timer">⏱ 今日待打卡 · '+escapeHtml(pcvSlotOf(it,e))+' · '+escapeHtml(pcvDurOf(it,e))+'</div>';
+        html+='<div class="pcv-strip pcv-strip-timer">'+(catchup?'🔁 待补打卡（原计划 '+e.date+'）':'⏱ 今日待打卡')+' · '+escapeHtml(pcvSlotOf(it,e))+' · '+escapeHtml(pcvDurOf(it,e))+'</div>';
       }
       html+='<div class="pcv-task-detail tdetail'+(open?' show':'')+'" id="det-'+hk+'">'+homeDetailHtml(it,e)+'</div>';
       let lbl="完成打卡", cls="pcv-btn pcv-btn-primary";
       if(ok){ lbl="撤销打卡"; cls="pcv-btn"; }
       html+='<div class="pcv-task-actions">'
-        +'<button class="'+cls+'" data-act="homecheck" data-it="'+it+'" data-ds="'+t+'">'+lbl+'</button>'
+        +'<button class="'+cls+'" data-act="homecheck" data-it="'+it+'" data-ds="'+e.date+'">'+lbl+'</button>'
         +'<button class="pcv-linkbtn" data-act="home-toggle" data-it="'+hk+'" data-home-lbl="'+hk+'">'+(open?'收起内容':'展开内容')+'</button>'
         +'</div>';
       if(isWd) html+=renderWorkdayItemsBlock(it,t);
@@ -4296,7 +4305,8 @@ function renderHomePC(){
     } else if(it==="锻炼"){
       html+='<div class="pcv-task-meta">今日无训练安排 · 可在此切换本周为生理期运动</div>';
     } else {
-      html+='<div class="pcv-task-meta">今天没有「'+escapeHtml(it)+'」的计划</div>';
+      const nx=nextScheduled(it);
+      html+='<div class="pcv-task-meta">'+(nx?('本类型已追上计划 · 下次安排 '+nx.date):('今天没有「'+escapeHtml(it)+'」的计划'))+'</div>';
     }
     html+=mctrl+'</div>';
   });
@@ -6305,7 +6315,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-28e";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-09-30a";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
