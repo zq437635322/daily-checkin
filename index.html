@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-10-12k</title>
+<title>每日打卡 · 构建2026-10-15a</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -1042,6 +1042,28 @@ body.mode-pc #view-manage #mgSubtabs{display:flex;gap:8px;margin-bottom:16px}
 .pcv-subtab.active{background:#e8f7ee;border-color:var(--primary,#10b981);color:var(--primary-d,#059669);font-weight:600}
 #mgPage-content{display:none}
 body.mode-pc #view-manage.show-content #mgPage-content{display:block}
+
+/* ---------- PC 管理页：红框区域固定，下方列表支持纵向滚动 ---------- */
+body.mode-pc .topbar{height:43px}
+body.mode-pc #view-manage.show-content{
+  display:flex;flex-direction:column;
+  height:calc(100vh - 43px - 74px);
+  overflow-y:auto;overflow-x:hidden}
+body.mode-pc #view-manage #mgSubtabs{
+  position:sticky;top:0;z-index:19;background:var(--bg,#f4f6f9);
+  height:50px;padding:4px 0 12px 0;margin-bottom:0;flex-shrink:0}
+body.mode-pc #view-manage .pcv-toolbar{
+  position:sticky;top:50px;z-index:18;background:var(--bg,#f4f6f9);
+  min-height:52px;padding:4px 0 12px 0;margin-bottom:0;flex-shrink:0;
+  flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden}
+body.mode-pc #view-manage .pcv-table-wrap{
+  border-radius:10px;overflow:hidden;background:var(--card,#fff);flex-shrink:0}
+body.mode-pc #view-manage .pcv-table-wrap table.pcv-table{border-radius:0;overflow:visible;border:none;background:transparent}
+body.mode-pc #view-manage table.pcv-table thead{
+  position:sticky;top:102px;z-index:17}
+body.mode-pc #view-manage .pcv-caption,
+body.mode-pc #view-manage .pcv-hint,
+body.mode-pc #view-manage .pcv-mini-grid{flex-shrink:0}
 #mgPage-types{display:none}
 body.mode-pc #view-manage.show-types #mgPage-types{display:block}
 body.mode-pc #view-manage #mgPage-settings{display:none}
@@ -1665,15 +1687,17 @@ body.mode-mobile #view-wiki #kbDocTitle{background:#f6f7f9;color:var(--muted);cu
         <button class="pcv-filter" type="button" data-act="mgstatus" data-st="plan">未开始</button>
         <span style="margin-left:auto;font-size:12px;color:var(--muted)" id="mgRange"></span>
       </div>
-      <table class="pcv-table" id="mgTable">
-        <thead>
-            <tr>
-              <th style="width:52px">顺序</th><th style="width:20%">打卡内容</th><th>分类</th><th>计划日期</th>
-              <th>计划时段</th><th>时长</th><th>状态</th><th style="width:16%">操作</th>
-            </tr>
-        </thead>
-        <tbody id="mgTableBody"></tbody>
-      </table>
+      <div class="pcv-table-wrap">
+        <table class="pcv-table" id="mgTable">
+          <thead>
+              <tr>
+                <th style="width:52px">顺序</th><th style="width:20%">打卡内容</th><th>分类</th><th>计划日期</th>
+                <th>计划时段</th><th>时长</th><th>状态</th><th style="width:16%">操作</th>
+              </tr>
+          </thead>
+          <tbody id="mgTableBody"></tbody>
+        </table>
+      </div>
       <div class="pcv-caption" id="mgCaption">—</div>
       <div class="pcv-hint">ⓘ 说明：此处<b>不支持补打卡</b>（打卡请到「打卡」页完成），仅用于查看打卡明细，以及修改 / 调整<b>未打卡</b>内容的执行顺序（↑ ↓）。修改只影响当天这一条，不改动其它日期，也不回溯已完成记录。</div>
       <div class="pcv-mini-grid" id="mgMini"></div>
@@ -6352,7 +6376,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-10-12k";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-10-15a";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
