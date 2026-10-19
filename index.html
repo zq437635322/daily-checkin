@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-10-19a</title>
+<title>每日打卡 · 构建2026-10-19b</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -58,6 +58,8 @@ body.mode-pc #view-home .workday-in-task{margin-top:18px}
   padding:10px 14px;margin-top:16px;line-height:1.6}
 #overdueBox:empty{display:none}
 .overdue{background:var(--red-bg);border:1px solid #fbcaca;border-radius:var(--radius);padding:12px 14px;margin-bottom:14px}
+.overdue.skipped{background:#eef2f7;border-color:#dde3ea}
+.overdue.skipped .od-title{color:#475569}
 .od-title{font-weight:800;color:#b91c1c;display:flex;align-items:center;gap:6px;font-size:14px;margin-bottom:8px}
 .od-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 0;border-top:1px dashed #f1c4c4}
 .od-row:first-of-type{border-top:none}
@@ -203,6 +205,7 @@ body.mode-pc #view-home .wd-item .wd-detail-btn{padding:2px 6px;font-size:11px;b
 .hc.on{background:var(--primary)}
 .hc.miss{background:#fca5a5}
 .hc.fut{background:#bfe3f5}
+.hc.skip{background:#9fb3c8}
 .heat-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:6px}
 .heat-legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px}
 /* ---------- 写作工作台 ---------- */
@@ -2525,12 +2528,22 @@ function isChecked(it,ds){return !!(RECORDS[it]&&RECORDS[it][ds]);}
 /* 软考学习为绝对日期计划（Excel 排课 2026-10-15 起），不随通用计划重置(PLAN_START)裁剪；
    其余类型仍仅取 PLAN_START 起的条目（重置后从新起点顺延）。 */
 function seqOf(it){ return (SCHEDULE[it]||[]).filter(e=> it==="软考学习" || e.date >= PLAN_START); }   // 有效序列：仅 PLAN_START 起（软考豁免）
-function currentIdx(it){ const s=seqOf(it); for(let i=0;i<s.length;i++){ if(!isChecked(it,s[i].date)) return i; } return s.length; }
-function activeEntry(it){ const s=seqOf(it); const i=currentIdx(it); return i<s.length ? s[i] : null; }   // 当前待办（第一项未完成则一直是它）
+/* 过期跳过：超过 3 天无法补卡的旧项（如软考绝对日期计划里落下的旧课）会卡在首位无法顺延，
+   可手动「跳过」——它只把该条从“当前待办指针”里移除，完成标记与历史进度完全不动，后续可恢复。 */
+function skipKey(it,ds){ return it+"|"+ds; }
+function isSkipped(it,ds){ const m=RECORDS["__skip__"]; return !!(m && m[skipKey(it,ds)]); }
+function setSkipped(it,ds,on){
+  if(!RECORDS["__skip__"]) RECORDS["__skip__"]={};
+  if(on){ RECORDS["__skip__"][skipKey(it,ds)] = {ts:Date.now()}; }
+  else { delete RECORDS["__skip__"][skipKey(it,ds)]; }
+  saveLocal();
+}
+function currentIdx(it){ const s=seqOf(it); for(let i=0;i<s.length;i++){ if(!isChecked(it,s[i].date) && !isSkipped(it,s[i].date)) return i; } return s.length; }
+function activeEntry(it){ const s=seqOf(it); const i=currentIdx(it); return i<s.length ? s[i] : null; }   // 当前待办（第一项未完成则一直是它；已跳过的过期项跳过）
 /* 今日卡片专用：完成制顺延——
-   返回「第一项未完成、且日期<=今天」的条目；昨天没完成的任务今天仍显示它，完成才顺延下一项。
+   返回「第一项未完成、且日期<=今天、且未跳过」的条目；昨天没完成的任务今天仍显示它，完成才顺延下一项。
    若该类型全部完成或下一项在未来（date>today），返回 null（今日无安排）。 */
-function activeEntryToday(it){ const s=seqOf(it), t=today(); for(let i=0;i<s.length;i++){ if(!isChecked(it,s[i].date) && s[i].date<=t) return s[i]; } return null; }
+function activeEntryToday(it){ const s=seqOf(it), t=today(); for(let i=0;i<s.length;i++){ if(!isChecked(it,s[i].date) && !isSkipped(it,s[i].date) && s[i].date<=t) return s[i]; } return null; }
 function nextScheduled(it){ const s=seqOf(it), t=today(); for(let i=0;i<s.length;i++){ if(s[i].date>t && !isChecked(it,s[i].date)) return s[i]; } return null; }   // 今日无安排时，给出最近一次未来计划日
 function nextEntry(it){ const s=seqOf(it); const i=currentIdx(it)+1; return i<s.length ? s[i] : null; }
 function doneCount(it){ const s=seqOf(it); let n=0; s.forEach(e=>{ if(isChecked(it,e.date)) n++; }); return n; }
@@ -2614,6 +2627,7 @@ function pruneOldRecords(){
   ITEMS.forEach(it=>{ if(it==="软考学习") return;   // 软考绝对日期，PLAN_START 之前的完成标记同样有效，不裁
     if(RECORDS[it]){ Object.keys(RECORDS[it]).forEach(ds=>{ if(ds < PLAN_START){ delete RECORDS[it][ds]; changed=true; } }); } });
   if(RECORDS["workday"]){ Object.keys(RECORDS["workday"]).forEach(ds=>{ if(ds < PLAN_START){ delete RECORDS["workday"][ds]; changed=true; } }); }
+  if(RECORDS["__skip__"]){ Object.keys(RECORDS["__skip__"]).forEach(k=>{ const p=k.split("|"); if(p[0]!=="软考学习" && p[1] < PLAN_START){ delete RECORDS["__skip__"][k]; changed=true; } }); }   // 跳过标记同步清理（软考绝对日期豁免）
   return changed;
 }
 
@@ -2784,8 +2798,14 @@ function renderToday(){
         body += '<div class="c-sub" style="color:var(--muted)">计划日 '+e.date+' 未到 · 当天才能打卡</div>';
         action = '<button class="btn" disabled>未到打卡日</button>';
       } else {
-        if(e.date < t) body += '<div class="c-sub" style="color:var(--red);font-weight:700">已顺延 '+daysAgo+' 天（当天未打卡 → 记为缺卡）</div>';
-        action = '<button class="btn primary" data-act="check" data-it="'+it+'" data-ds="'+e.date+'">'+checkSvg()+' 打卡（完成本项）</button>';
+        if(e.date < t) body += '<div class="c-sub" style="color:var(--red);font-weight:700">已顺延 '+daysAgo+' 天（'+(daysAgo>3?'已超过补卡期限，可「跳过此过期项」顺延':(isSkipped(it,e.date)?'已标记为跳过':'当天未打卡 → 记为缺卡'))+'）</div>';
+        if(daysAgo>3 && !isSkipped(it,e.date)){
+          action = '<button class="btn" data-act="skip" data-it="'+it+'" data-ds="'+e.date+'">跳过此过期项（无法补卡）</button>';
+        } else if(isSkipped(it,e.date)){
+          action = '<button class="btn" data-act="unskip" data-it="'+it+'" data-ds="'+e.date+'">已跳过 · 恢复</button>';
+        } else {
+          action = '<button class="btn primary" data-act="check" data-it="'+it+'" data-ds="'+e.date+'">'+checkSvg()+' 打卡（完成本项）</button>';
+        }
       }
     } else {
       body = '<div class="c-sum muted">🎉 '+escapeHtml(it)+' 已全部完成</div>';
@@ -2796,11 +2816,12 @@ function renderToday(){
       + (e?'<div class="tdetail" id="det-'+it+'">'+detailHtml(it,e)+'</div><button class="linkbtn" data-act="toggle-detail" data-it="'+it+'">查看详细内容 / 视频</button>':'')
       + '</div>';
   });
-  // 缺卡（内容已顺延到下一天）：所有“过去的有计划日且未完成”的条目
+  // 缺卡（内容已顺延到下一天）：所有“过去的有计划日且未完成、且未跳过”的条目
   ITEMS.forEach(it=>{
     seqOf(it).forEach(en=>{
-      if(en.date < t && !isChecked(it,en.date)){
-        overdue.push({it:it,ds:en.date,sum:summaryOf(it,en)});
+      if(en.date < t && !isChecked(it,en.date) && !isSkipped(it,en.date)){
+        const diff=Math.round((parse(t)-parse(en.date))/86400000);
+        overdue.push({it:it,ds:en.date,sum:summaryOf(it,en),diff:diff});
       }
     });
   });
@@ -2811,8 +2832,32 @@ function renderToday(){
     overdue.forEach(o=>{
       ob += '<div class="od-row"><span class="od-dot"></span><span class="od-name">'+o.it+'</span>'
         + '<span class="od-date">'+o.ds+'</span>'
+        + '<span class="od-sum">'+escapeHtml(o.sum)+'</span>';
+      if(o.diff>3){
+        ob += '<button class="btn mini" data-act="skip" data-it="'+o.it+'" data-ds="'+o.ds+'">跳过过期项</button></div>';
+      } else {
+        ob += '<button class="btn mini" data-act="check" data-it="'+o.it+'" data-ds="'+o.ds+'">补卡</button></div>';
+      }
+    });
+    ob += '</div>';
+  }
+  // 已跳过的过期项（可恢复，不影响进度）
+  let skList=[];
+  ITEMS.forEach(it=>{
+    seqOf(it).forEach(en=>{
+      if(en.date < t && !isChecked(it,en.date) && isSkipped(it,en.date)){
+        skList.push({it:it,ds:en.date,sum:summaryOf(it,en)});
+      }
+    });
+  });
+  if(skList.length){
+    skList.sort((a,b)=>a.ds<b.ds?1:-1);
+    ob += '<div class="overdue skipped"><div class="od-title">已跳过的过期项（共 '+skList.length+' 项 · 不影响进度，可恢复）</div>';
+    skList.forEach(o=>{
+      ob += '<div class="od-row"><span class="od-dot"></span><span class="od-name">'+o.it+'</span>'
+        + '<span class="od-date">'+o.ds+'</span>'
         + '<span class="od-sum">'+escapeHtml(o.sum)+'</span>'
-        + '<button class="btn mini" data-act="check" data-it="'+o.it+'" data-ds="'+o.ds+'">补卡</button></div>';
+        + '<button class="btn mini" data-act="unskip" data-it="'+o.it+'" data-ds="'+o.ds+'">恢复</button></div>';
     });
     ob += '</div>';
   }
@@ -2873,23 +2918,25 @@ function renderHeat(){
   const dates=[];
   for(let i=34;i>=0;i--){const d=new Date(todayD);d.setDate(d.getDate()-i);dates.push(fmt(d));}
   const tStr=fmt(todayD);
-  let html='<div class="heat-head">每一行代表一个项目，横向为最近 35 天。绿色=已打卡，红色=漏打卡，蓝色=计划中，灰=无计划。<b>统计页为只读视图</b>，补卡请到「打卡」页。</div>';
+  let html='<div class="heat-head">每一行代表一个项目，横向为最近 35 天。绿色=已打卡，红色=漏打卡，蓝色=计划中，灰=无计划，浅蓝=已跳过。<b>统计页为只读视图</b>，补卡请到「打卡」页。</div>';
   ITEMS.forEach(it=>{
     let row='<div class="heat-row"><div class="heat-label"><span class="badge sm" style="background:'+META[it].color+'">'+META[it].short+'</span>'+it+'</div><div class="heat-cells">';
     dates.forEach(ds=>{
       const checked=isChecked(it,ds);
+      const skipped=isSkipped(it,ds);
       const sched=!!SMAP[it][ds] && (it==="软考学习" || ds >= PLAN_START);   // 软考绝对日期，不受 PLAN_START 裁剪
       const past = ds < tStr;
       let cls="hc";
       if(checked) cls+=" on";
+      else if(skipped) cls+=" skip";
       else if(sched && past) cls+=" miss";
       else if(sched) cls+=" fut";
-      row += '<span class="'+cls+'" title="'+ds+(sched?" · 有计划":"")+(checked?" · 已打卡":"")+'"></span>';   // 统计页只读：不绑打卡事件
+      row += '<span class="'+cls+'" title="'+ds+(sched?" · 有计划":"")+(checked?" · 已打卡":(skipped?" · 已跳过":""))+'"></span>';   // 统计页只读：不绑打卡事件
     });
     row += '</div></div>';
     html += row;
   });
-  html += '<div class="heat-legend"><span><i class="hc on"></i>已打卡</span><span><i class="hc miss"></i>漏打卡</span><span><i class="hc fut"></i>计划中</span><span><i class="hc"></i>无计划</span></div>';
+  html += '<div class="heat-legend"><span><i class="hc on"></i>已打卡</span><span><i class="hc miss"></i>漏打卡</span><span><i class="hc fut"></i>计划中</span><span><i class="hc skip"></i>已跳过</span><span><i class="hc"></i>无计划</span></div>';
   document.getElementById("heatList").innerHTML=html;
 }
 
@@ -3164,18 +3211,25 @@ function renderHome(){
         if(ok) todayDone++;
         const open=homeOpen(hk);
         const catchup=(te.date<t);   // 补打卡：原计划日早于今天
+        const daysAgo=Math.round((parse(t)-parse(te.date))/86400000);
+        const overdueOver=(te.date<t) && daysAgo>3 && !isSkipped(it,te.date);   // 超过 3 天无法补卡 → 可跳过
         let card="<div class=\"tcard"+(ok?" done":"")+"\">"
           + "<div class=\"tcard-h toggle\" data-act=\"home-toggle\" data-it=\""+hk+"\">"
           + "<span class=\"badge\" style=\"background:"+META[it].color+"\">"+META[it].short+"</span>"
           + (te.menstrual?"<span class=\"badge mens-badge\">生理期</span>":"")
-          + (catchup?"<span class=\"badge\" style=\"background:#f59e0b;color:#fff\">补打卡</span>":"")
+          + (isSkipped(it,te.date)?"<span class=\"badge\" style=\"background:#94a3b8;color:#fff\">已跳过</span>":"")
+          + (catchup&&!isSkipped(it,te.date)?"<span class=\"badge\" style=\"background:#f59e0b;color:#fff\">补打卡</span>":"")
           + "<span class=\"tname\">"+escapeHtml(summaryOf(it,te))+"</span>"
           + "<span class=\"chev\" data-home-chev=\""+hk+"\">"+(open?"▾ 收起":"▸ 展开")+"</span>"
           + "</div>"
-          + "<div class=\"tcard-b\" style=\"font-size:12px;color:var(--muted)\">"+(catchup?("原计划 "+te.date+" · 近 3 天可补 · "):"")+escapeHtml(subOf(it,te))+"</div>"
+          + "<div class=\"tcard-b\" style=\"font-size:12px;color:var(--muted)\">"+(catchup?("原计划 "+te.date+" · "+(overdueOver?"已超过补卡期限，可跳过":"近 3 天可补")+" · "):"")+escapeHtml(subOf(it,te))+"</div>"
           + "<div class=\"tdetail"+(open?" show":"")+"\" id=\"det-"+hk+"\">"+homeDetailHtml(it,te)+"</div>"
-          + "<div class=\"tcard-a row\">"
-          + '<button class="btn '+(ok?"":"primary")+'" data-act="homecheck" data-it="'+it+'" data-ds="'+te.date+'">'+(ok?"已完成 ✓（点击撤销）":"完成打卡")+'</button>'
+          + "<div class=\"tcard-a row\">";
+        if(ok){ card+='<button class="btn" data-act="homecheck" data-it="'+it+'" data-ds="'+te.date+'">已完成 ✓（点击撤销）</button>'; }
+        else if(overdueOver){ card+='<button class="btn" data-act="skip" data-it="'+it+'" data-ds="'+te.date+'">跳过此过期项</button>'; }
+        else if(isSkipped(it,te.date)){ card+='<button class="btn" data-act="unskip" data-it="'+it+'" data-ds="'+te.date+'">已跳过 · 恢复</button>'; }
+        else { card+='<button class="btn primary" data-act="homecheck" data-it="'+it+'" data-ds="'+te.date+'">完成打卡</button>'; }
+        card
           + "<button class=\"linkbtn sm\" data-act=\"home-toggle\" data-it=\""+hk+"\" data-home-lbl=\""+hk+"\">"+(open?"收起内容":"展开内容")+"</button>"
           + "</div>"
           + mctrl;
@@ -4349,8 +4403,11 @@ function renderHomePC(){
     const isWd=(it==="锻炼" && isWorkday(t));                // 工作日运动归到锻炼卡片
     const mctrl=(it==="锻炼"?menstrualCtrlHtml():"");        // 生理期模式切换控件（始终可点）
     const catchup=(e && e.date<t);   // 补打卡：原计划日早于今天
+    const daysAgo=(e&&e.date<t)?Math.round((parse(t)-parse(e.date))/86400000):0;
+    const overdueOver=(e && e.date<t) && daysAgo>3 && !isSkipped(it,e.date);   // 超过 3 天无法补卡 → 可跳过
     let badge='<span class="pcv-badge pcv-badge-gray">今日无安排</span>';
     if(e && ok) badge='<span class="pcv-badge pcv-badge-green">已完成</span>';
+    else if(e && isSkipped(it,e.date)) badge='<span class="pcv-badge" style="background:#94a3b8;color:#fff">已跳过</span>';
     else if(e) badge= catchup ? '<span class="pcv-badge" style="background:#f59e0b;color:#fff">待补打卡</span>' : '<span class="pcv-badge pcv-badge-blue">今日待打卡</span>';
     else if(isWd) badge='<span class="pcv-badge pcv-badge-green">工作日必做</span>';
     html+='<div class="pcv-card">'
@@ -4370,10 +4427,12 @@ function renderHomePC(){
         html+='<div class="pcv-strip pcv-strip-timer">'+(catchup?'🔁 待补打卡（原计划 '+e.date+'）':'⏱ 今日待打卡')+' · '+escapeHtml(pcvSlotOf(it,e))+' · '+escapeHtml(pcvDurOf(it,e))+'</div>';
       }
       html+='<div class="pcv-task-detail tdetail'+(open?' show':'')+'" id="det-'+hk+'">'+homeDetailHtml(it,e)+'</div>';
-      let lbl="完成打卡", cls="pcv-btn pcv-btn-primary";
+      let lbl="完成打卡", cls="pcv-btn pcv-btn-primary", act="homecheck";
       if(ok){ lbl="撤销打卡"; cls="pcv-btn"; }
+      else if(overdueOver){ lbl="跳过此过期项"; cls="pcv-btn"; act="skip"; }
+      else if(isSkipped(it,e.date)){ lbl="已跳过 · 恢复"; cls="pcv-btn"; act="unskip"; }
       html+='<div class="pcv-task-actions">'
-        +'<button class="'+cls+'" data-act="homecheck" data-it="'+it+'" data-ds="'+e.date+'">'+lbl+'</button>'
+        +'<button class="'+cls+'" data-act="'+act+'" data-it="'+it+'" data-ds="'+e.date+'">'+lbl+'</button>'
         +'<button class="pcv-linkbtn" data-act="home-toggle" data-it="'+hk+'" data-home-lbl="'+hk+'">'+(open?'收起内容':'展开内容')+'</button>'
         +'</div>';
       if(isWd) html+=renderWorkdayItemsBlock(it,t);
@@ -5123,6 +5182,18 @@ document.addEventListener("click",function(e){
     const hd=el.dataset.ds;
     if(!guardCheckDate(hd)) return;
     toggle(el.dataset.it, hd);
+  }
+  else if(act==="skip"){           // 跳过超 3 天无法补卡的过期项（不影响完成标记与历史进度）
+    const it=el.dataset.it, ds=el.dataset.ds;
+    setSkipped(it, ds, true);
+    render();
+    if(SYNC!=="nocfg") cloudSave();
+  }
+  else if(act==="unskip"){         // 恢复被跳过的过期项
+    const it=el.dataset.it, ds=el.dataset.ds;
+    setSkipped(it, ds, false);
+    render();
+    if(SYNC!=="nocfg") cloudSave();
   }
   else if(act==="wtab"){ switchWritingTab(el.dataset.tab); }
   else if(act==="whwcheck"){ const ds=el.dataset.ds; if(!guardCheckDate(ds)) return; toggle("写作练习", ds); saveLocal(); cloudSave(); switchWritingTab("tasks"); }
@@ -6403,7 +6474,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-10-19a";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-10-19b";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
