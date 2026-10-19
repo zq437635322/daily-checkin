@@ -3229,8 +3229,7 @@ function renderHome(){
         else if(overdueOver){ card+='<button class="btn" data-act="skip" data-it="'+it+'" data-ds="'+te.date+'">跳过此过期项</button>'; }
         else if(isSkipped(it,te.date)){ card+='<button class="btn" data-act="unskip" data-it="'+it+'" data-ds="'+te.date+'">已跳过 · 恢复</button>'; }
         else { card+='<button class="btn primary" data-act="homecheck" data-it="'+it+'" data-ds="'+te.date+'">完成打卡</button>'; }
-        card
-          + "<button class=\"linkbtn sm\" data-act=\"home-toggle\" data-it=\""+hk+"\" data-home-lbl=\""+hk+"\">"+(open?"收起内容":"展开内容")+"</button>"
+        card += "<button class=\"linkbtn sm\" data-act=\"home-toggle\" data-it=\""+hk+"\" data-home-lbl=\""+hk+"\">"+(open?"收起内容":"展开内容")+"</button>"
           + "</div>"
           + mctrl;
         if(te && isWd) card+=renderWorkdayItemsBlock(it,t);   // 工作日：在锻炼计划卡内嵌入在司运动
