@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-10-20a</title>
+<title>每日打卡 · 构建2026-10-20b</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -188,6 +188,15 @@ body.mode-pc #view-home .wd-item .wd-detail-btn{padding:2px 6px;font-size:11px;b
 .dv{flex:1;white-space:normal;word-break:break-word}
 .dv.pre{white-space:pre-wrap;font-size:12.5px;line-height:1.6;background:var(--soft);border-radius:8px;padding:8px;margin-top:2px}
 .dv a{color:var(--accent);word-break:break-all}
+/* 跟练视频：每个视频各自成块、每条链接独占一行（两条链接绝不并排/黏连，保证都能点开） */
+.drow-video .dv{background:var(--soft);border-radius:8px;padding:8px;margin-top:2px}
+.vlist{display:flex;flex-direction:column}
+.vlist .vname{font-weight:700;font-size:12.5px;line-height:1.6;color:var(--text);margin-top:9px}
+.vlist .vname:first-child{margin-top:0}
+.vlist .vtext{font-size:12.5px;line-height:1.6;color:var(--text)}
+.vlist .vlink{display:block;font-size:11.5px;line-height:1.55;color:var(--accent);text-decoration:underline;word-break:break-all;padding:1px 0}
+.wd-dr-block .vlist{margin-top:2px}
+.wd-dr-block .vlist .vlink{display:inline-flex;align-items:center;gap:4px;color:var(--primary-d);font-weight:600;text-decoration:none;border:1px solid var(--primary);border-radius:8px;padding:4px 12px;font-size:12.5px;margin-top:4px;word-break:break-all}
 .wcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;
   box-shadow:var(--shadow);display:flex;align-items:center;gap:14px}
 .wdonut{flex:none}
@@ -2189,7 +2198,7 @@ function wdToggleDetail(key){
       +'<div class="wd-dr"><b>时间</b><span>'+(x.time||'—')+'</span></div>'
       +'<div class="wd-dr"><b>目的</b><span>'+(x.purpose||'—')+'</span></div>'
       +'<div class="wd-dr-block"><b>详细内容</b><p>'+escapeHtml(x.detail||'—')+'</p></div>';
-    if(x.video){ html+='<div class="wd-dr-block"><b>跟练视频</b><p><a class="wd-video-link" href="'+escapeHtml(x.video)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(x.video)+'</a></p></div>'; }
+    if(x.video){ html+='<div class="wd-dr-block"><b>跟练视频</b>'+videoHtml(x.video)+'</div>'; }
     html+='</div>';
     box.innerHTML=html; box.hidden=false; if(btn) btn.textContent='收起';
   } else {
@@ -2549,7 +2558,51 @@ function nextEntry(it){ const s=seqOf(it); const i=currentIdx(it)+1; return i<s.
 function doneCount(it){ const s=seqOf(it); let n=0; s.forEach(e=>{ if(isChecked(it,e.date)) n++; }); return n; }
 
 function escapeHtml(s){return (s==null?"":String(s)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function linkify(s){return escapeHtml(s).replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');}
+/* 文本里的转义换行（字面 \n 两个字符）统一还原成真换行：否则整段挤成一行、多条链接会被并进同一个 href */
+function unescapeNL(s){ return String(s==null?"":s).replace(/\\r\\n|\\n|\\r/g,"\n").replace(/\r\n?/g,"\n"); }
+function linkify(s){return escapeHtml(unescapeNL(s)).replace(/(https?:\/\/[^\s<\\]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');}
+
+/* ---------- 跟练视频排版（2026-10-20b） ----------
+   规则：① 每个新视频另起一行；② 每条链接独占一行、各自独立成 <a>，绝不把两条链接塞进同一个链接
+   （塞在一起就点不开）；③ 兼容「视频1：名称 https://… 视频2：名称 https://…」这种写成一行的情况。 */
+function videoLines(s){
+  const txt=unescapeNL(s).replace(/\u3000/g," ");
+  if(!txt.trim()) return [];
+  const out=[];
+  // ① 先按「视频N：」把一段文字切成若干块（块内只剩「名称 + 链接」），避免链接把下一段标题一起吞进 href
+  const LABEL=/(?=(?:视频|跟练)\s*[0-9一二三四五六七八九十]*\s*[：:])/;
+  // ② 块内再按链接切：链接整段保留（允许中文关键词，如 bilibili 搜索链接）
+  const URLRE=/(https?:\/\/[^\s]+)/g;
+  txt.split("\n").forEach(function(raw){
+    const line=raw.trim();
+    if(!line) return;
+    line.split(LABEL).forEach(function(piece){
+      piece=piece.trim();
+      if(!piece) return;
+      let last=0, buf="", m;
+      const addTxt=function(v){ if(!v) return; buf=(!buf||/[：:]$/.test(buf))?(buf+v):(buf+" "+v); };
+      URLRE.lastIndex=0;
+      while((m=URLRE.exec(piece))!==null){
+        addTxt(piece.slice(last,m.index).trim());
+        if(buf){ out.push({t:"text",v:buf}); buf=""; }   // 名称独占一行
+        out.push({t:"url",v:m[1]});                      // 链接独占一行
+        last=m.index+m[1].length;
+      }
+      addTxt(piece.slice(last).trim());
+      if(buf) out.push({t:"text",v:buf});
+    });
+  });
+  return out;
+}
+function videoHtml(s){
+  const items=videoLines(s);
+  if(!items.length) return "";
+  return '<div class="vlist">'+items.map(function(g){
+    if(g.t==="url") return '<a class="vlink" href="'+escapeHtml(g.v)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(g.v)+'</a>';
+    const isName=/^(视频|跟练)\s*[0-9一二三四五六七八九十]*\s*[：:]/.test(g.v);
+    return '<div class="'+(isName?"vname":"vtext")+'">'+escapeHtml(g.v)+'</div>';
+  }).join("")+'</div>';
+}
 function checkSvg(){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>';}
 function warnSvg(){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>';}
 
@@ -2567,7 +2620,7 @@ function detailHtml(it,e){
   let rows=[];
   if(it==="锻炼"){
     rows.push(["训练主题",e.theme],["锻炼时间",e.time],["周次/阶段",[e.week,e.stage].filter(Boolean).join(" / ")],
-      ["训练目的",e.purpose],["预期效果",e.effect],["详细内容",e.detail,"pre"],["跟练视频",e.video,"pre"]);
+      ["训练目的",e.purpose],["预期效果",e.effect],["详细内容",e.detail,"pre"],["跟练视频",e.video,"video"]);
   } else if(it==="软考学习"){
     if(e.phase==="视频"){
       rows.push(["当日任务",e.name],["课程阶段",e.stage||e.type],["任务内容",e.content,"pre"],["建议时长",e.duration],["计划日",e.day]);
@@ -2581,20 +2634,25 @@ function detailHtml(it,e){
     rows.push(["任务名称",e.name],["任务内容",e.content,"pre"],["任务类型",e.type],
       ["建议时长",e.duration],["周计划",[e.week,e.day].filter(Boolean).join(" / ")]);
   }
-  return rows.map(([k,v,pre])=>'<div class="drow"><div class="dk">'+k+'</div><div class="dv '+(pre?'pre':'')+'">'+(pre?linkify(v||""):escapeHtml(v||""))+'</div></div>').join("");
+  return rows.map(function(r){
+    const k=r[0], v=r[1], mode=r[2];
+    if(mode==="video") return '<div class="drow drow-video"><div class="dk">'+k+'</div><div class="dv">'+videoHtml(v)+'</div></div>';
+    return '<div class="drow"><div class="dk">'+k+'</div><div class="dv '+(mode?'pre':'')+'">'+(mode?linkify(v||""):escapeHtml(v||""))+'</div></div>';
+  }).join("");
 }
 /* 首页「今日打卡」精简详情：锻炼=训练目的/详细内容/跟练视频；写作=任务内容/建议时长 */
 function homeDetailHtml(it,e){
   let rows=[];
-  if(it==="锻炼") rows.push(["训练目的",e.purpose],["详细内容",e.detail,"pre"],["跟练视频",e.video,"pre"]);
+  if(it==="锻炼") rows.push(["训练目的",e.purpose],["详细内容",e.detail,"pre"],["跟练视频",e.video,"video"]);
   else if(it==="软考学习"){
     if(e.phase==="视频") rows.push(["当日任务",e.name],["课程阶段",e.stage||e.type],["任务内容",e.content,"pre"],["建议时长",e.duration]);
     else rows.push(["章节",e.content],["本节课程",(e.lessons||[]).map(function(l){ return (l.code||"")+(l.minutes?"（"+l.minutes+" 分钟）":""); }).join("\n"),"pre"],["建议时长",e.duration]);
   }
   else rows.push(["任务内容",e.content,"pre"],["建议时长",e.duration]);
   return rows.map(function(r){
-    const k=r[0], v=r[1], pre=r[2];
-    return '<div class="drow"><div class="dk">'+k+'</div><div class="dv '+(pre?'pre':'')+'">'+(pre?linkify(v||""):escapeHtml(v||""))+'</div></div>';
+    const k=r[0], v=r[1], mode=r[2];
+    if(mode==="video") return '<div class="drow drow-video"><div class="dk">'+k+'</div><div class="dv">'+videoHtml(v)+'</div></div>';
+    return '<div class="drow"><div class="dk">'+k+'</div><div class="dv '+(mode?'pre':'')+'">'+(mode?linkify(v||""):escapeHtml(v||""))+'</div></div>';
   }).join("");
 }
 
@@ -6473,7 +6531,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-10-20a";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-10-20b";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
