@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日打卡 · 构建2026-10-20b</title>
+<title>每日打卡 · 构建2026-10-20c</title>
 <style>
 :root{
   --bg:#f4f6f9; --card:#ffffff; --text:#1f2937; --muted:#7b8794;
@@ -2113,6 +2113,9 @@ function syncFitness(allowSave){
       RECORDS.fitness.seq=buildFitnessSeq(PLAN_START, RECORDS.fitness.rules||FITNESS_RULES);
       RECORDS.fitness.generated=today(); need=true;
     }
+    // 自愈：lib 文本若残留字面 \n → 转真换行并回写云端（幂等，阻断旧数据反复覆盖）
+    if(normalizeLibNL(RECORDS.fitness.lib)){ RECORDS.fitness.generated=today(); need=true; }
+    if(normalizePlanModNL("锻炼")) need=true;
   }
   applyFitnessPlan(RECORDS.fitness);
   if(seqOf("锻炼").length===0){            // 终极兜底：无论数据来源如何，保证内置排班非空
@@ -2265,6 +2268,9 @@ function syncWriting(allowSave){
       RECORDS.writing.seq=buildWritingSeq(PLAN_START, RECORDS.writing.rules||WRITING_RULES);
       RECORDS.writing.generated=today(); need=true;
     }
+    // 自愈：lib 文本若残留字面 \n → 转真换行并回写云端（幂等）
+    if(normalizeLibNL(RECORDS.writing.lib)){ RECORDS.writing.generated=today(); need=true; }
+    if(normalizePlanModNL("写作练习")) need=true;
   }
   applyWritingPlan(RECORDS.writing);
   if(seqOf("写作练习").length===0){         // 终极兜底：无论数据来源如何，保证内置排班非空
@@ -2560,6 +2566,40 @@ function doneCount(it){ const s=seqOf(it); let n=0; s.forEach(e=>{ if(isChecked(
 function escapeHtml(s){return (s==null?"":String(s)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 /* 文本里的转义换行（字面 \n 两个字符）统一还原成真换行：否则整段挤成一行、多条链接会被并进同一个 href */
 function unescapeNL(s){ return String(s==null?"":s).replace(/\\r\\n|\\n|\\r/g,"\n").replace(/\r\n?/g,"\n"); }
+/* 计划库文本自愈：把 lib 各字段里的字面「\n」（反斜杠+n）就地转成真换行，变动返回 true。
+   幂等；只在真的含字面 \n 时才改，用于阻断「某端旧数据把错格式又存回云端」的循环。 */
+function normalizeLibNL(lib){
+  let changed=false;
+  if(!lib || !lib.length) return false;
+  lib.forEach(function(x){
+    if(!x) return;
+    ["video","detail","purpose","effect","content"].forEach(function(k){
+      const v=x[k];
+      if(typeof v!=="string") return;
+      if(v.indexOf("\\n")<0 && v.indexOf("\\r")<0) return;
+      x[k]=unescapeNL(v); changed=true;
+    });
+  });
+  return changed;
+}
+/* 单日覆盖（RECORDS.planMod[类型].edits[日期]）会盖住 lib 的值，这里同样自愈：
+   字面 \n → 真换行；顺带修「333.337.searchcard.」这种拼坏的 B 站链接（少一个连字符就打不开）。 */
+function normalizePlanModNL(it){
+  let changed=false;
+  const mod=RECORDS.planMod && RECORDS.planMod[it];
+  if(!mod || !mod.edits) return false;
+  Object.keys(mod.edits).forEach(function(ds){
+    const ov=mod.edits[ds]; if(!ov) return;
+    ["video","detail","purpose","effect","content"].forEach(function(k){
+      const v=ov[k];
+      if(typeof v!=="string" || !v) return;
+      if(v.indexOf("\\n")<0 && v.indexOf("\\r")<0 && v.indexOf("333.337.searchcard.")<0) return;
+      ov[k]=unescapeNL(v).replace(/333\.337\.searchcard\./g,"333.337.search-card.");
+      changed=true;
+    });
+  });
+  return changed;
+}
 function linkify(s){return escapeHtml(unescapeNL(s)).replace(/(https?:\/\/[^\s<\\]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');}
 
 /* ---------- 跟练视频排版（2026-10-20b） ----------
@@ -5167,7 +5207,7 @@ const MG_ROW_FIELDS = {
 function mgRowFields(it){ return MG_ROW_FIELDS[it] || MG_ROW_FIELDS["写作练习"]; }
 function mgEditFieldsHtml(it,e){
   return mgRowFields(it).map(function(f){
-    const v=(e[f.k]==null?"":String(e[f.k]));
+    const v=unescapeNL(e[f.k]==null?"":String(e[f.k]));   // 编辑框也显示真换行（云端若残留字面 \n 一并还原）
     const ctrl = (f.type==="area")
       ? '<textarea class="inp" data-mgf="'+f.k+'" style="height:'+(f.h||120)+'px;resize:vertical;padding:8px 12px;line-height:1.6">'+escapeHtml(v)+'</textarea>'
       : '<input class="inp" data-mgf="'+f.k+'" value="'+escapeHtml(v)+'">';
@@ -5210,7 +5250,8 @@ function mgSaveRow(){
   const fields=mgRowFields(it), ov={}, missed=[];
   fields.forEach(function(f){
     const el=document.querySelector('#mgRowModal [data-mgf="'+f.k+'"]');
-    const v=el?(el.value||""):"";
+    let v=el?(el.value||""):"";
+    v=unescapeNL(v);                       // 保存一律落真换行，杜绝把字面 \n 又写回云端
     if((f.k==="name"||f.k==="theme") && !String(v).trim()) missed.push(f.label);
     ov[f.k]=v;
   });
@@ -6531,7 +6572,7 @@ setInterval(tfTick,1000); tfTick();
 /* ================= 展示模式：手机版 / PC版 =================
    同一套功能，仅布局不同。优先级：URL 参数 mode（mobile|pc）> 本地记忆 > 设备自动判断。
    链接示例：.../?mode=pc  .../?mode=mobile                                  */
-const MODE_KEY="wb_mode", BUILD_TAG="构建2026-10-20b";
+const MODE_KEY="wb_mode", BUILD_TAG="构建2026-10-20c";
 function detectMode(){
   try{
     const q=new URLSearchParams(location.search);
