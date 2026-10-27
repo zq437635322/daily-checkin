@@ -128,10 +128,10 @@ body.mode-pc #view-home .workday-in-task{margin-top:18px}
 .wd-item:hover{background:var(--soft)}
 .wd-item.on{opacity:.85}
 .wd-item input[type=checkbox]{width:18px;height:18px;accent-color:var(--primary);flex:none;cursor:pointer}
-.wd-main{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
-.wd-name{font-weight:700;font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;max-width:45%}
+.wd-main{display:flex;flex-direction:column;align-items:flex-start;gap:1px;flex:1;min-width:0}
+.wd-name{font-weight:700;font-size:13.5px;color:var(--text);white-space:normal;line-height:1.35;flex:none;max-width:100%;word-break:break-word}
 .wd-item.on .wd-name{color:var(--primary-d);text-decoration:line-through}
-.wd-meta{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.wd-meta{font-size:11.5px;color:var(--muted);white-space:normal;line-height:1.4;flex:none;min-width:0}
 .wd-detail{font-size:12px;color:var(--muted);line-height:1.45;margin-top:2px}
 .wd-check{display:flex;align-items:center;flex-shrink:0;cursor:pointer}
 .wd-check input{width:18px;height:18px;accent-color:var(--primary);cursor:pointer}
@@ -164,9 +164,9 @@ body.mode-pc #view-home .wd-item{padding:3px 2px;gap:8px;border:none;border-radi
 body.mode-pc #view-home .wd-item:hover{background:var(--soft)}
 body.mode-pc #view-home .wd-check{margin-top:0}
 body.mode-pc #view-home .wd-check input{width:15px;height:15px}
-body.mode-pc #view-home .wd-main{gap:6px}
-body.mode-pc #view-home .wd-name{font-size:12.5px;max-width:38%}
-body.mode-pc #view-home .wd-meta{font-size:11px}
+body.mode-pc #view-home .wd-main{flex-direction:row;align-items:center;gap:6px}
+body.mode-pc #view-home .wd-name{font-size:12.5px;max-width:46%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.mode-pc #view-home .wd-meta{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
 body.mode-pc #view-home .wd-item .wd-detail-btn{padding:2px 6px;font-size:11px;border-radius:4px}
 .wd-video-link{display:inline-flex;align-items:center;gap:4px;color:var(--primary-d);font-weight:600;text-decoration:none;border:1px solid var(--primary);border-radius:8px;padding:4px 12px;font-size:13px;transition:.15s}
 .wd-video-link:hover{background:var(--primary);color:#fff}
@@ -1479,7 +1479,7 @@ body.mode-mobile #view-wiki #kbDocTitle{background:#f6f7f9;color:var(--muted);cu
 
     <div class="toast-wrap" id="tfToastWrap"></div>
 
-    <!-- ===== 工作日作息·在司运动 详情（已改为卡片内联展开，见 wdToggleDetail） ===== -->
+    <!-- ===== 工作日作息（= 日常保健 4 项）详情（已改为卡片内联展开，见 hlToggleDetail） ===== -->
 
     <!-- ===== 自定义日期时间选择器 ===== -->
     <div class="tf-dtp-mask hidden" id="tfDTpMask" onclick="tfDtpCancel()">
@@ -2125,17 +2125,18 @@ function syncFitness(allowSave){
   return need;
 }
 
-/* ================= 工作日作息 · 在司运动（数据源：每日锻炼打卡计划_新.xlsx「训练计划」行 2,3,4,5,6,7,9） =================
-   规则：无论「锻炼」当天是否排了训练，只要是工作日（周一~周五，含调休补班；不含法定假日），这 7 项都必须执行。 */
-const WORKDAY_ROUTINE = [
-  {key:"晨间激活", time:"6:40-6:50", purpose:"唤醒身体、改善肩颈硬、矫正头前伸", detail:"喝温水；颈部侧屈拉伸(每侧20s×2)、耸肩沉肩(8-10次)、收下巴(10次)、胸椎旋转(每侧10次)", video:"https://search.bilibili.com/all?keyword=肩颈拉伸跟练"},
-  {key:"公司楼梯通勤(上班)", time:"7:10-8:00", purpose:"爬楼增活动量(NEAT)、健康早餐", detail:"上班走公司楼梯(不乘电梯)，能早下楼就多走一层；目标通勤1500-2000步；路上吃健康早餐：水煮蛋2+无糖豆浆/牛奶+坚果10g", video:"https://search.bilibili.com/all?keyword=爬楼梯减脂跟练"},
-  {key:"工作上午碎片", time:"8:00-12:00", purpose:"打破久坐、治拜拜肉", detail:"每坐60分钟起身2分钟(接水/颈部侧屈/踏步)；约10:30 颈后臂屈伸(用水瓶)每侧12×2", video:"https://search.bilibili.com/all?keyword=办公室手臂拜拜肉训练"},
-  {key:"午间散步", time:"12:00-13:00", purpose:"助消化、减内脏脂肪", detail:"午餐杂粮饭半碗+鸡胸/鱼/豆腐+蔬菜1拳(外食少油少糖、主食减半、不喝甜饮料/酒)；饭后散步10分钟；加餐无糖酸奶100g+圣女果", video:"https://search.bilibili.com/all?keyword=饭后散步助消化"},
-  {key:"工作下午碎片", time:"13:00-19:40", purpose:"打破久坐、练核心", detail:"继续每60分钟起身2分钟；约16:00 鸟狗式(四足位)每侧10×2", video:"https://search.bilibili.com/all?keyword=鸟狗式核心训练跟练"},
-  {key:"公司楼梯通勤(下班)", time:"19:40", purpose:"爬楼累积步数", detail:"下班走公司楼梯(不乘电梯)，全天目标6000-8000步", video:"https://search.bilibili.com/all?keyword=爬楼梯减脂跟练"},
-  {key:"睡前放松", time:"22:00-22:15", purpose:"助眠、放松", detail:"颈部侧屈+收下巴+猫牛式(脊柱放松)；睡前1小时不刷手机", video:"https://search.bilibili.com/all?keyword=睡前拉伸助眠跟练"}
-];
+/* ================= 工作日作息（2026-10-27 起：内容 = 「日常保健」4 项） =================
+   原「在司运动」7 项（晨间激活 / 楼梯通勤 / 上午碎片 / 午间散步 / 下午碎片 / 楼梯通勤 / 睡前放松）
+   已于 2026-10-27 整体替换为「日常保健」的 4 个碎片动作 —— 工作日真正要做的就是这 4 次：
+       09:20 按摩头皮 · 抚平眼横纹 / 10:58 活动肩颈 · 眼保健操 /
+       14:00 活动肩颈 · 眼保健操 / 17:30 按摩头皮 · 抚平眼横纹
+   规则：只要是工作日（周一~周五，含调休补班；不含法定假日）就显示，与「锻炼」当天是否排训练无关。
+
+   ⚠️ 数据唯一真相源 = 「日常保健」模块：勾选键沿用 HEALTH_SLOTS[].key，记录存 RECORDS.health，
+      勾一处两处同步；4 项全勾 → 自动完成当日「日常保健」打卡（setHealth → syncHealthChecked）。
+      因此 WORKDAY_ROUTINE 必须定义在 HEALTH_SLOTS 之后（见下方「日常保健」区块末尾），
+      这里只保留调用方函数。 */
+
 function isWorkday(ds){
   if(isHolidayDate(ds)) return false;                 // 法定假日休息
   const d=new Date(ds+"T00:00:00"); const dow=d.getDay();
@@ -2144,70 +2145,51 @@ function isWorkday(ds){
   return mk.indexOf(ds)>=0;                           // 调休补班（周末上班）
 }
 function wdRec(ds){ if(!RECORDS["workday"]) RECORDS["workday"]={}; if(!RECORDS["workday"][ds]) RECORDS["workday"][ds]={}; return RECORDS["workday"][ds]; }
-function isWdDone(ds,key){ const o=RECORDS["workday"]&&RECORDS["workday"][ds]; return !!(o&&o[key]); }
-function setWd(key,ds,val){
-  const o=wdRec(ds);
-  if(val) o[key]=true; else delete o[key];
-  if(Object.keys(o).length===0) delete RECORDS["workday"][ds];
-  if(SYNC!=="nocfg") cloudSave();
-}
+/* 工作日作息已并入「日常保健」：勾选状态直接读写 RECORDS.health（同一份记录，两处同步） */
+function isWdDone(ds,key){ return isHealthDone(ds,key); }
+function setWd(key,ds,val){ setHealth(key,ds,val); }
 function renderWorkdayItemsHTML(ds){
   if(!ds) ds=today();
   return WORKDAY_ROUTINE.map(function(x){
-    const on=isWdDone(ds,x.key);
+    const on=isHealthDone(ds,x.key);
     return '<div class="wd-item'+(on?" on":"")+'">'
-      +'<label class="wd-check"><input type="checkbox" data-act="wd-toggle" data-key="'+escapeHtml(x.key)+'" data-ds="'+ds+'" '+(on?"checked":"")+'/></label>'
-      +'<span class="wd-main"><span class="wd-name">'+escapeHtml(x.key)+'</span>'
-      +'<span class="wd-meta">'+escapeHtml(x.time)+' · '+escapeHtml(x.purpose)+'</span></span>'
-      +'<button type="button" class="wd-detail-btn" data-act="wd-detail" data-key="'+escapeHtml(x.key)+'">详情</button>'
+      +'<label class="wd-check"><input type="checkbox" data-act="health-toggle" data-key="'+escapeHtml(x.key)+'" data-ds="'+ds+'" '+(on?"checked":"")+'/></label>'
+      +'<span class="wd-main"><span class="wd-name">'+escapeHtml(x.time+" "+x.name)+'</span>'
+      +'<span class="wd-meta">'+escapeHtml(x.purpose)+'</span></span>'
+      +'<button type="button" class="wd-detail-btn" data-act="health-detail" data-key="'+escapeHtml(x.key)+'" data-ds="'+ds+'">详情</button>'
       +'</div>'
-      +'<div class="wd-detail" data-detail="'+escapeHtml(x.key)+'" hidden></div>';
+      +'<div class="wd-detail" data-hdetail="'+escapeHtml(x.key)+'" hidden></div>';
   }).join("");
 }
 function renderWorkdayCard(){
   const t=today();
   if(!isWorkday(t)) return "";                         // 仅工作日显示（独立区块时仍可用）
-  const total=WORKDAY_ROUTINE.length, done=WORKDAY_ROUTINE.filter(function(x){return isWdDone(t,x.key);}).length;
+  const total=HEALTH_SLOTS.length, done=healthDoneCount(t);
   return '<div class="tcard wd-card">'
-    +'<div class="tcard-h"><span class="badge" style="background:#16a34a">作</span><span class="tname">工作日作息 · 在司运动</span>'
+    +'<div class="tcard-h"><span class="badge" style="background:#16a34a">作</span><span class="tname">工作日作息 · 日常保健</span>'
     +'<span class="wd-count">'+done+' / '+total+'</span></div>'
-    +'<div class="tcard-b" style="font-size:12px;color:var(--muted)">健身打卡 · 工作日必做（无论当天是否安排训练，工作日都要执行）</div>'
+    +'<div class="tcard-b" style="font-size:12px;color:var(--muted)">工作日必做 · 与「日常保健」共用同一份勾选（勾一处两处同步）</div>'
     +'<div class="wd-list">'+renderWorkdayItemsHTML(t)+'</div></div>';
 }
-function renderWorkdayItemsBlock(it,ds){
+function renderWorkdayItemsBlock(it,ds,noHead){
   const t=ds||today();
-  const total=WORKDAY_ROUTINE.length, done=WORKDAY_ROUTINE.filter(function(x){return isWdDone(t,x.key);}).length;
+  const total=HEALTH_SLOTS.length, done=healthDoneCount(t);
+  const head=noHead?"":('<div class="wd-embedded-h"><span class="badge" style="background:'+META[it].color+'">'+META[it].short+'</span>工作日作息 · 日常保健 <span class="wd-count">'+done+' / '+total+'</span></div>');
   return '<div class="wd-embedded">'
-    +'<div class="wd-embedded-h"><span class="badge" style="background:'+META[it].color+'">'+META[it].short+'</span>工作日作息 · 在司运动 <span class="wd-count">'+done+' / '+total+'</span></div>'
-    +'<div class="wd-list" style="margin-top:8px">'+renderWorkdayItemsHTML(t)+'</div></div>';
+    +head
+    +'<div class="wd-list" style="margin-top:'+(noHead?2:8)+'px">'+renderWorkdayItemsHTML(t)+'</div></div>';
 }
 function renderWorkdayCardForItem(it,ds){
   const t=ds||today();
-  const total=WORKDAY_ROUTINE.length, done=WORKDAY_ROUTINE.filter(function(x){return isWdDone(t,x.key);}).length;
+  const total=HEALTH_SLOTS.length, done=healthDoneCount(t);
   return '<div class="tcard wd-card">'
-    +'<div class="tcard-h"><span class="badge" style="background:'+META[it].color+'">'+META[it].short+'</span><span class="tname">工作日作息 · 在司运动</span>'
+    +'<div class="tcard-h"><span class="badge" style="background:'+META[it].color+'">'+META[it].short+'</span><span class="tname">工作日作息 · 日常保健</span>'
     +'<span class="wd-count">'+done+' / '+total+'</span></div>'
-    +'<div class="tcard-b" style="font-size:12px;color:var(--muted)">健身打卡 · 工作日必做（无论当天是否安排训练，工作日都要执行）</div>'
+    +'<div class="tcard-b" style="font-size:12px;color:var(--muted)">工作日必做 · 与「日常保健」共用同一份勾选（勾一处两处同步）</div>'
     +'<div class="wd-list">'+renderWorkdayItemsHTML(t)+'</div></div>';
 }
-function wdToggleDetail(key){
-  let box=null, btn=null;
-  document.querySelectorAll('.wd-detail').forEach(function(n){ if(n.dataset.detail===key) box=n; });
-  document.querySelectorAll('.wd-detail-btn').forEach(function(b){ if(b.dataset.key===key) btn=b; });
-  if(!box) return;
-  if(box.hidden){
-    const x=WORKDAY_ROUTINE.find(function(o){return o.key===key;}); if(!x) return;
-    let html='<div class="wd-detail-inner">'
-      +'<div class="wd-dr"><b>时间</b><span>'+(x.time||'—')+'</span></div>'
-      +'<div class="wd-dr"><b>目的</b><span>'+(x.purpose||'—')+'</span></div>'
-      +'<div class="wd-dr-block"><b>详细内容</b><p>'+escapeHtml(x.detail||'—')+'</p></div>';
-    if(x.video){ html+='<div class="wd-dr-block"><b>跟练视频</b>'+videoHtml(x.video)+'</div>'; }
-    html+='</div>';
-    box.innerHTML=html; box.hidden=false; if(btn) btn.textContent='收起';
-  } else {
-    box.hidden=true; if(btn) btn.textContent='详情';
-  }
-}
+/* 保留旧入口（外部若仍有 data-act="wd-detail" 也能用），实际详情走 hlToggleDetail */
+function wdToggleDetail(key,btn){ hlToggleDetail(key,btn); }
 // 首屏排班已推迟到 SMAP 定义之后执行（见下方）
 
 
@@ -2394,6 +2376,10 @@ const HEALTH_SLOTS = [
    detail:"① 十指指腹从前额梳到后脑，按压 60 次\n② 耳后沿颈侧轻推到锁骨 20 次\n③ 眼周由内向外轻抚 20 次\n④ 搓热掌心闭眼热敷 30 秒",
    video:"https://search.bilibili.com/all?keyword=头皮按摩+眼周放松"}
 ];
+/* 工作日作息 = 「日常保健」4 项（同一份数据，勿另建一套；定义必须晚于 HEALTH_SLOTS 以避开 TDZ） */
+const WORKDAY_ROUTINE = HEALTH_SLOTS.map(function(s){
+  return {key:s.key, name:s.name, time:s.time, purpose:s.purpose, detail:s.detail, video:s.video};
+});
 const HEALTH_RULES = { v:1, source:"钉钉健康提醒", days:180 };
 function buildHealthSeq(start, rules){
   const seq=[], s0=parse(start);
@@ -2465,6 +2451,14 @@ function setHealthAll(ds,on){        // 一键完成 / 撤销当天全部 4 项
   render();
   if(SYNC!=="nocfg") cloudSave();
 }
+/* 工作日：这 4 项已在「锻炼」卡的工作日作息里给出，此处只做指引，不再重复渲染一套勾选框 */
+function healthMergedNoteHtml(ds){
+  const t=ds||today();
+  return '<div class="wd-embedded">'
+    +'<div class="wd-embedded-h"><span class="badge" style="background:'+META["日常保健"].color+'">'+META["日常保健"].short+'</span>'
+    +'4 项已并入「锻炼 · 工作日作息」 <span class="wd-count">'+healthDoneCount(t)+' / '+HEALTH_SLOTS.length+'</span></div>'
+    +'<div style="margin-top:6px;font-size:12px;color:var(--muted);white-space:normal;line-height:1.55">在「工作日作息」里逐项勾选即可，与本卡同一份记录；4 项全勾 = 当日「日常保健」打卡完成。</div></div>';
+}
 function healthItemsHtml(ds){
   const t=ds||today();
   return '<div class="wd-embedded">'
@@ -2483,10 +2477,15 @@ function healthItemsHtml(ds){
     }).join("")
     +'</div></div>';
 }
-function hlToggleDetail(key){
-  let box=null, btn=null;
-  document.querySelectorAll('.wd-detail').forEach(function(n){ if(n.dataset.hdetail===key) box=n; });
-  document.querySelectorAll('.wd-detail-btn').forEach(function(b){ if(b.dataset.act==="health-detail" && b.dataset.key===key) btn=b; });
+function hlToggleDetail(key,btn){
+  // 同一组 4 项可能同时出现在「锻炼卡·工作日作息」和「日常保健卡」两处，必须按按钮所在容器就近查找
+  let box=null;
+  const host=(btn&&btn.closest)?btn.closest('.wd-embedded, .wd-card'):null;
+  const boxes=host?host.querySelectorAll('.wd-detail'):document.querySelectorAll('.wd-detail');
+  boxes.forEach(function(n){ if(n.dataset.hdetail===key) box=n; });
+  if(!btn){
+    document.querySelectorAll('.wd-detail-btn').forEach(function(b){ if(b.dataset.act==="health-detail" && b.dataset.key===key) btn=b; });
+  }
   if(!box) return;
   const x=HEALTH_SLOTS.filter(function(o){ return o.key===key; })[0]; if(!x) return;
   if(box.hidden){
@@ -3293,11 +3292,11 @@ document.addEventListener("change",function(e){
 });
 document.addEventListener("click",function(e){
   const el=e.target.closest('[data-act="wd-detail"]'); if(!el) return;
-  wdToggleDetail(el.dataset.key);
+  wdToggleDetail(el.dataset.key, el);
 });
 document.addEventListener("click",function(e){
   const el=e.target.closest('[data-act="health-detail"]'); if(!el) return;   // 日常保健：子动作详情展开/收起
-  hlToggleDetail(el.dataset.key);
+  hlToggleDetail(el.dataset.key, el);
 });
 document.getElementById("btnRetry").addEventListener("click",function(){ retryNow(); });
 document.getElementById("btnDiag").addEventListener("click",function(){ cloudSelfTest(); });
@@ -3330,7 +3329,7 @@ document.getElementById("btnExportCsv").addEventListener("click",function(){
   ITEMS.forEach(function(it){ const o=RECORDS[it]||{}; Object.keys(o).forEach(function(ds){ const v=o[ds]; rows.push([it,ds,"已打卡",(v&&v.ts)?new Date(v.ts).toLocaleString("zh-CN"):""]); }); });
   if(RECORDS.habits) Object.keys(RECORDS.habits).forEach(function(id){ const o=RECORDS.habits[id]||{}; Object.keys(o).forEach(function(ds){ const v=o[ds]; rows.push(["习惯(历史)",ds,(v===true?"已完成":(v===false?"未完成":"—")),""]); }); });
   if(RECORDS.taskflow && RECORDS.taskflow.todos) RECORDS.taskflow.todos.forEach(function(x){ rows.push(["待办任务",(x.completedAt||x.deadline||"").slice(0,10),(x.deleted?"已删除":(x.done?"已完成":(tfIsOverdue(x)?"已逾期":"进行中"))),x.title+(x.category?(" #"+x.category):"")]); });
-  if(RECORDS["workday"]) Object.keys(RECORDS["workday"]).forEach(function(ds){ const o=RECORDS["workday"][ds]; if(!o) return; WORKDAY_ROUTINE.forEach(function(x){ if(o[x.key]) rows.push(["工作日作息·在司运动",ds,"已完成",x.key]); }); });
+  if(RECORDS.health) Object.keys(RECORDS.health).forEach(function(ds){ const o=RECORDS.health[ds]; if(!o) return; HEALTH_SLOTS.forEach(function(x){ if(o[x.key]) rows.push(["日常保健·子项",ds,"已完成",x.time+" "+x.name]); }); });
   const csv="﻿"+rows.map(function(r){return r.map(function(c){return '"'+String(c==null?"":c).replace(/"/g,'""')+'"';}).join(",");}).join("\r\n");
   const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
   const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="签到记录_"+today()+".csv"; a.click(); URL.revokeObjectURL(a.href);
@@ -3485,12 +3484,12 @@ function renderHome(){
         card += "<button class=\"linkbtn sm\" data-act=\"home-toggle\" data-it=\""+hk+"\" data-home-lbl=\""+hk+"\">"+(open?"收起内容":"展开内容")+"</button>"
           + "</div>"
           + mctrl;
-        if(te && isWd) card+=renderWorkdayItemsBlock(it,t);   // 工作日：在锻炼计划卡内嵌入在司运动
-        if(hlAll) card+=healthItemsHtml(t);                    // 日常保健：4 个时段子动作逐项勾选（与钉钉提醒一一对应）
+        if(te && isWd) card+=renderWorkdayItemsBlock(it,t);   // 工作日：在锻炼计划卡内嵌入工作日作息（日常保健 4 项）
+        if(hlAll) card+=(isWorkday(t)?healthMergedNoteHtml(t):healthItemsHtml(t));   // 工作日：已在「工作日作息」里勾，避免同一屏两套勾选框
         card+="</div>";
         html+=card;
       } else if(isWd){
-        html+=renderWorkdayCardForItem(it,t)+mctrl;           // 工作日但无锻炼计划：整卡为在司运动 + 生理期切换
+        html+=renderWorkdayCardForItem(it,t)+mctrl;           // 工作日但无锻炼计划：整卡为工作日作息（日常保健 4 项）+ 生理期切换
       } else if(it==="锻炼"){
         html+="<div class=\"tcard\">"
           + "<div class=\"tcard-h\">"
@@ -4668,7 +4667,7 @@ function renderHomePC(){
     html+='<div class="pcv-card">'
       +'<div class="pcv-task-head">'
       +'<span class="pcv-dot" style="background:'+META[it].color+'">'+META[it].short+'</span>'
-      +'<span class="pcv-task-name">'+(e?escapeHtml(summaryOf(it,e)):(isWd?'工作日作息 · 在司运动':(it==="锻炼"?'本周运动模式':'今日无安排')))+'</span>'
+      +'<span class="pcv-task-name">'+(e?escapeHtml(summaryOf(it,e)):(isWd?'工作日作息 · 日常保健':(it==="锻炼"?'本周运动模式':'今日无安排')))+'</span>'
       +(e&&e.menstrual?'<span class="pcv-badge pcv-badge-pink">生理期</span>':'')
       +badge
       +(e?'<span class="pcv-expand" data-act="home-toggle" data-it="'+hk+'">'+(open?'收起 ⌃':'展开 ⌄')+'</span>':'')
@@ -4692,10 +4691,10 @@ function renderHomePC(){
         +'<button class="pcv-linkbtn" data-act="home-toggle" data-it="'+hk+'" data-home-lbl="'+hk+'">'+(open?'收起内容':'展开内容')+'</button>'
         +'</div>';
       if(isWd) html+=renderWorkdayItemsBlock(it,t);
-      if(it==="日常保健") html+=healthItemsHtml(t);            // 日常保健：4 个时段子动作逐项勾选（与钉钉提醒一一对应）
+      if(it==="日常保健") html+=(isWorkday(t)?healthMergedNoteHtml(t):healthItemsHtml(t));   // 日常保健：4 个时段子动作逐项勾选；工作日已并入工作日作息
     } else if(isWd){
-      html+='<div class="pcv-task-meta">健身打卡 · 工作日必做（无论当天是否安排训练，工作日都要执行）</div>'
-        +renderWorkdayItemsBlock(it,t);
+      html+='<div class="pcv-task-meta">工作日必做 · 日常保健 '+HEALTH_SLOTS.length+' 项（与「日常保健」同一份勾选）</div>'
+        +renderWorkdayItemsBlock(it,t,true);
     } else if(it==="锻炼"){
       html+='<div class="pcv-task-meta">今日无训练安排 · 可在此切换本周为生理期运动</div>';
     } else {
