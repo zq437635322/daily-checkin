@@ -3379,7 +3379,8 @@ function renderHome(){
       a+=doneCount(it); b+=seqOf(it).length;
       const te=activeEntryToday(it);   // 完成制顺延：显示第一项未完成（日期<=今天）的任务，昨天没完成则今天仍显示它
       const hk="h-"+it;                                   // 首页详情区的唯一 key
-      const mctrl=(it==="锻炼"?menstrualCtrlHtml():"");    // 生理期模式切换控件（始终可点）
+      const fitToday=(it==="锻炼")?(seqOf(it).filter(function(x){return x.date===t;})[0]||null):null;
+      const mctrl=(it==="锻炼"&&(te||fitToday)?menstrualCtrlHtml():"");   // 生理期模式切换：仅「当天安排了锻炼任务」时显示
       if(te){
         const ok=isChecked(it,te.date);
         if(ok) todayDone++;
@@ -3411,12 +3412,15 @@ function renderHome(){
         card+="</div>";
         html+=card;
       } else if(it==="锻炼"){
+        const nxf=nextScheduled(it);
+        const ttl=fitToday?"今日训练已完成":"今日无训练安排";
+        const sub=fitToday?"已完成今日训练 · 已同步云端":(nxf?("下次训练 "+nxf.date):"今天没有「锻炼」的计划");
         html+="<div class=\"tcard\">"
           + "<div class=\"tcard-h\">"
           + "<span class=\"badge\" style=\"background:"+META[it].color+"\">"+META[it].short+"</span>"
-          + "<span class=\"tname\">本周运动模式</span>"
+          + "<span class=\"tname\">"+ttl+"</span>"
           + "</div>"
-          + "<div class=\"tcard-b\" style=\"font-size:12px;color:var(--muted)\">今日无训练安排 · 可在此切换本周为生理期运动</div>"
+          + "<div class=\"tcard-b\" style=\"font-size:12px;color:var(--muted)\">"+escapeHtml(sub)+"</div>"
           + mctrl
           + "</div>";
       } else {
@@ -4574,7 +4578,8 @@ function renderHomePC(){
     if(it==="待办"){ html+=renderHomeTodoCardPC(t); return; }
     const e=activeEntryToday(it), hk="h-"+it, open=e?homeOpen(hk):false;   // 完成制顺延：显示第一项未完成（日期<=今天）的任务
     const ok=e?isChecked(it,e.date):false;
-    const mctrl=(it==="锻炼"?menstrualCtrlHtml():"");        // 生理期模式切换控件（始终可点）
+    const fitToday=(it==="锻炼")?(seqOf(it).filter(function(x){return x.date===t;})[0]||null):null;
+    const mctrl=(it==="锻炼"&&(e||fitToday)?menstrualCtrlHtml():"");      // 生理期模式切换：仅「当天安排了锻炼任务」时显示
     const catchup=(e && e.date<t);   // 补打卡：原计划日早于今天
     const daysAgo=(e&&e.date<t)?Math.round((parse(t)-parse(e.date))/86400000):0;
     const overdueOver=(e && e.date<t) && daysAgo>3 && !isSkipped(it,e.date);   // 超过 3 天无法补卡 → 可跳过
@@ -4585,7 +4590,7 @@ function renderHomePC(){
     html+='<div class="pcv-card">'
       +'<div class="pcv-task-head">'
       +'<span class="pcv-dot" style="background:'+META[it].color+'">'+META[it].short+'</span>'
-      +'<span class="pcv-task-name">'+(e?escapeHtml(summaryOf(it,e)):(it==="锻炼"?'本周运动模式':'今日无安排'))+'</span>'
+      +'<span class="pcv-task-name">'+(e?escapeHtml(summaryOf(it,e)):(it==="锻炼"?(fitToday?'今日训练已完成':'今日无训练安排'):'今日无安排'))+'</span>'
       +(e&&e.menstrual?'<span class="pcv-badge pcv-badge-pink">生理期</span>':'')
       +badge
       +(e?'<span class="pcv-expand" data-act="home-toggle" data-it="'+hk+'">'+(open?'收起 ⌃':'展开 ⌄')+'</span>':'')
@@ -4610,7 +4615,8 @@ function renderHomePC(){
         +'</div>';
       if(it==="日常保健") html+=healthItemsHtml(t);             // 日常保健：4 个时段子动作逐项勾选（与钉钉提醒一一对应）
     } else if(it==="锻炼"){
-      html+='<div class="pcv-task-meta">今日无训练安排 · 可在此切换本周为生理期运动</div>';
+      const nxf=nextScheduled(it);
+      html+='<div class="pcv-task-meta">'+(fitToday?'已完成今日训练 · 已同步云端':(nxf?('下次训练 '+nxf.date):'今天没有「锻炼」的计划'))+'</div>';
     } else {
       const nx=nextScheduled(it);
       html+='<div class="pcv-task-meta">'+(nx?('本类型已追上计划 · 下次安排 '+nx.date):('今天没有「'+escapeHtml(it)+'」的计划'))+'</div>';
