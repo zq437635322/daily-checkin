@@ -1785,7 +1785,7 @@ body.mode-mobile #view-wiki #kbDocTitle{background:#f6f7f9;color:var(--muted);cu
         <button class="btn" id="btnClearAll">清空全部</button>
         <input type="file" id="fileIn" accept="application/json,.json" hidden>
       </div>
-      <div style="margin-top:8px;font-size:11px;color:var(--muted)">页面版本 <b id="buildVer">2026-10-27 16:00</b> · 若界面内容与你刚提的改动不一致，请强制刷新（电脑 Ctrl+F5 / 手机下拉刷新）</div>
+      <div style="margin-top:8px;font-size:11px;color:var(--muted)">页面版本 <b id="buildVer">2026-10-27 16:12</b> · 若界面内容与你刚提的改动不一致，请强制刷新（电脑 Ctrl+F5 / 手机下拉刷新）</div>
     </div>
      </div>
     </div>
@@ -2126,15 +2126,56 @@ function syncFitness(allowSave){
   return need;
 }
 
-/* ================= 工作日判断工具（页面当前无调用，保留备用：周一~周五 + 调休补班，不含法定假日）
-   ⚠️ 2026-10-27：「工作日作息 · 在司运动」区块已整体去掉——它与「日常保健」4 项内容完全重复，
-      日常保健卡自己就带 4 个时段（09:20 / 10:58 / 14:00 / 17:30），不再单独渲染一套勾选框。 */
+/* ================= 工作日作息（内容 = 「日常保健」4 项） =================
+   工作日真正要做的就是这 4 次碎片动作：
+       09:20 按摩头皮 · 抚平眼横纹 / 10:58 活动肩颈 · 眼保健操 /
+       14:00 活动肩颈 · 眼保健操 / 17:30 按摩头皮 · 抚平眼横纹
+   规则：只要是工作日（周一~周五，含调休补班；不含法定假日）就显示，与「锻炼」当天是否排训练无关。
+
+   ⚠️ 数据唯一真相源 = 「日常保健」模块：勾选键沿用 HEALTH_SLOTS[].key，记录存 RECORDS.health，
+      勾一处两处同步；4 项全勾 → 自动完成当日「日常保健」打卡（setHealth → syncHealthChecked）。
+      因此 WORKDAY_ROUTINE 必须定义在 HEALTH_SLOTS 之后（见下方「日常保健」区块末尾），
+      这里只保留调用方函数。 */
 function isWorkday(ds){
   if(isHolidayDate(ds)) return false;                 // 法定假日休息
   const d=new Date(ds+"T00:00:00"); const dow=d.getDay();
   if(dow>=1 && dow<=5) return true;                   // 周一~周五
   const mk=(HOLIDAY_2026&&HOLIDAY_2026.makeup)||[];
   return mk.indexOf(ds)>=0;                           // 调休补班（周末上班）
+}
+/* 工作日作息与「日常保健」共用一份勾选：读写 RECORDS.health */
+function isWdDone(ds,key){ return isHealthDone(ds,key); }
+function setWd(key,ds,val){ setHealth(key,ds,val); }
+function renderWorkdayItemsHTML(ds){
+  if(!ds) ds=today();
+  return WORKDAY_ROUTINE.map(function(x){
+    const on=isHealthDone(ds,x.key);
+    return '<div class="wd-item'+(on?" on":"")+'">'
+      +'<label class="wd-check"><input type="checkbox" data-act="health-toggle" data-key="'+escapeHtml(x.key)+'" data-ds="'+ds+'" '+(on?"checked":"")+'/></label>'
+      +'<span class="wd-main"><span class="wd-name">'+escapeHtml(x.time+" "+x.name)+'</span>'
+      +'<span class="wd-meta">'+escapeHtml(x.purpose)+'</span></span>'
+      +'<button type="button" class="wd-detail-btn" data-act="health-detail" data-key="'+escapeHtml(x.key)+'" data-ds="'+ds+'">详情</button>'
+      +'</div>'
+      +'<div class="wd-detail" data-hdetail="'+escapeHtml(x.key)+'" hidden></div>';
+  }).join("");
+}
+function renderWorkdayItemsBlock(it,ds,noHead){
+  const t=ds||today();
+  const total=HEALTH_SLOTS.length, done=healthDoneCount(t);
+  const head=noHead?"":('<div class="wd-embedded-h"><span class="badge" style="background:'+META[it].color+'">'+META[it].short+'</span>工作日作息 · 日常保健 <span class="wd-count">'+done+' / '+total+'</span></div>');
+  return '<div class="wd-embedded">'
+    +head
+    +'<div class="wd-list" style="margin-top:'+(noHead?2:8)+'px">'+renderWorkdayItemsHTML(t)+'</div></div>';
+}
+/* 工作日但没有锻炼计划时：整张卡就是「工作日作息 · 日常保健」4 项 */
+function renderWorkdayCardForItem(it,ds){
+  const t=ds||today();
+  const total=HEALTH_SLOTS.length, done=healthDoneCount(t);
+  return '<div class="tcard wd-card">'
+    +'<div class="tcard-h"><span class="badge" style="background:'+META[it].color+'">'+META[it].short+'</span><span class="tname">工作日作息 · 日常保健</span>'
+    +'<span class="wd-count">'+done+' / '+total+'</span></div>'
+    +'<div class="tcard-b" style="font-size:12px;color:var(--muted)">工作日必做 · 与「日常保健」共用同一份勾选（勾一处两处同步）</div>'
+    +'<div class="wd-list">'+renderWorkdayItemsHTML(t)+'</div></div>';
 }
 // 首屏排班已推迟到 SMAP 定义之后执行（见下方）
 
@@ -2322,6 +2363,10 @@ const HEALTH_SLOTS = [
    detail:"① 十指指腹从前额梳到后脑，按压 60 次\n② 耳后沿颈侧轻推到锁骨 20 次\n③ 眼周由内向外轻抚 20 次\n④ 搓热掌心闭眼热敷 30 秒",
    video:"https://search.bilibili.com/all?keyword=头皮按摩+眼周放松"}
 ];
+/* 工作日作息 = 「日常保健」4 项（同一份数据，勿另建一套；定义必须晚于 HEALTH_SLOTS 以避开 TDZ） */
+const WORKDAY_ROUTINE = HEALTH_SLOTS.map(function(s){
+  return {key:s.key, name:s.name, time:s.time, purpose:s.purpose, detail:s.detail, video:s.video};
+});
 const HEALTH_RULES = { v:1, source:"钉钉健康提醒", days:180 };
 function buildHealthSeq(start, rules){
   const seq=[], s0=parse(start);
@@ -3381,6 +3426,7 @@ function renderHome(){
       const te=activeEntryToday(it);   // 完成制顺延：显示第一项未完成（日期<=今天）的任务，昨天没完成则今天仍显示它
       const hk="h-"+it;                                   // 首页详情区的唯一 key
       const fitToday=(it==="锻炼")?(seqOf(it).filter(function(x){return x.date===t;})[0]||null):null;
+      const isWd=(it==="锻炼" && isWorkday(t));            // 工作日作息（日常保健 4 项）归到锻炼卡片
       const mctrl=(it==="锻炼"&&(te||fitToday)?menstrualCtrlHtml():"");   // 生理期模式切换：仅「当天安排了锻炼任务」时显示
       if(te){
         const ok=isChecked(it,te.date);
@@ -3409,9 +3455,12 @@ function renderHome(){
         card += "<button class=\"linkbtn sm\" data-act=\"home-toggle\" data-it=\""+hk+"\" data-home-lbl=\""+hk+"\">"+(open?"收起内容":"展开内容")+"</button>"
           + "</div>"
           + mctrl;
-        if(hlAll) card+=healthItemsHtml(t);                    // 日常保健：4 个时段子动作逐项勾选（与钉钉提醒一一对应）
+        if(te && isWd) card+=renderWorkdayItemsBlock(it,t);    // 工作日：锻炼计划卡内嵌「工作日作息 · 日常保健」4 项
+        if(hlAll && !isWorkday(t)) card+=healthItemsHtml(t);   // 日常保健：周末/节假日才在本卡逐项勾选（工作日已在锻炼卡）
         card+="</div>";
         html+=card;
+      } else if(isWd){
+        html+=renderWorkdayCardForItem(it,t)+mctrl;           // 工作日但无锻炼计划：整卡为「工作日作息 · 日常保健」
       } else if(it==="锻炼"){
         const nxf=nextScheduled(it);
         const ttl=fitToday?"今日训练已完成":"今日无训练安排";
@@ -4580,6 +4629,7 @@ function renderHomePC(){
     const e=activeEntryToday(it), hk="h-"+it, open=e?homeOpen(hk):false;   // 完成制顺延：显示第一项未完成（日期<=今天）的任务
     const ok=e?isChecked(it,e.date):false;
     const fitToday=(it==="锻炼")?(seqOf(it).filter(function(x){return x.date===t;})[0]||null):null;
+    const isWd=(it==="锻炼" && isWorkday(t));                // 工作日作息（日常保健 4 项）归到锻炼卡片
     const mctrl=(it==="锻炼"&&(e||fitToday)?menstrualCtrlHtml():"");      // 生理期模式切换：仅「当天安排了锻炼任务」时显示
     const catchup=(e && e.date<t);   // 补打卡：原计划日早于今天
     const daysAgo=(e&&e.date<t)?Math.round((parse(t)-parse(e.date))/86400000):0;
@@ -4588,10 +4638,11 @@ function renderHomePC(){
     if(e && ok) badge='<span class="pcv-badge pcv-badge-green">已完成</span>';
     else if(e && isSkipped(it,e.date)) badge='<span class="pcv-badge" style="background:#94a3b8;color:#fff">已跳过</span>';
     else if(e) badge= catchup ? '<span class="pcv-badge" style="background:#f59e0b;color:#fff">待补打卡</span>' : '<span class="pcv-badge pcv-badge-blue">今日待打卡</span>';
+    else if(isWd) badge='<span class="pcv-badge pcv-badge-green">工作日必做</span>';
     html+='<div class="pcv-card">'
       +'<div class="pcv-task-head">'
       +'<span class="pcv-dot" style="background:'+META[it].color+'">'+META[it].short+'</span>'
-      +'<span class="pcv-task-name">'+(e?escapeHtml(summaryOf(it,e)):(it==="锻炼"?(fitToday?'今日训练已完成':'今日无训练安排'):'今日无安排'))+'</span>'
+      +'<span class="pcv-task-name">'+(e?escapeHtml(summaryOf(it,e)):(isWd?'工作日作息 · 日常保健':(it==="锻炼"?(fitToday?'今日训练已完成':'今日无训练安排'):'今日无安排')))+'</span>'
       +(e&&e.menstrual?'<span class="pcv-badge pcv-badge-pink">生理期</span>':'')
       +badge
       +(e?'<span class="pcv-expand" data-act="home-toggle" data-it="'+hk+'">'+(open?'收起 ⌃':'展开 ⌄')+'</span>':'')
@@ -4614,7 +4665,11 @@ function renderHomePC(){
         +'<button class="'+cls+'" data-act="'+act+'" data-it="'+it+'" data-ds="'+e.date+'">'+lbl+'</button>'
         +'<button class="pcv-linkbtn" data-act="home-toggle" data-it="'+hk+'" data-home-lbl="'+hk+'">'+(open?'收起内容':'展开内容')+'</button>'
         +'</div>';
-      if(it==="日常保健") html+=healthItemsHtml(t);             // 日常保健：4 个时段子动作逐项勾选（与钉钉提醒一一对应）
+      if(isWd) html+=renderWorkdayItemsBlock(it,t);             // 工作日：锻炼卡内嵌「工作日作息 · 日常保健」4 项
+      if(it==="日常保健" && !isWorkday(t)) html+=healthItemsHtml(t);   // 日常保健：周末/节假日才在本卡逐项勾选（工作日已在锻炼卡）
+    } else if(isWd){
+      html+='<div class="pcv-task-meta">工作日必做 · '+healthDoneCount(t)+' / '+HEALTH_SLOTS.length+' 项（与「日常保健」同一份勾选）</div>'
+        +renderWorkdayItemsBlock(it,t,true);
     } else if(it==="锻炼"){
       const nxf=nextScheduled(it);
       html+='<div class="pcv-task-meta">'+(fitToday?'已完成今日训练 · 已同步云端':(nxf?('下次训练 '+nxf.date):'今天没有「锻炼」的计划'))+'</div>';
